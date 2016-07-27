@@ -1,0 +1,32 @@
+
+
+{  
+   "ietf-mud:supportInformation":{  
+      "lastUpdate":"2016-05-05T20:00:50Z",
+      "cacheValidity":1440
+   },
+   "ietf-acl:access-list":{  
+      "ietf-mud:direction":"inbound",
+      "access-list-entries":{  
+         "ace":[  
+            {  
+               "rule-name":"only-plc-controller",
+               "matches":{  
+                  "ietf-mud:controller" :
+		    "https://simantec-mud.com/.well-known/mud/v1/s7-1200",
+                  "protocol":"tcp",
+                  "destination-port-range":{  
+                     "lower-port":102,
+                     "upper-port":102
+                  }
+               },
+
+               "actions":{  
+                  "packet-handling":"permit"
+               }
+            }
+         ]
+      }
+   }
+}
+

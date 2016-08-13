@@ -1,0 +1,137 @@
+{
+   "ietf-mud:support-information": {
+      "last-update": "2016-07-18T20:00:50Z",
+      "cache-validity": 1440
+      },
+   "ietf-access-control-list:access-lists":  {
+     "acl": [ {
+      "acl-name": "inbound-stuff",
+      "acl-type" : "ipv4-acl",
+      "ietf-mud:direction" : "to-device",
+      "access-list-entries": {
+         "ace": [
+            {
+               "rule-name": "access-cloud",
+               "matches": {
+          "ietf-acldns:src-hostname": "lighting-system.example.com",
+                  "protocol" : 6,
+                  "source-port-range" : {
+                     "lower-port" : 443,
+                     "upper-port" : 443
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ],
+	    [
+            {
+               "rule-name": "incoming-port-1",
+               "matches": {
+                  "protocol" : 6,
+		  "same-manufacturer" : [null],
+                  "destination-port-range" : {
+                     "lower-port" : 11095,
+                     "upper-port" : 11095
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ],
+	    [
+            {
+               "rule-name": "incoming-port-2",
+               "matches": {
+                  "protocol" : 6,
+		  "same-manufacturer" : [null],
+                  "destination-port-range" : {
+                     "lower-port" : 9543,
+                     "upper-port" : 9543,
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ]
+	    [,
+            {
+               "rule-name": "incoming-port-1",
+               "matches": {
+                  "protocol" : 6,
+		  "same-manufacturer" : [null],
+                  "destination-port-range" : {
+                     "lower-port" : 80,
+                     "upper-port" : 80
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ],
+           }
+           }
+           }
+         },
+         {
+      "acl-name": "outbound-stuff",
+      "acl-type" : "ipv4-acl",
+      "ietf-mud:direction" : "from-device",
+      "access-list-entries": {
+         "ace": [
+            {
+               "rule-name": "access-cloud",
+               "matches": {
+          "ietf-acldns:dst-hostname": "thermostat.example.com",
+                  "protocol" : 6,
+                  "destination-port-range" : {
+                     "lower-port" : 443,
+                     "upper-port" : 443
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ],
+	    [
+            {
+               "rule-name": "outgoing-port-1",
+               "matches": {
+                  "protocol" : 6,
+		  "same-manufacturer" : [null],
+                  "source-port-range" : {
+                     "lower-port" : 11095,
+                     "upper-port" : 11095
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ],
+	    [
+            {
+               "rule-name": "outgoing-port-2",
+               "matches": {
+                  "protocol" : 6,
+		  "same-manufacturer" : [null],
+                  "source-port-range" : {
+                     "lower-port" : 9543,
+                     "upper-port" : 9543,
+                     }
+                  },
+               "actions" : {
+                 "permit" : [null]
+                 }
+              }
+            ]
+           }
+         }
+        ]
+    }
+}

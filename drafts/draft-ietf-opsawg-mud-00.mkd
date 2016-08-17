@@ -68,11 +68,12 @@ normative:
         value: 802.1AB
 
 informative:
-   I-D.lear-mud-framework:
+   RFC1984:
    RFC3339:
    RFC7042:
+   RFC7452:
+   RFC7488:
    ISO.8601.1988:
-
    IEEE8021AR:
       title: Secure Device Identity
       author:
@@ -81,6 +82,16 @@ informative:
         name: IEEE
         value: 802.1AR
       date: 1998
+   FW95:
+      title: Building Internet Firewalls
+      author:
+         -
+          name: D. Brent Chapman
+          ins: D.B. Chapman
+         -
+          name: Elizabeth Zwicky
+          ins: E. Zwicky
+      date: 11-1995
 
 --- abstract
 
@@ -94,14 +105,149 @@ extension and a means to sign and verify the descriptions.
 Introduction 
 ============
 
-Manufacturer Usage Descriptions (MUDs) provide advice to end networks
-on how to treat specific classes of devices.  The MUD architecture is
-explained in {{I-D.lear-mud-framework}}.  The files that are retrieved
-are intended to be closely aligned to existing network architectures
-so that they are easy to deploy.  We make use of YANG {{RFC6020}}
-because of the time and effort spent to develop accurate and adequate
-models for use by network devices.  JSON is used as a serialization
-for compactness and readability.
+The Internet has largely been constructed on general purpose
+computers; those devices that may be used for a purpose that is
+specified by those who buy the device.  {{RFC1984}} presumed that an
+end device would be most capable of protecting itself.  This made
+sense when the typical device was a workstation or a mainframe, and it
+continues to make sense for general purpose computing devices today,
+including laptops, smart phones, and tablets.
+
+{{RFC7452}} discusses design patterns for, and poses questions about,
+smart objects.  Let us then posit a group of objects that are
+specifically not general purpose computers.  These devices therefore
+have a purpose to their use.  By definition, therefore, all other
+purposes are NOT intended.  The combination of these two statements
+can be restated as a manufacturer usage description (MUD) that can
+be applied at various points within a network.  Although this memo may
+seem to stress access requirements, usage intent also consists of
+quality of service needs a device may have.
+
+We use the notion of "manufacturer" loosely in this context, to simply
+mean the entity or organization that will state how a device is
+intended to be used.  In the context of a lightbulb, this might indeed
+be the lightbulb manufacturer.  In the context of a smarter device
+that has a built in Linux stack, it might be integrator of that
+device.  The key points are that the device itself is expected to
+serve a limited purpose, and that there may exist an organization in
+the supply chain of that device that will take responsibility for
+informing the network about that purpose.
+
+The converse statement holds that general computing systems will
+benefit very little from MUD, as their manufacturers cannot envision a
+specific communication pattern to describe.
+
+The intent of MUD is to therefore solve for the following problems:
+
+- Substantially reduce the threat surface on a device entering a
+network to those communications intended by the manufacturer.
+- Provide for a means to scale network policies to the ever-increasing
+number types of devices in the network.
+- Provide a means to address at least some vulnerabilities in a way
+that is faster than it might take to update systems.  This will be
+particularly true for systems that are no longer supported by their
+manufacturer.
+- Keep the cost of implementation of such a system to the bare minimum.
+
+No matter how good a MUD-enabled network is, it will never replace the
+need for manufacturers to patch vulnerabilities.  It may, however,
+provide network administrators with some additional protection when
+those vulnerabilities exist.
+
+A Simple Example
+----------------
+A light bulb is intended to light a room.  It may be remotely
+controlled through the network; and it may make use of a rendezvous
+service of some form that an app on smart phone accesses.  What we can
+say about that light bulb, then, is that all other network access is
+unwanted.  It will not contact a news service, nor speak to the
+refrigerator, and it has no need of a printer or other devices.  It
+has no Facebook friends.  Therefore, an access list applied to it that
+states that it will only connect to the single rendezvous service will
+not impede the light bulb in performing its function, while at the same
+time allowing the network to provide both it and other devices an
+additional layer of protection.
+
+
+Determining Intended Use
+------------------------
+The notion of intended use is in itself not new.  Network
+administrators apply access lists every day to allow for only such
+use.  This notion of white listing was well described by Chapman and
+Zwicky in {{FW95}}.  Programmatically profiling systems have existed
+for years as well.  These systems make use of heuristics that take
+at least some time to assert what a system is.
+
+A system could just as easily tell the network what sort of protection
+it requires without going into what sort of system it is.  This would,
+in effect, be the converse of {{RFC7488}}.  In seeking a general
+purpose solution, however, we assume that a device has so few
+capabilities that it will implement the least necessary capabilities
+to function properly.  This is a basic economic constraint.  Unless
+the network would refuse access to such a device, its developers would
+have no reason to implement such an approach.  To date, such an
+assertion has held true.
+
+Finding A Policy: The MUD URL
+-----------------------------
+
+Our work begins, therefore, with the device emitting a Universal
+Resource Locator (URL) {{RFC3986}}.  This URL may serves both to
+classify the device type and to provide a means to locate a policy
+file.
+
+In this memo three means are defined to emit the MUD URL.  One is a
+DHCP option{{RFC2131}},{{RFC3315}} that the DHCP client uses to inform
+the DHCP server.  The DHCP server may take further actions, such as
+retrieve the URL or otherwise pass it along to network management
+system or controller.  The other method defined is an X.509
+constraint.  The IEEE has developed {{IEEE8021AR}} that provides a
+certificate-based approach to communicate device characteristics,
+which itself relies on {{RFC5280}}.  The MUD URL extension is
+non-critical, as required by IEEE 802.1AR. Finally, an LLDP frame is
+defined.
+
+
+Types of Policies
+-----------------
+
+When the MUD URL is resolved, the MUD controller retrieves a file that
+describes what sort of communications a device is designed to have.
+The manufacturer may specify either specific hosts for cloud based
+services or certain classes for access within an operational network.
+An example of a class might be "devices of a specified manufacturer
+type", where the manufacturer type itself is indicated simply by the
+authority of the MUD URL.  Another example might to allow or disallow
+local access.  Just like other policies, these may be combined.  For
+example:
+
+~~~~~~~~~~
+   Allow access to host controller.example.com with QoS AF11
+   Allow access to devices of the same manufacturer
+   Allow access to and from controllers who need to speak COAP
+   Allow access to local DNS/DHCP
+   Deny all other access
+~~~~~~~~~~
+
+To add a bit more depth that should not be a stretch of anyone's
+imagination, one could also make use of port-based access lists.  Thus
+a printer might have a description that states:
+
+~~~~~~~~~~
+   Allow access for port IPP or port LPD
+   Allow local access for port HTTP
+   Deny all other access
+~~~~~~~~~~
+
+In this way anyone can print to the printer, but local access would
+be required for the management interface.
+
+The files that are retrieved are intended to be closely aligned to
+existing network architectures so that they are easy to deploy.  We
+make use of YANG {{RFC6020}} because of the time and effort spent to
+develop accurate and adequate models for use by network devices.  JSON
+is used as a serialization for compactness and readability, relative
+to XML.
 
 The YANG modules specified here are extensions of
 {{I-D.ietf-netmod-acl-model}}.  The extensions to this model allow for
@@ -120,22 +266,11 @@ configured by local systems that have local topological knowledge.
 That is, the deployment populates the classes that the manufacturer
 specifies.
 
-In this memo three means are defined to emit the MUD URL.  One is a
-DHCP option{{RFC2131}},{{RFC3315}} that the DHCP client uses to inform
-the DHCP server.  The DHCP server may take further actions, such as
-retrieve the URL or otherwise pass it along to network management
-system or controller.  Finally, an LLDP frame is defined.
-
-The other method defined is an X.509 constraint.  The IEEE has
-developed {{IEEE8021AR}} that provides a certificate-based approach to
-communicate device characteristics, which itself relies on
-{{RFC5280}}.  The MUD URL extension is non-critical, as required by
-IEEE 802.1AR.
-
 Because manufacturers do not know who will be using their devices, it
 is important for functionality referenced in usage descriptions to be
 relatively ubiquitous, and therefore, mature.  Therefore, only a
-limited subset of NETCONF-like content is permitted.
+a limited subset YANG-based configuration of is permitted in a MUD file.
+
 
 Terminology
 -----------
@@ -163,6 +298,50 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
 {{RFC2119}}.
 
+The Manufacturer Usage Description Architecture
+-----------------------------------------------
+
+With these components laid out we now have the basis for an
+archicture.  This leads us to ASCII art.
+
+~~~~~~~~~~
+ .........................................
+ .                      ____________     .           _____________ 
+ .                     |            |    .          |             |
+ .                     |    MUD     |----->get URL->|   MUD       |
+ .                     | Controller |    .(https)   | File Server |
+ .  End system network |____________|<--MUD file<--<|_____________|
+ .                             .         .
+ .                             .         .
+ . _______                 _________     .
+ .|       |  (dhcp et al) | router  |    .
+ .| Thing |---->MUD URL-->|   or    |    .
+ .|_______|               | switch  |    .
+ .                        |_________|    .
+ .........................................
+~~~~~~~~~~		 
+{: #fig1 title="MUD Architecture"}
+
+In the above diagram, the switch or router collects MUD URLs and
+forwards them to the network management system for processing.  This
+happens in different ways, depending on how the URI is communicated.
+For instance, in the case of DHCP, the DHCP server might receive the
+URI and then process it.  In the case of IEEE 802.1X, the switch
+would tunnel the URI to the authentication server, who would then
+process it.
+
+The information returned by the web site is valid for the duration of
+the device's connection, or as specified in the description.  Thus if the
+device is mobile, when it moves on, any configuration in the switch is
+removed.  Similarly, from time to time the description may be
+refreshed, based on new capabilities or communication patterns or
+vulnerabilities.
+
+The web site is typically run by or on behalf of the manufacturer.
+Its domain name is that of the authority found in the MUD URL.  For
+legacy cases where Things cannot emit a URL, if the switch is able to
+determine the appropriate URI, it may proxy it, the trivial cases
+being a map between some registered device or port and a URL.
 
 
 The MUD Model and Semantic Meaning
@@ -809,7 +988,7 @@ subject.
 
 The new extension is identified as follows:
 
-  -- The MUD URI extension
+  -- The MUD URL extension
   id-pe-mud-url   OBJECT IDENTIFER ::= { id-pe TBD }
 
 

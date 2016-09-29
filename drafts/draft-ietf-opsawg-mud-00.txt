@@ -5,9 +5,9 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                                  R. Droms
 Intended status: Standards Track                           Cisco Systems
-Expires: February 18, 2017                                  D. Romascanu
+Expires: February 20, 2017                                  D. Romascanu
                                                                    Avaya
-                                                         August 17, 2016
+                                                         August 19, 2016
 
 
               Manufacturer Usage Description Specification
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on February 18, 2017.
+   This Internet-Draft will expire on February 20, 2017.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 1]
+Lear, et al.            Expires February 20, 2017               [Page 1]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 2]
+Lear, et al.            Expires February 20, 2017               [Page 2]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -165,7 +165,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 3]
+Lear, et al.            Expires February 20, 2017               [Page 3]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -221,7 +221,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 4]
+Lear, et al.            Expires February 20, 2017               [Page 4]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -277,7 +277,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 5]
+Lear, et al.            Expires February 20, 2017               [Page 5]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -333,7 +333,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 6]
+Lear, et al.            Expires February 20, 2017               [Page 6]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -389,7 +389,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 7]
+Lear, et al.            Expires February 20, 2017               [Page 7]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -445,7 +445,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 8]
+Lear, et al.            Expires February 20, 2017               [Page 8]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -501,7 +501,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017               [Page 9]
+Lear, et al.            Expires February 20, 2017               [Page 9]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -557,7 +557,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 10]
+Lear, et al.            Expires February 20, 2017              [Page 10]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -613,7 +613,7 @@ module ietf-mud {
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 11]
+Lear, et al.            Expires February 20, 2017              [Page 11]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -669,7 +669,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 12]
+Lear, et al.            Expires February 20, 2017              [Page 12]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -725,7 +725,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 13]
+Lear, et al.            Expires February 20, 2017              [Page 13]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -781,7 +781,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 14]
+Lear, et al.            Expires February 20, 2017              [Page 14]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -837,7 +837,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 15]
+Lear, et al.            Expires February 20, 2017              [Page 15]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -893,7 +893,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 16]
+Lear, et al.            Expires February 20, 2017              [Page 16]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -949,7 +949,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 17]
+Lear, et al.            Expires February 20, 2017              [Page 17]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1005,7 +1005,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 18]
+Lear, et al.            Expires February 20, 2017              [Page 18]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1061,7 +1061,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 19]
+Lear, et al.            Expires February 20, 2017              [Page 19]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1117,7 +1117,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 20]
+Lear, et al.            Expires February 20, 2017              [Page 20]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1173,7 +1173,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 21]
+Lear, et al.            Expires February 20, 2017              [Page 21]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1229,7 +1229,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 22]
+Lear, et al.            Expires February 20, 2017              [Page 22]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1285,7 +1285,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 23]
+Lear, et al.            Expires February 20, 2017              [Page 23]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1341,7 +1341,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 24]
+Lear, et al.            Expires February 20, 2017              [Page 24]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1397,7 +1397,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 25]
+Lear, et al.            Expires February 20, 2017              [Page 25]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1453,7 +1453,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 26]
+Lear, et al.            Expires February 20, 2017              [Page 26]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1509,7 +1509,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 27]
+Lear, et al.            Expires February 20, 2017              [Page 27]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1565,7 +1565,7 @@ Internet-Draft               MUD YANG Model                  August 2016
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 28]
+Lear, et al.            Expires February 20, 2017              [Page 28]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1621,7 +1621,7 @@ Appendix A.  Changes from Earlier Versions
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 29]
+Lear, et al.            Expires February 20, 2017              [Page 29]
 
 Internet-Draft               MUD YANG Model                  August 2016
 
@@ -1677,4 +1677,4 @@ Authors' Addresses
 
 
 
-Lear, et al.            Expires February 18, 2017              [Page 30]
+Lear, et al.            Expires February 20, 2017              [Page 30]

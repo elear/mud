@@ -24,32 +24,22 @@ author:
  -
     ins: R. Droms
     name: Ralph Droms
-    org: Cisco Systems
-    street: 55 Cambridge Parkway
-    city: Cambridge
-    state: MA
-    code: 02041
-    country: United States
-    phone: +1 617 621 1904
-    email: rdroms@cisco.com
+    phone: +1 978 376 3731
+    email: rdroms@gmail.com
  -
     ins: D. Romascanu
     name: Dan Romascanu
-    org:  Avaya
-    street: 26, HaRokhmim Str., Bldg. D
-    city: Holon
-    code: 5885849
-    country: Israel
-    phone: +972-3-645-8414
-    email: dromasca@avaya.com
+    email: dromasca@gmail.com
 
 normative:
+   RFC1123:
    RFC2119:
    RFC3986:
    RFC6020:
    I-D.ietf-netmod-acl-model:
    I-D.ietf-anima-bootstrapping-keyinfra:
    RFC2818:
+   RFC5905:
    RFC6991:
    RFC2131:
    RFC3315:
@@ -57,6 +47,7 @@ normative:
    RFC5280:
    RFC5652:
    RFC6092:
+   RFC6335:
    RFC7299:
    IEEE8021AB:
       title: IEEE Standard for Local and  Metropolitan Area Networks--
@@ -482,7 +473,8 @@ controller
 ----------
 This URI specifies a value that a controller will register with the
 network management station.  The element then is expanded to the set
-of hosts that are so registered.
+of hosts that are so registered.  This element may also be a URN.  In
+this case, the URN describes a well known service, such as DNS or NTP.
 
 In addition, some meta information is defined in order to determine
 when a usage description should be refreshed.
@@ -503,7 +495,11 @@ To keep things relatively simple in addition to whatever definitions
 exist, we also apply two additional default behaviors:
 
  * Anything not explicitly permitted is denied.
- * Local DNS, DHCP, and NTP are, by default, permitted to and from the device.
+ * Local DNS and NTP are, by default, permitted to and from the
+   device.
+
+An explicit description of the defaults can be found in {{defaults}}.
+ 
 
 What does a MUD URL look like? {#mudurl}
 ==============================
@@ -1279,6 +1275,39 @@ Description = the Manufacturer Usage Description (MUD) Uniform Resource Locator 
 
 Reference = < this document >
 
+The MUD Well Known Universal Resource Name (URNs)
+-------------------------------------------------
+
+Namespace ID: "urn:mud" is requested.
+Registration Information:
+   registration version number: 1
+   registration date: 2016-09-27
+
+ Declared registrant of the namespace:
+	 The Internet Engineering Task Force Ops Area WG
+ Designated contact person: opsawg@ietf.org
+ Declaration of syntactic structure:
+         Entries should follow the syntax of a TCP/UDP port service
+         name as found in Section 5.1 of {{RFC6335}}.
+ Relevant ancillary documentation: this document.
+ Identifier uniqueness considerations: see below
+ Identifier persistence considerations:	no resolution mechanism is
+	 anticipated.
+ Process of identifier assignment:
+	IANA is requested to maintain a table of entries that are
+   	 updated with the policy of "standards action".
+Process for identifier resolution: n/a
+Rules for Lexical Equivalence: exact ASCII match
+Conformance with URN Syntax: no special considerations. 
+Validation mechanism: a syntax grammar
+Scope: These identifiers are intended solely for use as a means to
+	 indicate standard MUD controllers.
+
+The following entries should be added to the "ietf:mud" name space:
+
+"ietf:mud:dns" refers to the service specified by {{RFC1123}}.
+"ietf:mud:ntp" refers to the service specified by {{RFC5905}}.
+
 
 Acknowledgments
 ===============
@@ -1296,28 +1325,267 @@ Changes from Earlier Versions
 
 RFC Editor to remove this section prior to publication.
 
-Draft -03 to -04:
- * add LLDP extension.
- * add Dan Romascanu as co-author.
-
-Draft -02 to -03:
- * incorporate domain name model.
- * discuss extensibility.
- * leave placeholder for LLDP TLV.
-
-Draft -01 to -02:
-
- * XML->JSON
- * Remove device versioning information from URL
- * Add PKIX and DHCP options
- * Add Content-type information
- * Clean up IANA considerations to match registration templates
- * Ralph Droms carried over as author from DHCP option.
- * Signing information
- * Expanded Security Considerations
- * Add directionality for both packets and flows.
- * add previous-mud-file
-
 Draft -00 to -01:
+ * Fix cert trust text.
+ * change supportInformation to meta-info
+ * Add an informaitonal element in.
+ * add urn registry and create first entry
+ * add default elements
 
- * Add MASA server element
+
+Default MUD elements {#defaults}
+====================
+
+What follows is a MUD file that permits DNS traffic to a controller
+that is registered with the URN "urn:mud:dns" and traffic NTP to a
+controller that is registered "urn:mud:ntp".  This is considered
+the default behavior and the ACEs are in effect appended to whatever
+other ACEs.  To block DNS or NTP one repeats the matching statement but
+replace "permit" with deny. Because ACEs are processed in the order
+they are received, the defaults would not be reached.  A MUD
+controller might further decide to optimize to simply not include the
+defaults when they are overriden.
+
+A complete MUD entry is included below.
+
+~~~~~~~~~~
+
+{
+  "ietf-mud:meta-info": {
+    "lastUpdate": "2016-09-27T15:10:24+02:00",
+    "cacheValidity": 1440
+  },
+  "ietf-acl:access-lists": {
+    "ietf-acl:access-list": [
+      {
+        "acl-name": "mud-53134-v4in",
+        "acl-type": "ipv4-acl",
+        "ietf-mud:packet-direction": "to-device",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "entout0-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout1-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 6,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout2-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:ntp",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 123,
+                  "upper-port": 123
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "acl-name": "mud-53134-v4out",
+        "acl-type": "ipv4-acl",
+        "ietf-mud:packet-direction": "from-device",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "entout0-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout1-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 6,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout2-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:ntp",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 123,
+                  "upper-port": 123
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "acl-name": "mud-53134-v6in",
+        "acl-type": "ipv6-acl",
+        "ietf-mud:packet-direction": "to-device",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "entout0-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout1-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 6,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout2-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:ntp",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 123,
+                  "upper-port": 123
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "acl-name": "mud-53134-v6out",
+        "acl-type": "ipv6-acl",
+        "ietf-mud:packet-direction": "from-device",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "entout0-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout1-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:dns",
+                "protocol": 6,
+                "source-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "entout2-in",
+              "matches": {
+                "ietf-mud:controller": "urn:mud:ntp",
+                "protocol": 17,
+                "source-port-range": {
+                  "lower-port": 123,
+                  "upper-port": 123
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+~~~~~~~~~~

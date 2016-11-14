@@ -137,15 +137,15 @@ $gotout = 0;
 $fail=0;	/* set if someone is screwing with us */
 
 
-function addace($acename, $direction, $target, $proto, $port, $type,$direction) {
+function addace($acename, $pdirect, $target, $proto, $port, $type,$idirect) {
   
   $ace="   {\n   " . '"rule-name" :' . '"' . $acename . '"' . ",\n" .
     '   "matches" : {';
 
-  $ace = $ace . '"ietf-mud:direction-initiated": "' . $direction . '",' . "\n";
+  $ace = $ace . '"ietf-mud:direction-initiated": "' . $idirect . '",' . "\n";
   
-  if ( $direction == "to-device" ) {
-      $protmfrag = '"source-port-range"';
+  if ( $pdirect == "to-device" ) {
+    $protmfrag = '"source-port-range"';
     } else {
     $protmfrag = '"destination-port-range"';
   }
@@ -168,7 +168,7 @@ function addace($acename, $direction, $target, $proto, $port, $type,$direction) 
       $ace = $ace . '      "ietf-mud:controller" : "' . $target . '"';
       break;
     case IS_CLOUD:
-      if ( $direction == "to-device" ) {
+      if ( $pdirect == "to-device" ) {
 	$ace = $ace . '"ietf-acldns:src-dnsname": "';
       } else {
 	$ace = $ace . '"ietf-acldns:dst-dnsname": "';
@@ -286,6 +286,7 @@ function buildacegroup(&$target, &$proto, &$portarray, $namehead,$type,$directio
       $outbound = $outbound . addace($s1,"from-device", 
 				     $t2, $proto[$i],
 				     $port, $type,$direction);
+      
       $inbound = $inbound . addace($s2,"to-device",
 				     $t2, $proto[$i],
 				   $port, $type,$direction);
@@ -310,6 +311,7 @@ if ( isset($_POST['cloutbox'] ) ) {
   
   buildacegroup($_POST['clnamesout'],$_POST['clprotoout'],$clportout,
 		"clout",IS_CLOUD,"from-device");
+
 }
 
 
@@ -425,7 +427,7 @@ if ( $gotin > 0 || $gotout > 0 ) {
      '"ietf-mud:packet-direction" : "from-device",' .
      "\n" . '"access-list-entries" : {'  . '"ace" : [';
   $ipv4inbound= $ipv4inbound . $inbound . " ]}},\n";
-  $ipv4outbound= $ipv4outbound . $inbound . " ]}}\n";
+  $ipv4outbound= $ipv4outbound . $outbound . " ]}}\n";
   $output = $output . $ipv4inbound . $ipv4outbound;
   
     }
@@ -440,7 +442,7 @@ if ( $gotin > 0 || $gotout > 0 ) {
       '"ietf-mud:packet-direction" : "from-device",' .
       "\n" . '"access-list-entries" : {' . '"ace" : [';
     $ipv6inbound= $ipv6inbound . $inbound . " ]}},\n";
-    $ipv6outbound= $ipv6outbound . $inbound . "]}}\n";
+    $ipv6outbound= $ipv6outbound . $outbound . "]}}\n";
 
     if ( $choice == 'both' ) {
       $output = $output . ",";

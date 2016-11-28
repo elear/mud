@@ -5,9 +5,9 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                             Cisco Systems
 Intended status: Standards Track                                R. Droms
-Expires: May 27, 2017
+Expires: June 1, 2017
                                                             D. Romascanu
-                                                       November 23, 2016
+                                                       November 28, 2016
 
 
               Manufacturer Usage Description Specification
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 27, 2017.
+   This Internet-Draft will expire on June 1, 2017.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 1]
+Lear, et al.              Expires June 1, 2017                  [Page 1]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 2]
+Lear, et al.              Expires June 1, 2017                  [Page 2]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -122,9 +122,9 @@ Internet-Draft               MUD YANG Model                November 2016
    16. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  28
    17. References  . . . . . . . . . . . . . . . . . . . . . . . . .  28
      17.1.  Normative References . . . . . . . . . . . . . . . . . .  28
-     17.2.  Informative References . . . . . . . . . . . . . . . . .  31
-   Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  32
-   Appendix B.  Default MUD elements . . . . . . . . . . . . . . . .  32
+     17.2.  Informative References . . . . . . . . . . . . . . . . .  30
+   Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  31
+   Appendix B.  Default MUD elements . . . . . . . . . . . . . . . .  31
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  37
 
 1.  Introduction
@@ -165,7 +165,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 3]
+Lear, et al.              Expires June 1, 2017                  [Page 3]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -221,7 +221,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 4]
+Lear, et al.              Expires June 1, 2017                  [Page 4]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -277,7 +277,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 5]
+Lear, et al.              Expires June 1, 2017                  [Page 5]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -333,7 +333,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 6]
+Lear, et al.              Expires June 1, 2017                  [Page 6]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -389,7 +389,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 7]
+Lear, et al.              Expires June 1, 2017                  [Page 7]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -445,7 +445,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 8]
+Lear, et al.              Expires June 1, 2017                  [Page 8]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -501,7 +501,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                  [Page 9]
+Lear, et al.              Expires June 1, 2017                  [Page 9]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -557,7 +557,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 10]
+Lear, et al.              Expires June 1, 2017                 [Page 10]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -602,22 +602,24 @@ Internet-Draft               MUD YANG Model                November 2016
 
    mud-rev signifies the version of the manufacturer usage description
    file.  This memo specifies "v1" of that file.  Later versions may
-   permit additional schemas or modify the format.
+   permit additional schemas or modify the format.  In order to provide
+   for the broadest compatibility for the various transmission
+   mechanisms, the length of the URL for v1 MUST NOT exceed 255 octets.
 
    "model" represents a device model as the manufacturer wishes to
    represent it.  It could be a brand name or something more specific.
    It also may provide a means to indicate what version the product is.
    Specifically if it has been updated in the field, this is the place
-   where evidence of that update would appear.  The field should be
-   changed when the intended communication patterns of a device change.
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 11]
+Lear, et al.              Expires June 1, 2017                 [Page 11]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
+   where evidence of that update would appear.  The field should be
+   changed when the intended communication patterns of a device change.
    While from a controller standpoint, only comparison and matching
    operations are safe, it is envisioned that updates will require some
    administrative review.  Processing of this URL occurs as specified in
@@ -664,15 +666,15 @@ module ietf-mud {
     "This YANG module defines a component that augments the
      IETF description of an access list.  This specific module
      focuses on additional filters that include local, model,
-     and same-manufacturer.
 
 
 
-
-Lear, et al.              Expires May 27, 2017                 [Page 12]
+Lear, et al.              Expires June 1, 2017                 [Page 12]
 
 Internet-Draft               MUD YANG Model                November 2016
 
+
+     and same-manufacturer.
 
     Copyright (c) 2016 IETF Trust and the persons identified as
     the document authors.  All rights reserved.
@@ -720,16 +722,16 @@ Internet-Draft               MUD YANG Model                November 2016
                     for auditing purposes.";
     }
 
-    leaf cache-validity {
-      type uint32;
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 13]
+Lear, et al.              Expires June 1, 2017                 [Page 13]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
+    leaf cache-validity {
+      type uint32;
       description "The information retrieved from the MUD server is
                  valid for these many hours, after which it should
                  be refreshed.";
@@ -776,16 +778,16 @@ Internet-Draft               MUD YANG Model                November 2016
       description "authority component of the manufacturer URI";
     }
 
-    leaf same-manufacturer {
-      type empty;
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 14]
+Lear, et al.              Expires June 1, 2017                 [Page 14]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
+    leaf same-manufacturer {
+      type empty;
       description "expand to ACEs for each device
                    with the same origin";
     }
@@ -832,16 +834,16 @@ Internet-Draft               MUD YANG Model                November 2016
          +--rw src-dnsname?        inet:host
          +--rw dst-dnsname?        inet:host
 
-   The choice of this particular point in the access-list model is based
-   on the assumption that we are in some way referring to IP-related
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 15]
+Lear, et al.              Expires June 1, 2017                 [Page 15]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
+   The choice of this particular point in the access-list model is based
+   on the assumption that we are in some way referring to IP-related
    resources, as that is what the DNS returns.  A domain name in our
    context is defined in [RFC6991].
 
@@ -888,16 +890,16 @@ Internet-Draft               MUD YANG Model                November 2016
         WG Chair: Zhou Tianran
         zhoutianran@huawei.com
         Editor: Eliot Lear
-        lear@cisco.com
-        Editor: Ralph Droms
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 16]
+Lear, et al.              Expires June 1, 2017                 [Page 16]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
+        lear@cisco.com
+        Editor: Ralph Droms
         rdroms@cisco.com
      ";
 
@@ -944,16 +946,16 @@ Internet-Draft               MUD YANG Model                November 2016
         "acl": [ {
          "acl-name": "inbound-stuff",
          "acl-type" : "ipv4-acl",
-         "ietf-mud:direction" : "to-device",
-         "access-list-entries": {
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 17]
+Lear, et al.              Expires June 1, 2017                 [Page 17]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
+         "ietf-mud:direction" : "to-device",
+         "access-list-entries": {
             "ace": [
                {
                   "rule-name": "access-cloud",
@@ -1003,9 +1005,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 18]
+Lear, et al.              Expires June 1, 2017                 [Page 18]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1019,10 +1019,9 @@ Internet-Draft               MUD YANG Model                November 2016
      +------+-----+------------------------------
 
 
-   Code OPTION_MUD_URL_V4 (TBD) is assigned by IANA.  len is a single
+   Code OPTION_MUD_URL_V4 (161) is assigned by IANA.  len is a single
    octet that indicates the length of the URL in octets.  MUD URL is a
-   URL.  MUD URLs that are longer than 255 octets are encoded in
-   accordance with [RFC3396].
+   URL.  MUD URLs MUST NOT exceed 255 octets.
 
    The IPv6 MUD URL client option has the following format:
 
@@ -1061,7 +1060,8 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 19]
+
+Lear, et al.              Expires June 1, 2017                 [Page 19]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1117,7 +1117,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 20]
+Lear, et al.              Expires June 1, 2017                 [Page 20]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1173,7 +1173,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 21]
+Lear, et al.              Expires June 1, 2017                 [Page 21]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1194,7 +1194,7 @@ Internet-Draft               MUD YANG Model                November 2016
    +--------+--------+----------+---------+--------------
    |TLV Type|  len   |   OUI    |subtype  | MUD URL
    |  =127  |        |= 00 00 5E|  = 1    |
-   |(7 bits)|(9 bits)|(3 octets)|(1 octet)|(1-256 octets)
+   |(7 bits)|(9 bits)|(3 octets)|(1 octet)|(1-255 octets)
    +--------+--------+----------+---------+--------------
 
 
@@ -1208,8 +1208,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
    o  subtype = 1 (to be assigned by IANA for the MUD URL)
 
-   o  MUD URL - the length MUST NOT exceed 256 octets (consistent with
-      the DHCP option defined in Section 9)
+   o  MUD URL - the length MUST NOT exceed 255 octets
 
    The intent of this extension is to provide both a new device
    classifier to the network as well as some recommended configuration
@@ -1226,15 +1225,15 @@ Internet-Draft               MUD YANG Model                November 2016
 
    Hosts, routers, or other network devices that implement this option
    may ignore these options or take action based on receipt of these
+   options.  For example they may fill in information in the respective
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 22]
+Lear, et al.              Expires June 1, 2017                 [Page 22]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
-   options.  For example they may fill in information in the respective
    extensions of the LLDP Management Information Base (LLDP MIB).  LLDP
    operates in a one-way direction.  LLDPDUs are not exchanged as
    information requests by one device and response sent by another
@@ -1282,15 +1281,15 @@ Internet-Draft               MUD YANG Model                November 2016
    MUD controller SHOULD produce an error and it MUST cease all
    processing of that file if the signature cannot be validated.  It is
    important that MUD controllers have some reason to trust the
+   certificates they are seeing.  Therefore, it is RECOMMENDED that new
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 23]
+Lear, et al.              Expires June 1, 2017                 [Page 23]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
-   certificates they are seeing.  Therefore, it is RECOMMENDED that new
    signers be validated either directly by an administrator or by a
    service that has some reason to believe that the signer is a good
    actor.
@@ -1318,7 +1317,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
    2.  At a finer grain, only extensions that would not incur additional
        risk to the device are permitted.  Specifically, augmenting of
-       the meta-info container is permitted with the understanding that
+       the metainfo container is permitted with the understanding that
        such additions may be ignored.  In addition, augmentation of the
        ACL model is permitted so long as it remains safe for a given ACE
        to be ignored by the MUD Controller or the network elements it
@@ -1341,7 +1340,8 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 24]
+
+Lear, et al.              Expires June 1, 2017                 [Page 24]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1397,7 +1397,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 25]
+Lear, et al.              Expires June 1, 2017                 [Page 25]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1417,6 +1417,10 @@ Internet-Draft               MUD YANG Model                November 2016
 
 15.1.  DHCPv4 and DHCPv6 Options
 
+   The IANA has allocated option 161 in the Dynamic Host Configuration
+   Protocol (DHCP) and Bootstrap Protocol (BOOTP) Parameters registry
+   for the MUD DHCPv4 option.
+
    IANA is requested to allocated the DHCPv4 and v6 options as specified
    in Section 9.
 
@@ -1434,7 +1438,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 15.3.  Well Known URI Suffix
 
-   The IANA is requested to register the URL suffix of "mud" as follows:
+   The IANA has allocated the URL suffix of "mud" as follows:
 
    o URI Suffix: "mud" o Specification documents: this document o
    Related information: n/a
@@ -1449,11 +1453,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 26]
+Lear, et al.              Expires June 1, 2017                 [Page 26]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1496,7 +1496,8 @@ Internet-Draft               MUD YANG Model                November 2016
 
    IANA is required to populate the initial registry with the value:
 
-   LLDP subtype value = 1
+   LLDP subtype value = 1 (All the other 255 values should be initially
+   marked as 'Unassigned'.)
 
    Description = the Manufacturer Usage Description (MUD) Uniform
    Resource Locator (URL)
@@ -1508,36 +1509,28 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-
-Lear, et al.              Expires May 27, 2017                 [Page 27]
+Lear, et al.              Expires June 1, 2017                 [Page 27]
 
 Internet-Draft               MUD YANG Model                November 2016
 
 
 15.6.  The MUD Well Known Universal Resource Name (URNs)
 
-   Namespace ID: "urn:mud" is requested.  Registration Information:
-   registration version number: 1 registration date: 2016-09-27
+   The following parameter registry is requested to be added in
+   accordance with [RFC3553]
 
-   Declared registrant of the namespace: The Internet Engineering Task
-   Force Ops Area WG Designated contact person: opsawg@ietf.org
-   Declaration of syntactic structure: Entries should follow the syntax
-   of a TCP/UDP port service name as found in Section 5.1 of [RFC6335].
-   Relevant ancillary documentation: this document.  Identifier
-   uniqueness considerations: see below Identifier persistence
-   considerations: no resolution mechanism is anticipated.  Process of
-   identifier assignment: IANA is requested to maintain a table of
-   entries that are updated with the policy of "standards action".
-   Process for identifier resolution: n/a Rules for Lexical Equivalence:
-   exact ASCII match Conformance with URN Syntax: no special
-   considerations.  Validation mechanism: a syntax grammar Scope: These
-   identifiers are intended solely for use as a means to indicate
-   standard MUD controllers.
+    Registry name: "urn:ietf:params:mud" is requested.
+    Specification: this document
+    Repository: this document
+    Index value:  Encoded identically to a TCP/UDP port service name, as
+                  specified in Section 5.1 of [RFC6335]
 
-   The following entries should be added to the "ietf:mud" name space:
+   The following entries should be added to the "urn:ietf:params:mud"
+   name space:
 
-   "ietf:mud:dns" refers to the service specified by [RFC1123].
-   "ietf:mud:ntp" refers to the service specified by [RFC5905].
+   "urn:ietf:params:mud:dns" refers to the service specified by
+   [RFC1123].  "urn:ietf:params:mud:ntp" refers to the service specified
+   by [RFC5905].
 
 16.  Acknowledgments
 
@@ -1558,18 +1551,6 @@ Internet-Draft               MUD YANG Model                November 2016
               Infrastructures (BRSKI)", draft-ietf-anima-bootstrapping-
               keyinfra-04 (work in progress), October 2016.
 
-
-
-
-
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 28]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
    [I-D.ietf-netmod-acl-model]
               Bogdanovic, D., Koushik, K., Huang, L., and D. Blair,
               "Network Access Control List (ACL) YANG Data Model",
@@ -1581,6 +1562,13 @@ Internet-Draft               MUD YANG Model                November 2016
               Standard for Local and Metropolitan Area Networks--
               Station and Media Access Control Connectivity Discovery",
               n.d..
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 28]
+
+Internet-Draft               MUD YANG Model                November 2016
+
 
    [RFC1123]  Braden, R., Ed., "Requirements for Internet Hosts -
               Application and Support", STD 3, RFC 1123,
@@ -1605,11 +1593,6 @@ Internet-Draft               MUD YANG Model                November 2016
               for IPv6 (DHCPv6)", RFC 3315, DOI 10.17487/RFC3315, July
               2003, <http://www.rfc-editor.org/info/rfc3315>.
 
-   [RFC3396]  Lemon, T. and S. Cheshire, "Encoding Long Options in the
-              Dynamic Host Configuration Protocol (DHCPv4)", RFC 3396,
-              DOI 10.17487/RFC3396, November 2002,
-              <http://www.rfc-editor.org/info/rfc3396>.
-
    [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
               Resource Identifier (URI): Generic Syntax", STD 66,
               RFC 3986, DOI 10.17487/RFC3986, January 2005,
@@ -1618,13 +1601,6 @@ Internet-Draft               MUD YANG Model                November 2016
    [RFC3987]  Duerst, M. and M. Suignard, "Internationalized Resource
               Identifiers (IRIs)", RFC 3987, DOI 10.17487/RFC3987,
               January 2005, <http://www.rfc-editor.org/info/rfc3987>.
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 29]
-
-Internet-Draft               MUD YANG Model                November 2016
-
 
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
               Housley, R., and W. Polk, "Internet X.509 Public Key
@@ -1640,6 +1616,15 @@ Internet-Draft               MUD YANG Model                November 2016
               "Network Time Protocol Version 4: Protocol and Algorithms
               Specification", RFC 5905, DOI 10.17487/RFC5905, June 2010,
               <http://www.rfc-editor.org/info/rfc5905>.
+
+
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 29]
+
+Internet-Draft               MUD YANG Model                November 2016
+
 
    [RFC6020]  Bjorklund, M., Ed., "YANG - A Data Modeling Language for
               the Network Configuration Protocol (NETCONF)", RFC 6020,
@@ -1673,15 +1658,6 @@ Internet-Draft               MUD YANG Model                November 2016
               RFC 7610, DOI 10.17487/RFC7610, August 2015,
               <http://www.rfc-editor.org/info/rfc7610>.
 
-
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 30]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
 17.2.  Informative References
 
    [FW95]     Chapman, D. and E. Zwicky, "Building Internet Firewalls",
@@ -1697,6 +1673,15 @@ Internet-Draft               MUD YANG Model                November 2016
               - Representation of dates and times", ISO Standard 8601,
               June 1988.
 
+
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 30]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
    [RFC1984]  IAB and IESG, "IAB and IESG Statement on Cryptographic
               Technology and the Internet", BCP 200, RFC 1984,
               DOI 10.17487/RFC1984, August 1996,
@@ -1705,6 +1690,11 @@ Internet-Draft               MUD YANG Model                November 2016
    [RFC3339]  Klyne, G. and C. Newman, "Date and Time on the Internet:
               Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
               <http://www.rfc-editor.org/info/rfc3339>.
+
+   [RFC3553]  Mealling, M., Masinter, L., Hardie, T., and G. Klyne, "An
+              IETF URN Sub-namespace for Registered Protocol
+              Parameters", BCP 73, RFC 3553, DOI 10.17487/RFC3553, June
+              2003, <http://www.rfc-editor.org/info/rfc3553>.
 
    [RFC6872]  Gurbani, V., Ed., Burger, E., Ed., Anjali, T., Abdelnur,
               H., and O. Festor, "The Common Log Format (CLF) for the
@@ -1727,17 +1717,6 @@ Internet-Draft               MUD YANG Model                November 2016
               RFC 7488, DOI 10.17487/RFC7488, March 2015,
               <http://www.rfc-editor.org/info/rfc7488>.
 
-
-
-
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 31]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
 Appendix A.  Changes from Earlier Versions
 
    RFC Editor to remove this section prior to publication.
@@ -1749,14 +1728,22 @@ Appendix A.  Changes from Earlier Versions
 Appendix B.  Default MUD elements
 
    What follows is a MUD file that permits DNS traffic to a controller
-   that is registered with the URN "urn:mud:dns" and traffic NTP to a
-   controller that is registered "urn:mud:ntp".  This is considered the
-   default behavior and the ACEs are in effect appended to whatever
-   other ACEs.  To block DNS or NTP one repeats the matching statement
-   but replace "permit" with deny.  Because ACEs are processed in the
-   order they are received, the defaults would not be reached.  A MUD
-   controller might further decide to optimize to simply not include the
-   defaults when they are overriden.
+   that is registered with the URN "urn:ietf:params:mud:dns" and traffic
+   NTP to a controller that is registered "urn:ietf:params:mud:ntp".
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 31]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
+   This is considered the default behavior and the ACEs are in effect
+   appended to whatever other ACEs.  To block DNS or NTP one repeats the
+   matching statement but replace "permit" with deny.  Because ACEs are
+   processed in the order they are received, the defaults would not be
+   reached.  A MUD controller might further decide to optimize to simply
+   not include the defaults when they are overriden.
 
    A complete MUD entry is included below.
 
@@ -1776,7 +1763,7 @@ Appendix B.  Default MUD elements
                {
                  "rule-name": "entout0-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 53,
@@ -1786,27 +1773,27 @@ Appendix B.  Default MUD elements
                  "actions": {
                    "permit": [
                      null
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 32]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                    ]
                  }
                },
                {
                  "rule-name": "entout1-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 6,
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
                    }
                  },
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 32]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                  "actions": {
                    "permit": [
                      null
@@ -1816,7 +1803,7 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout2-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:ntp",
+                   "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 123,
@@ -1841,15 +1828,7 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout0-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 33]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 53,
@@ -1863,9 +1842,17 @@ Internet-Draft               MUD YANG Model                November 2016
                  }
                },
                {
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 33]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                  "rule-name": "entout1-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 6,
                    "source-port-range": {
                      "lower-port": 53,
@@ -1881,7 +1868,7 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout2-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:ntp",
+                   "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 123,
@@ -1898,14 +1885,6 @@ Internet-Draft               MUD YANG Model                November 2016
            }
          },
          {
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 34]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
            "acl-name": "mud-53134-v6in",
            "acl-type": "ipv6-acl",
            "ietf-mud:packet-direction": "to-device",
@@ -1914,11 +1893,19 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout0-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 34]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                    }
                  },
                  "actions": {
@@ -1930,7 +1917,7 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout1-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:params:mud:dns",
                    "protocol": 6,
                    "source-port-range": {
                      "lower-port": 53,
@@ -1946,7 +1933,7 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout2-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:ntp",
+                   "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 123,
@@ -1954,14 +1941,6 @@ Internet-Draft               MUD YANG Model                November 2016
                    }
                  },
                  "actions": {
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 35]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                    "permit": [
                      null
                    ]
@@ -1975,11 +1954,19 @@ Internet-Draft               MUD YANG Model                November 2016
            "acl-type": "ipv6-acl",
            "ietf-mud:packet-direction": "from-device",
            "access-list-entries": {
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 35]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
              "ace": [
                {
                  "rule-name": "entout0-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 53,
@@ -1995,7 +1982,7 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout1-in",
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:dns",
+                   "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 6,
                    "source-port-range": {
                      "lower-port": 53,
@@ -2010,16 +1997,8 @@ Internet-Draft               MUD YANG Model                November 2016
                },
                {
                  "rule-name": "entout2-in",
-
-
-
-Lear, et al.              Expires May 27, 2017                 [Page 36]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                  "matches": {
-                   "ietf-mud:controller": "urn:mud:ntp",
+                   "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
                      "lower-port": 123,
@@ -2031,6 +2010,14 @@ Internet-Draft               MUD YANG Model                November 2016
                      null
                    ]
                  }
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 36]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                }
              ]
            }
@@ -2069,4 +2056,17 @@ Authors' Addresses
 
 
 
-Lear, et al.              Expires May 27, 2017                 [Page 37]
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lear, et al.              Expires June 1, 2017                 [Page 37]

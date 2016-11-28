@@ -34,7 +34,6 @@ author:
 normative:
    RFC1123:
    RFC2119:
-   RFC3396:
    RFC3986:
    RFC3987:
    RFC6020:
@@ -63,6 +62,7 @@ normative:
 informative:
    RFC1984:
    RFC3339:
+   RFC3553:
    RFC6872:
    RFC7042:
    RFC7452:
@@ -526,7 +526,9 @@ structure to the URL.  And so the URL appears as follows:
 
 mud-rev signifies the version of the manufacturer usage description
 file.  This memo specifies "v1" of that file.  Later versions may
-permit additional schemas or modify the format.
+permit additional schemas or modify the format.  In order to provide
+for the broadest compatibility for the various transmission
+mechanisms, the length of the URL for v1 MUST NOT exceed 255 octets.
 
 "model" represents a device model as the manufacturer wishes to
 represent it.  It could be a brand name or something more specific.
@@ -895,10 +897,9 @@ The IPv4 MUD URL client option has the following format:
 ~~~~~~~~~~
 
 
-Code OPTION_MUD_URL_V4 (TBD) is assigned by IANA.  len is a single
+Code OPTION_MUD_URL_V4 (161) is assigned by IANA.  len is a single
 octet that indicates the length of the URL in octets.  MUD URL is a
-URL.  MUD URLs that are longer than 255 octets are encoded in
-accordance with {{RFC3396}}.
+URL.  MUD URLs MUST NOT exceed 255 octets.
 
 The IPv6 MUD URL client option has the following format:
 
@@ -1059,7 +1060,7 @@ The LLDP vendor specific frame has the following format:
 +--------+--------+----------+---------+--------------
 |TLV Type|  len   |   OUI    |subtype  | MUD URL
 |  =127  |        |= 00 00 5E|  = 1    |
-|(7 bits)|(9 bits)|(3 octets)|(1 octet)|(1-256 octets)
+|(7 bits)|(9 bits)|(3 octets)|(1 octet)|(1-255 octets)
 +--------+--------+----------+---------+--------------
 
 ~~~~~
@@ -1070,8 +1071,7 @@ where:
  * len – indicates the TLV string length
  * OUI = 00 00 5E is the organizationally unique identifier of IANA
  * subtype = 1 (to be assigned by IANA for the MUD URL)
- * MUD URL – the length MUST NOT exceed 256 octets (consistent with
-   the DHCP option defined in {{dhcpopt}}) 
+ * MUD URL – the length MUST NOT exceed 255 octets
 
 The intent of this extension is to provide both a new device
 classifier to the network as well as some recommended configuration to
@@ -1170,7 +1170,7 @@ two-tier extensibility framework is employed, as follows:
 
  2. At a finer grain, only extensions that would not incur additional
  risk to the device are permitted.  Specifically, augmenting of the
- meta-info container is permitted with the understanding that
+ metainfo container is permitted with the understanding that
  such additions may be ignored.  In addition, augmentation of the ACL
  model is permitted so long as it remains safe for a given ACE to be
  ignored by the MUD Controller or the network elements it configures.
@@ -1257,6 +1257,10 @@ IANA Considerations
 DHCPv4 and DHCPv6 Options
 -------------------------
 
+The IANA has allocated option 161 in the Dynamic Host Configuration
+Protocol (DHCP) and Bootstrap Protocol (BOOTP) Parameters registry for
+the MUD DHCPv4 option.
+
 IANA is requested to allocated the DHCPv4 and v6 options as specified
 in {{dhcpopt}}.
 
@@ -1276,7 +1280,7 @@ The use fo these values is specified in {{mudx509}}.
 Well Known URI Suffix
 ---------------------
 
-The IANA is requested to register the URL suffix of "mud" as follows:
+The IANA has allocated the URL suffix of "mud" as follows:
 
  o URI Suffix: "mud"
  o Specification documents: this document
@@ -1330,6 +1334,7 @@ the registry is 256.
 IANA is required to populate the initial registry with the value: 
 
 LLDP subtype value = 1
+(All the other 255 values should be initially marked as 'Unassigned'.)
 
 Description = the Manufacturer Usage Description (MUD) Uniform Resource Locator (URL)
 
@@ -1337,37 +1342,21 @@ Reference = < this document >
 
 The MUD Well Known Universal Resource Name (URNs)
 -------------------------------------------------
+The following parameter registry is requested to be added in
+accordance with {{RFC3553}}
 
-Namespace ID: "urn:mud" is requested.
-Registration Information:
-   registration version number: 1
-   registration date: 2016-09-27
+~~~~~
+   Registry name: "urn:ietf:params:mud" is requested.
+   Specification: this document
+   Repository: this document
+   Index value:  Encoded identically to a TCP/UDP port service name, as
+                 specified in Section 5.1 of [RFC6335]
+~~~~~
 
- Declared registrant of the namespace:
-         The Internet Engineering Task Force Ops Area WG
- Designated contact person: opsawg@ietf.org
- Declaration of syntactic structure:
-         Entries should follow the syntax of a TCP/UDP port service
-         name as found in Section 5.1 of {{RFC6335}}.
- Relevant ancillary documentation: this document.
- Identifier uniqueness considerations: see below
- Identifier persistence considerations: no resolution mechanism is
-         anticipated.
- Process of identifier assignment:
-        IANA is requested to maintain a table of entries that are
-         updated with the policy of "standards action".
-Process for identifier resolution: n/a
-Rules for Lexical Equivalence: exact ASCII match
-Conformance with URN Syntax: no special considerations. 
-Validation mechanism: a syntax grammar
-Scope: These identifiers are intended solely for use as a means to
-         indicate standard MUD controllers.
+The following entries should be added to the "urn:ietf:params:mud" name space:
 
-The following entries should be added to the "ietf:mud" name space:
-
-"ietf:mud:dns" refers to the service specified by {{RFC1123}}.
-"ietf:mud:ntp" refers to the service specified by {{RFC5905}}.
-
+"urn:ietf:params:mud:dns" refers to the service specified by {{RFC1123}}.
+"urn:ietf:params:mud:ntp" refers to the service specified by {{RFC5905}}.
 
 Acknowledgments
 ===============
@@ -1398,8 +1387,8 @@ Default MUD elements {#defaults}
 ====================
 
 What follows is a MUD file that permits DNS traffic to a controller
-that is registered with the URN "urn:mud:dns" and traffic NTP to a
-controller that is registered "urn:mud:ntp".  This is considered
+that is registered with the URN "urn:ietf:params:mud:dns" and traffic NTP to a
+controller that is registered "urn:ietf:params:mud:ntp".  This is considered
 the default behavior and the ACEs are in effect appended to whatever
 other ACEs.  To block DNS or NTP one repeats the matching statement but
 replace "permit" with deny. Because ACEs are processed in the order
@@ -1427,7 +1416,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout0-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1443,7 +1432,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout1-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 6,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1459,7 +1448,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout2-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:ntp",
+                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 123,
@@ -1484,7 +1473,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout0-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1500,7 +1489,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout1-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 6,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1516,7 +1505,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout2-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:ntp",
+                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 123,
@@ -1541,7 +1530,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout0-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1557,7 +1546,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout1-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:params:mud:dns",
                 "protocol": 6,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1573,7 +1562,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout2-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:ntp",
+                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 123,
@@ -1598,7 +1587,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout0-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1614,7 +1603,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout1-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:dns",
+                "ietf-mud:controller": "urn:ietf:params:mud:dns",
                 "protocol": 6,
                 "source-port-range": {
                   "lower-port": 53,
@@ -1630,7 +1619,7 @@ A complete MUD entry is included below.
             {
               "rule-name": "entout2-in",
               "matches": {
-                "ietf-mud:controller": "urn:mud:ntp",
+                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                 "protocol": 17,
                 "source-port-range": {
                   "lower-port": 123,

@@ -5,9 +5,9 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                             Cisco Systems
 Intended status: Standards Track                                R. Droms
-Expires: June 1, 2017
+Expires: June 3, 2017
                                                             D. Romascanu
-                                                       November 28, 2016
+                                                       November 30, 2016
 
 
               Manufacturer Usage Description Specification
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on June 1, 2017.
+   This Internet-Draft will expire on June 3, 2017.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 1]
+Lear, et al.              Expires June 3, 2017                  [Page 1]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 2]
+Lear, et al.              Expires June 3, 2017                  [Page 2]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -124,7 +124,7 @@ Internet-Draft               MUD YANG Model                November 2016
      17.1.  Normative References . . . . . . . . . . . . . . . . . .  28
      17.2.  Informative References . . . . . . . . . . . . . . . . .  30
    Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  31
-   Appendix B.  Default MUD elements . . . . . . . . . . . . . . . .  31
+   Appendix B.  Default MUD elements . . . . . . . . . . . . . . . .  32
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  37
 
 1.  Introduction
@@ -165,7 +165,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 3]
+Lear, et al.              Expires June 3, 2017                  [Page 3]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -221,7 +221,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 4]
+Lear, et al.              Expires June 3, 2017                  [Page 4]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -277,7 +277,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 5]
+Lear, et al.              Expires June 3, 2017                  [Page 5]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -333,7 +333,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 6]
+Lear, et al.              Expires June 3, 2017                  [Page 6]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -389,7 +389,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 7]
+Lear, et al.              Expires June 3, 2017                  [Page 7]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -445,7 +445,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 8]
+Lear, et al.              Expires June 3, 2017                  [Page 8]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -501,7 +501,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                  [Page 9]
+Lear, et al.              Expires June 3, 2017                  [Page 9]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -557,7 +557,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 10]
+Lear, et al.              Expires June 3, 2017                 [Page 10]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -613,7 +613,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 11]
+Lear, et al.              Expires June 3, 2017                 [Page 11]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -669,7 +669,7 @@ module ietf-mud {
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 12]
+Lear, et al.              Expires June 3, 2017                 [Page 12]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -725,7 +725,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 13]
+Lear, et al.              Expires June 3, 2017                 [Page 13]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -781,7 +781,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 14]
+Lear, et al.              Expires June 3, 2017                 [Page 14]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -837,7 +837,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 15]
+Lear, et al.              Expires June 3, 2017                 [Page 15]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -893,7 +893,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 16]
+Lear, et al.              Expires June 3, 2017                 [Page 16]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -949,7 +949,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 17]
+Lear, et al.              Expires June 3, 2017                 [Page 17]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1005,7 +1005,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 18]
+Lear, et al.              Expires June 3, 2017                 [Page 18]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1061,7 +1061,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 19]
+Lear, et al.              Expires June 3, 2017                 [Page 19]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1117,7 +1117,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 20]
+Lear, et al.              Expires June 3, 2017                 [Page 20]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1173,7 +1173,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 21]
+Lear, et al.              Expires June 3, 2017                 [Page 21]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1229,7 +1229,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 22]
+Lear, et al.              Expires June 3, 2017                 [Page 22]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1285,7 +1285,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 23]
+Lear, et al.              Expires June 3, 2017                 [Page 23]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1341,7 +1341,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 24]
+Lear, et al.              Expires June 3, 2017                 [Page 24]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1397,7 +1397,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 25]
+Lear, et al.              Expires June 3, 2017                 [Page 25]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1453,7 +1453,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 26]
+Lear, et al.              Expires June 3, 2017                 [Page 26]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1509,7 +1509,7 @@ Internet-Draft               MUD YANG Model                November 2016
 
 
 
-Lear, et al.              Expires June 1, 2017                 [Page 27]
+Lear, et al.              Expires June 3, 2017                 [Page 27]
 
 Internet-Draft               MUD YANG Model                November 2016
 
@@ -1538,7 +1538,8 @@ Internet-Draft               MUD YANG Model                November 2016
    Tom Gindin, Brian Weis, Sandeep Kumar, Thorsten Dahm, John Bashinski,
    Steve Rich, Jim Bieda, and Dan Wing for their valuable advice and
    reviews.  Russ Housley entirely rewrote Section 10 to be a complete
-   module.  The remaining errors in this work are entirely the
+   module.  Adrian Farrel provided the basis for privacy considerations
+   text.  The remaining errors in this work are entirely the
    responsibility of the author.
 
 17.  References
@@ -1557,18 +1558,23 @@ Internet-Draft               MUD YANG Model                November 2016
               draft-ietf-netmod-acl-model-09 (work in progress), October
               2016.
 
+
+
+
+
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 28]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
    [IEEE8021AB]
               Institute for Electrical and Electronics Engineers, "IEEE
               Standard for Local and Metropolitan Area Networks--
               Station and Media Access Control Connectivity Discovery",
               n.d..
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 28]
-
-Internet-Draft               MUD YANG Model                November 2016
-
 
    [RFC1123]  Braden, R., Ed., "Requirements for Internet Hosts -
               Application and Support", STD 3, RFC 1123,
@@ -1612,19 +1618,18 @@ Internet-Draft               MUD YANG Model                November 2016
               RFC 5652, DOI 10.17487/RFC5652, September 2009,
               <http://www.rfc-editor.org/info/rfc5652>.
 
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 29]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
    [RFC5905]  Mills, D., Martin, J., Ed., Burbank, J., and W. Kasch,
               "Network Time Protocol Version 4: Protocol and Algorithms
               Specification", RFC 5905, DOI 10.17487/RFC5905, June 2010,
               <http://www.rfc-editor.org/info/rfc5905>.
-
-
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 29]
-
-Internet-Draft               MUD YANG Model                November 2016
-
 
    [RFC6020]  Bjorklund, M., Ed., "YANG - A Data Modeling Language for
               the Network Configuration Protocol (NETCONF)", RFC 6020,
@@ -1667,20 +1672,21 @@ Internet-Draft               MUD YANG Model                November 2016
               Institute for Electrical and Electronics Engineers,
               "Secure Device Identity", 1998.
 
+
+
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 30]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
    [ISO.8601.1988]
               International Organization for Standardization, "Data
               elements and interchange formats - Information interchange
               - Representation of dates and times", ISO Standard 8601,
               June 1988.
-
-
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 30]
-
-Internet-Draft               MUD YANG Model                November 2016
-
 
    [RFC1984]  IAB and IESG, "IAB and IESG Statement on Cryptographic
               Technology and the Internet", BCP 200, RFC 1984,
@@ -1721,6 +1727,20 @@ Appendix A.  Changes from Earlier Versions
 
    RFC Editor to remove this section prior to publication.
 
+   Draft -01 to -02: * Update IANA considerations * Accept Russ Housley
+   rewrite of X.509 text * Include privacy considerations text * Redo
+
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 31]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
+   the URL limit.  Still 255 bytes, but now stated in the URL
+   definition.  * Change URI registration to be under urn:ietf:params
+
    Draft -00 to -01: * Fix cert trust text.  * change supportInformation
    to meta-info * Add an informaitonal element in.  * add urn registry
    and create first entry * add default elements
@@ -1730,14 +1750,6 @@ Appendix B.  Default MUD elements
    What follows is a MUD file that permits DNS traffic to a controller
    that is registered with the URN "urn:ietf:params:mud:dns" and traffic
    NTP to a controller that is registered "urn:ietf:params:mud:ntp".
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 31]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
    This is considered the default behavior and the ACEs are in effect
    appended to whatever other ACEs.  To block DNS or NTP one repeats the
    matching statement but replace "permit" with deny.  Because ACEs are
@@ -1774,6 +1786,14 @@ Internet-Draft               MUD YANG Model                November 2016
                    "permit": [
                      null
                    ]
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 32]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                  }
                },
                {
@@ -1786,14 +1806,6 @@ Internet-Draft               MUD YANG Model                November 2016
                      "upper-port": 53
                    }
                  },
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 32]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                  "actions": {
                    "permit": [
                      null
@@ -1830,6 +1842,14 @@ Internet-Draft               MUD YANG Model                November 2016
                  "matches": {
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 33]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
@@ -1842,14 +1862,6 @@ Internet-Draft               MUD YANG Model                November 2016
                  }
                },
                {
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 33]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                  "rule-name": "entout1-in",
                  "matches": {
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
@@ -1886,6 +1898,14 @@ Internet-Draft               MUD YANG Model                November 2016
          },
          {
            "acl-name": "mud-53134-v6in",
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 34]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
            "acl-type": "ipv6-acl",
            "ietf-mud:packet-direction": "to-device",
            "access-list-entries": {
@@ -1898,14 +1918,6 @@ Internet-Draft               MUD YANG Model                November 2016
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 34]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                    }
                  },
                  "actions": {
@@ -1942,6 +1954,14 @@ Internet-Draft               MUD YANG Model                November 2016
                  },
                  "actions": {
                    "permit": [
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 35]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                      null
                    ]
                  }
@@ -1954,14 +1974,6 @@ Internet-Draft               MUD YANG Model                November 2016
            "acl-type": "ipv6-acl",
            "ietf-mud:packet-direction": "from-device",
            "access-list-entries": {
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 35]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
              "ace": [
                {
                  "rule-name": "entout0-in",
@@ -1998,6 +2010,14 @@ Internet-Draft               MUD YANG Model                November 2016
                {
                  "rule-name": "entout2-in",
                  "matches": {
+
+
+
+Lear, et al.              Expires June 3, 2017                 [Page 36]
+
+Internet-Draft               MUD YANG Model                November 2016
+
+
                    "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
@@ -2010,14 +2030,6 @@ Internet-Draft               MUD YANG Model                November 2016
                      null
                    ]
                  }
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 36]
-
-Internet-Draft               MUD YANG Model                November 2016
-
-
                }
              ]
            }
@@ -2057,16 +2069,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.              Expires June 1, 2017                 [Page 37]
+Lear, et al.              Expires June 3, 2017                 [Page 37]

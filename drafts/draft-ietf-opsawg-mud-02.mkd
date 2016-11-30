@@ -1365,7 +1365,8 @@ The authors would like to thank Einar Nilsen-Nygaard, Bernie Volz, Tom
 Gindin, Brian Weis, Sandeep Kumar, Thorsten Dahm, John Bashinski,
 Steve Rich, Jim Bieda, and Dan Wing for their valuable advice and
 reviews.  Russ Housley entirely rewrote {{mudx509}} to be a complete
-module.  The remaining errors in this work are entirely the
+module.  Adrian Farrel provided the basis for privacy considerations
+text.  The remaining errors in this work are entirely the
 responsibility of the author.
 
 --- back
@@ -1374,6 +1375,13 @@ Changes from Earlier Versions
 =============================
 
 RFC Editor to remove this section prior to publication.
+
+Draft -01 to -02:
+ * Update IANA considerations
+ * Accept Russ Housley rewrite of X.509 text
+ * Include privacy considerations text
+ * Redo the URL limit.  Still 255 bytes, but now stated in the URL definition.
+ * Change URI registration to be under urn:ietf:params
 
 Draft -00 to -01:
  * Fix cert trust text.

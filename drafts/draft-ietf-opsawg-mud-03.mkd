@@ -770,7 +770,7 @@ circumstances.
 The ietf-acldns Model
 --------------------------
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-acldns@2007-07-20.yang";
+<CODE BEGINS>file "ietf-acldns@2016-07-20.yang";
 
 module ietf-acldns {
   yang-version 1.1;

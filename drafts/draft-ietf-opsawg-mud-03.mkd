@@ -1,7 +1,7 @@
 ---
 title: Manufacturer Usage Description Specification
 abbrev: MUD YANG Model
-docname: draft-ietf-opsawg-mud-02
+docname: draft-ietf-opsawg-mud-03
 category: std
 
 ipr: trust200902

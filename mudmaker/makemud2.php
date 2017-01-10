@@ -41,7 +41,7 @@ use \DateTime;
 
 $aclhead= <<< ACL_HEAD
 "ietf-acl:access-lists" : {
-  "ietf-acl:access-list" : 
+  "acl" : 
   
 ACL_HEAD;
   

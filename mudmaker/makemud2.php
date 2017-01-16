@@ -160,8 +160,10 @@ function addace($acename, $pdirect, $target, $proto, $port, $type,$idirect) {
       $ace = $ace . '  "ietf-mud:local-networks" : [ null ]';
       break;
     case IS_CONTROLLER:
-      if ( ! preg_match("^http[s]?://[a-z0-9.-]+\.[a-z]{2,3}/[a-z0-9()+,\-.:=@;$_!*'%/?#]+$^",$target) && 
-	   ! preg_match ("^urn:[a-z0-9][a-z0-9-]{0,31}:[a-z0-9()+,\-.:=@;$_!*'%/?#]+$^", $target)) {
+      // uri validator courtesy of...
+      // https://www.sitepoint.com/community/t/url-validation-with-preg-match/3255/2
+      if ( ! preg_match('/^(http|https):\\/\\/[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i',$target) &&
+	   ! preg_match ("^urn:[a-z0-9][a-z0-9-]{0,31}:[a-z0-9()+,\-.:=@;\$_!*'%/?#]+$^", $target)) {
 	$fail=1;
 	return('');
       }
@@ -360,7 +362,7 @@ if ( isset($_POST['entinbox'] )) {
     $entportout= FALSE;
   }
 
-  buildacegroup($_POST['entctrlin'],$_POST['entprotoin'],$entportout,
+  buildacegroup($_POST['entctrlin'],$_POST['entprotoin'],$entportin,
 		"entin",IS_CONTROLLER,"to-device");
 }
 

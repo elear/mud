@@ -411,8 +411,14 @@ if ( $gotin > 0 || $gotout > 0 ) {
   $d=new Datetime('NOW');
   $time=$d->format(DATE_RFC3339);
 
+  if ( $_POST['anbox'] == 'Yes' && preg_match('/^(http|https):\\/\\/[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i',$_POST['masa']) ) {
+    $masa = '"masa-server" : "' . $_POST['masa'] . '",' . "\n";
+  } else {
+    $masa = '';
+  }
+
   $supportInfo = '"ietf-mud:meta-info": { "lastUpdate" : "' . $time . '",' . "\n" .
-  '"systeminfo": "' . $_POST['sysDescr'] . '",' . "\n" .
+  $masa . '"systeminfo": "' . $_POST['sysDescr'] . '",' . "\n" .
   '"cacheValidity" : 1440 },';
   $output = "{\n". $supportInfo . "\n" . $aclhead;
 

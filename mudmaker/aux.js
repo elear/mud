@@ -107,3 +107,11 @@ function yesnoCheck(one2check, outer,inner,refind) {
         }
     }
 }
+
+function toggleANIMA(anid,anspan) {
+    if (document.getElementById(anid).value == 'Yes') {
+	document.getElementById(anspan).style.display = 'inherit';
+    } else {
+	document.getElementById(anspan).style.display ='none';
+    }
+}

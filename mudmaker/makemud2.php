@@ -1,4 +1,8 @@
 <?php
+  session_start();
+?>
+
+<?php
 /* Copyright (c) 2016, Cisco Systems
 All rights reserved.
 
@@ -45,6 +49,18 @@ $aclhead= <<< ACL_HEAD
   
 ACL_HEAD;
   
+$downloadtext=<<< DOWNLOAD
+<form method="POST" action="download.php">
+  <p>Would you like to download this file?
+  <input type="submit" value="Download">
+  </p>
+</form>
+DOWNLOAD;
+  
+define("IS_LOCAL",1);
+define("IS_MFG", 2);
+define("IS_CONTROLLER", 3);
+define("IS_CLOUD", 4);
 
 
 /* Rather than try to pretty print the json throughout, I have 
@@ -295,10 +311,10 @@ function buildacegroup(&$target, &$proto, &$portarray, $namehead,$type,$directio
     }
 }
 
-
+  
 $inbound="";
 $outbound="";
-  
+    
   
 // We start by processing outbound cloud communications
 
@@ -416,9 +432,10 @@ if ( $gotin > 0 || $gotout > 0 ) {
   } else {
     $masa = '';
   }
+  $sysDesc=htmlspecialchars($_POST['sysDescr'],ENT_QUOTES);
 
   $supportInfo = '"ietf-mud:meta-info": { "lastUpdate" : "' . $time . '",' . "\n" .
-  $masa . '"systeminfo": "' . $_POST['sysDescr'] . '",' . "\n" .
+  $masa . '"systeminfo": "' . $sysDesc . '",' . "\n" .
   '"cacheValidity" : 1440 },';
   $output = "{\n". $supportInfo . "\n" . $aclhead;
 
@@ -461,11 +478,18 @@ if ( $gotin > 0 || $gotout > 0 ) {
   $output = $output . "]}}";
   $output= prettyPrint($output);
 
+  session_unset();
+  $_SESSION['mudfile'] = $output;
+  
+  print "<!DOCTYPE html>\n<html>\n<body>\n";
+
   print "<h1>Your MUD file is ready!</h1>";
   print "<p>Congratulations!  You've just created your first MUD file.  Simply ";
   print "Cut and paste beween the lines and stick into a file.  Your next steps ";
   print "are to sign the file and place it in the location that its corresponding ";
   print "MUD URL will find.</p>";
+  print $downloadtext;
+
   print "<hr>\n";
   print "<pre>" . htmlentities($output) . "</pre>";
   print "<hr>\n";
@@ -473,3 +497,6 @@ if ( $gotin > 0 || $gotout > 0 ) {
   
   print "<h1>No output selected.  Click back and try again</h1>";
 }
+  print "</body>\n</html>";
+
+?>

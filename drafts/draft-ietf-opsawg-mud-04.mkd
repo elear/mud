@@ -528,7 +528,7 @@ referenced.
 direction-initiated
 -------------------
 When applied this matches packets when the flow was initiated in the
-corresponding direction.  {{RFC6092}} provides guidance for IPv6 guidance
+corresponding direction.  {{RFC6092}} specifies IPv6 guidance
 best practices.  While that document is scoped specifically to IPv6,
 its contents are applicable for IPv4 as well.  When this flag is set,
 and the system has no reason to believe a flow has been initiated it

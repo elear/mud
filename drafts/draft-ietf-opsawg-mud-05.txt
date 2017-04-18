@@ -5,13 +5,13 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                             Cisco Systems
 Intended status: Standards Track                                R. Droms
-Expires: August 27, 2017
+Expires: September 9, 2017
                                                             D. Romascanu
-                                                       February 23, 2017
+                                                          March 08, 2017
 
 
               Manufacturer Usage Description Specification
-                        draft-ietf-opsawg-mud-04
+                        draft-ietf-opsawg-mud-05
 
 Abstract
 
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 27, 2017.
+   This Internet-Draft will expire on September 9, 2017.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 1]
+Lear, et al.            Expires September 9, 2017               [Page 1]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    the Trust Legal Provisions and are provided without warranty as
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 2]
+Lear, et al.            Expires September 9, 2017               [Page 2]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
      15.1.  DHCPv4 and DHCPv6 Options  . . . . . . . . . . . . . . .  28
@@ -165,9 +165,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 3]
+Lear, et al.            Expires September 9, 2017               [Page 3]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    The intent of MUD is to therefore solve for the following problems:
@@ -221,9 +221,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 4]
+Lear, et al.            Expires September 9, 2017               [Page 4]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    capabilities that it will implement the least necessary capabilities
@@ -277,9 +277,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 5]
+Lear, et al.            Expires September 9, 2017               [Page 5]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
       Allow access for port IPP or port LPD
@@ -333,9 +333,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 6]
+Lear, et al.            Expires September 9, 2017               [Page 6]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    Because manufacturers do not know who will be using their devices, it
@@ -389,9 +389,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 7]
+Lear, et al.            Expires September 9, 2017               [Page 7]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
     .........................................
@@ -445,9 +445,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 8]
+Lear, et al.            Expires September 9, 2017               [Page 8]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    o  [RFC6991]
@@ -501,9 +501,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 9]
+Lear, et al.            Expires September 9, 2017               [Page 9]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 3.2.  previous-mud-file
@@ -535,7 +535,8 @@ Internet-Draft               MUD YANG Model                February 2017
    administrator as to whether or not the device is supported.  In this
    context a device is said to be supported if the manufacturer might
    issue an update to the device or if the manufacturer might update the
-   MUD file.
+   MUD file.  is-supported can be used to identify those devices on a
+   network that are or are not supported.
 
 3.6.  systeminfo
 
@@ -557,9 +558,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 10]
+Lear, et al.            Expires September 9, 2017              [Page 10]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 3.8.  manufacturer
@@ -613,9 +614,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 11]
+Lear, et al.            Expires September 9, 2017              [Page 11]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 3.14.  direction-initiated
@@ -669,9 +670,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 12]
+Lear, et al.            Expires September 9, 2017              [Page 12]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    where evidence of that update would appear.  The field should be
@@ -683,7 +684,7 @@ Internet-Draft               MUD YANG Model                February 2017
 
 6.  The MUD YANG Model
 
-<CODE BEGINS>file "ietf-mud@2016-07-20.yang";
+<CODE BEGINS>file "ietf-mud@2016-07-20.yang"
 
 module ietf-mud {
   yang-version 1.1;
@@ -725,9 +726,9 @@ module ietf-mud {
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 13]
+Lear, et al.            Expires September 9, 2017              [Page 13]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
      and same-manufacturer.
@@ -781,9 +782,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 14]
+Lear, et al.            Expires September 9, 2017              [Page 14]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
     }
@@ -837,9 +838,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 15]
+Lear, et al.            Expires September 9, 2017              [Page 15]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
     }
@@ -893,9 +894,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 16]
+Lear, et al.            Expires September 9, 2017              [Page 16]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    needed.  However, the intent is that resources that are referred to
@@ -931,7 +932,7 @@ Internet-Draft               MUD YANG Model                February 2017
 
 7.3.  The ietf-acldns Model
 
-   <CODE BEGINS>file "ietf-acldns@2016-07-20.yang";
+   <CODE BEGINS>file "ietf-acldns@2016-07-20.yang"
 
    module ietf-acldns {
      yang-version 1.1;
@@ -949,9 +950,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 17]
+Lear, et al.            Expires September 9, 2017              [Page 17]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
      organization
@@ -1005,9 +1006,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 18]
+Lear, et al.            Expires September 9, 2017              [Page 18]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 8.  MUD File Example
@@ -1061,9 +1062,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 19]
+Lear, et al.            Expires September 9, 2017              [Page 19]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
                         "lower-port" : 443,
@@ -1117,9 +1118,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 20]
+Lear, et al.            Expires September 9, 2017              [Page 20]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    of the network system as managed by the network administrator to
@@ -1173,9 +1174,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 21]
+Lear, et al.            Expires September 9, 2017              [Page 21]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    client (such as expiration or explicit release of a network address
@@ -1229,9 +1230,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 22]
+Lear, et al.            Expires September 9, 2017              [Page 22]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    <CODE BEGINS>
@@ -1285,9 +1286,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 23]
+Lear, et al.            Expires September 9, 2017              [Page 23]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    +--------+--------+----------+---------+--------------
@@ -1341,9 +1342,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 24]
+Lear, et al.            Expires September 9, 2017              [Page 24]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 12.  Creating and Processing of Signed MUD Files
@@ -1397,9 +1398,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 25]
+Lear, et al.            Expires September 9, 2017              [Page 25]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 13.  Extensibility
@@ -1453,9 +1454,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 26]
+Lear, et al.            Expires September 9, 2017              [Page 26]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    It may be possible for a rogue manufacturer to inappropriately
@@ -1509,9 +1510,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 27]
+Lear, et al.            Expires September 9, 2017              [Page 27]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 15.  IANA Considerations
@@ -1565,9 +1566,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 28]
+Lear, et al.            Expires September 9, 2017              [Page 28]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
     o Type name: application
@@ -1621,9 +1622,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 29]
+Lear, et al.            Expires September 9, 2017              [Page 29]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 15.6.  The MUD Well Known Universal Resource Name (URNs)
@@ -1677,9 +1678,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 30]
+Lear, et al.            Expires September 9, 2017              [Page 30]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    [IEEE8021AB]
@@ -1733,9 +1734,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 31]
+Lear, et al.            Expires September 9, 2017              [Page 31]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    [RFC5905]  Mills, D., Martin, J., Ed., Burbank, J., and W. Kasch,
@@ -1789,9 +1790,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 32]
+Lear, et al.            Expires September 9, 2017              [Page 32]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
    [ISO.8601.1988]
@@ -1845,14 +1846,18 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 33]
+Lear, et al.            Expires September 9, 2017              [Page 33]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft               MUD YANG Model                   March 2017
 
 
 Appendix A.  Changes from Earlier Versions
 
    RFC Editor to remove this section prior to publication.
+
+   Draft -04 to -05: * syntax error correction
+
+   Draft -03 to -04: * Re-add my-controller
 
    Draft -02 to -03: * Additional IANA updates * Format correction in
    YANG.  * Add reference to TEAP.
@@ -1894,18 +1899,18 @@ Appendix B.  Default MUD elements
            "access-list-entries": {
              "ace": [
                {
+
+
+
+Lear, et al.            Expires September 9, 2017              [Page 34]
+
+Internet-Draft               MUD YANG Model                   March 2017
+
+
                  "rule-name": "entout0-in",
                  "matches": {
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 34]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
@@ -1950,18 +1955,18 @@ Internet-Draft               MUD YANG Model                February 2017
                  }
                }
              ]
+
+
+
+Lear, et al.            Expires September 9, 2017              [Page 35]
+
+Internet-Draft               MUD YANG Model                   March 2017
+
+
            }
          },
          {
            "acl-name": "mud-53134-v4out",
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 35]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
            "acl-type": "ipv4-acl",
            "ietf-mud:packet-direction": "from-device",
            "access-list-entries": {
@@ -2006,18 +2011,18 @@ Internet-Draft               MUD YANG Model                February 2017
                    "source-port-range": {
                      "lower-port": 123,
                      "upper-port": 123
+
+
+
+Lear, et al.            Expires September 9, 2017              [Page 36]
+
+Internet-Draft               MUD YANG Model                   March 2017
+
+
                    }
                  },
                  "actions": {
                    "permit": [
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 36]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                      null
                    ]
                  }
@@ -2062,18 +2067,18 @@ Internet-Draft               MUD YANG Model                February 2017
                      null
                    ]
                  }
+
+
+
+Lear, et al.            Expires September 9, 2017              [Page 37]
+
+Internet-Draft               MUD YANG Model                   March 2017
+
+
                },
                {
                  "rule-name": "entout2-in",
                  "matches": {
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 37]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                    "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
@@ -2118,18 +2123,18 @@ Internet-Draft               MUD YANG Model                February 2017
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 6,
                    "source-port-range": {
+
+
+
+Lear, et al.            Expires September 9, 2017              [Page 38]
+
+Internet-Draft               MUD YANG Model                   March 2017
+
+
                      "lower-port": 53,
                      "upper-port": 53
                    }
                  },
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 38]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                  "actions": {
                    "permit": [
                      null
@@ -2171,19 +2176,21 @@ Authors' Addresses
    Email: lear@cisco.com
 
 
+
+
+
+
+
+
+Lear, et al.            Expires September 9, 2017              [Page 39]
+
+Internet-Draft               MUD YANG Model                   March 2017
+
+
    Ralph Droms
 
    Phone: +1 978 376 3731
    Email: rdroms@gmail.com
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 39]
-
-Internet-Draft               MUD YANG Model                February 2017
 
 
    Dan Romascanu
@@ -2231,10 +2238,4 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 40]
+Lear, et al.            Expires September 9, 2017              [Page 40]

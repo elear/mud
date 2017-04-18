@@ -5,21 +5,21 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                             Cisco Systems
 Intended status: Standards Track                                R. Droms
-Expires: August 27, 2017
+Expires: October 20, 2017
                                                             D. Romascanu
-                                                       February 23, 2017
+                                                          April 18, 2017
 
 
               Manufacturer Usage Description Specification
-                        draft-ietf-opsawg-mud-04
+                        draft-ietf-opsawg-mud-06
 
 Abstract
 
-   This memo specifies the necessary components to implement
-   manufacturer usage descriptions (MUD).  This includes two YANG
-   modules, IPv4 and IPv6 DHCP options, an LLDP TLV, a URL suffix
-   specification, an X.509 certificate extension and a means to sign and
-   verify the descriptions.
+   This memo specifies a component-based architecture for manufacturer
+   usage descriptions (MUD).  This includes two YANG modules, IPv4 and
+   IPv6 DHCP options, an LLDP TLV, a URL suffix specification, an X.509
+   certificate extension and a means to sign and verify the
+   descriptions.
 
 Status of This Memo
 
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 27, 2017.
+   This Internet-Draft will expire on October 20, 2017.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 1]
+Lear, et al.            Expires October 20, 2017                [Page 1]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
    the Trust Legal Provisions and are provided without warranty as
@@ -64,69 +64,72 @@ Internet-Draft               MUD YANG Model                February 2017
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
-     1.1.  A Simple Example  . . . . . . . . . . . . . . . . . . . .   4
-     1.2.  Determining Intended Use  . . . . . . . . . . . . . . . .   4
-     1.3.  Finding A Policy: The MUD URL . . . . . . . . . . . . . .   5
-     1.4.  Types of Policies . . . . . . . . . . . . . . . . . . . .   5
-     1.5.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   7
-     1.6.  The Manufacturer Usage Description Architecture . . . . .   7
-   2.  The MUD Model and Semantic Meaning  . . . . . . . . . . . . .   8
-   3.  Element Definitions . . . . . . . . . . . . . . . . . . . . .   9
-     3.1.  last-update . . . . . . . . . . . . . . . . . . . . . . .   9
-     3.2.  previous-mud-file . . . . . . . . . . . . . . . . . . . .  10
-     3.3.  cache-validity  . . . . . . . . . . . . . . . . . . . . .  10
-     3.4.  masa-server . . . . . . . . . . . . . . . . . . . . . . .  10
-     3.5.  is-supported  . . . . . . . . . . . . . . . . . . . . . .  10
-     3.6.  systeminfo  . . . . . . . . . . . . . . . . . . . . . . .  10
-     3.7.  packet-direction  . . . . . . . . . . . . . . . . . . . .  10
-     3.8.  manufacturer  . . . . . . . . . . . . . . . . . . . . . .  11
-     3.9.  same-manufacturer . . . . . . . . . . . . . . . . . . . .  11
-     3.10. model . . . . . . . . . . . . . . . . . . . . . . . . . .  11
-     3.11. local-networks  . . . . . . . . . . . . . . . . . . . . .  11
-     3.12. controller  . . . . . . . . . . . . . . . . . . . . . . .  11
-     3.13. my-controller . . . . . . . . . . . . . . . . . . . . . .  11
-     3.14. direction-initiated . . . . . . . . . . . . . . . . . . .  12
-   4.  Processing of the MUD file  . . . . . . . . . . . . . . . . .  12
-   5.  What does a MUD URL look like?  . . . . . . . . . . . . . . .  12
-   6.  The MUD YANG Model  . . . . . . . . . . . . . . . . . . . . .  13
-   7.  The Domain Name Extension to the ACL Model  . . . . . . . . .  16
-     7.1.  source-dnsname  . . . . . . . . . . . . . . . . . . . . .  17
-     7.2.  destination-dnsname . . . . . . . . . . . . . . . . . . .  17
-     7.3.  The ietf-acldns Model . . . . . . . . . . . . . . . . . .  17
-   8.  MUD File Example  . . . . . . . . . . . . . . . . . . . . . .  19
-   9.  The MUD URL DHCP Option . . . . . . . . . . . . . . . . . . .  20
-     9.1.  Client Behavior . . . . . . . . . . . . . . . . . . . . .  21
-     9.2.  Server Behavior . . . . . . . . . . . . . . . . . . . . .  21
-     9.3.  Relay Requirements  . . . . . . . . . . . . . . . . . . .  22
-   10. The Manufacturer Usage Description (MUD) URL X.509 Extension   22
-   11. The Manufacturer Usage Description LLDP extension . . . . . .  23
-   12. Creating and Processing of Signed MUD Files . . . . . . . . .  25
-     12.1.  Creating a MUD file signature  . . . . . . . . . . . . .  25
-     12.2.  Verifying a MUD file signature . . . . . . . . . . . . .  25
-   13. Extensibility . . . . . . . . . . . . . . . . . . . . . . . .  26
-   14. Security Considerations . . . . . . . . . . . . . . . . . . .  26
-   15. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  28
+     1.1.  What MUD doesn't do . . . . . . . . . . . . . . . . . . .   4
+     1.2.  A Simple Example  . . . . . . . . . . . . . . . . . . . .   4
+     1.3.  Determining Intended Use  . . . . . . . . . . . . . . . .   5
+     1.4.  Finding A Policy: The MUD URL . . . . . . . . . . . . . .   5
+     1.5.  Types of Policies . . . . . . . . . . . . . . . . . . . .   6
+     1.6.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   7
+     1.7.  The Manufacturer Usage Description Architecture . . . . .   8
+     1.8.  Order of operations . . . . . . . . . . . . . . . . . . .   9
+   2.  The MUD Model and Semantic Meaning  . . . . . . . . . . . . .   9
+   3.  Element Definitions . . . . . . . . . . . . . . . . . . . . .  10
+     3.1.  last-update . . . . . . . . . . . . . . . . . . . . . . .  10
+     3.2.  cache-validity  . . . . . . . . . . . . . . . . . . . . .  11
+     3.3.  masa-server . . . . . . . . . . . . . . . . . . . . . . .  11
+     3.4.  is-supported  . . . . . . . . . . . . . . . . . . . . . .  11
+     3.5.  systeminfo  . . . . . . . . . . . . . . . . . . . . . . .  11
+     3.6.  extensions  . . . . . . . . . . . . . . . . . . . . . . .  11
+     3.7.  packet-direction  . . . . . . . . . . . . . . . . . . . .  11
+     3.8.  manufacturer  . . . . . . . . . . . . . . . . . . . . . .  12
+     3.9.  same-manufacturer . . . . . . . . . . . . . . . . . . . .  12
+     3.10. model . . . . . . . . . . . . . . . . . . . . . . . . . .  12
+     3.11. local-networks  . . . . . . . . . . . . . . . . . . . . .  12
+     3.12. controller  . . . . . . . . . . . . . . . . . . . . . . .  12
+     3.13. my-controller . . . . . . . . . . . . . . . . . . . . . .  12
+     3.14. direction-initiated . . . . . . . . . . . . . . . . . . .  13
+   4.  Processing of the MUD file  . . . . . . . . . . . . . . . . .  13
+   5.  What does a MUD URL look like?  . . . . . . . . . . . . . . .  13
+   6.  The MUD YANG Model  . . . . . . . . . . . . . . . . . . . . .  14
+   7.  The Domain Name Extension to the ACL Model  . . . . . . . . .  17
+     7.1.  source-dnsname  . . . . . . . . . . . . . . . . . . . . .  18
+     7.2.  destination-dnsname . . . . . . . . . . . . . . . . . . .  18
+     7.3.  The ietf-acldns Model . . . . . . . . . . . . . . . . . .  18
+   8.  MUD File Example  . . . . . . . . . . . . . . . . . . . . . .  20
+   9.  The MUD URL DHCP Option . . . . . . . . . . . . . . . . . . .  21
+     9.1.  Client Behavior . . . . . . . . . . . . . . . . . . . . .  22
+     9.2.  Server Behavior . . . . . . . . . . . . . . . . . . . . .  22
+     9.3.  Relay Requirements  . . . . . . . . . . . . . . . . . . .  23
+   10. The Manufacturer Usage Description (MUD) URL X.509 Extension   23
+   11. The Manufacturer Usage Description LLDP extension . . . . . .  24
+   12. Creating and Processing of Signed MUD Files . . . . . . . . .  26
+     12.1.  Creating a MUD file signature  . . . . . . . . . . . . .  26
+     12.2.  Verifying a MUD file signature . . . . . . . . . . . . .  26
+   13. Extensibility . . . . . . . . . . . . . . . . . . . . . . . .  27
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 2]
+Lear, et al.            Expires October 20, 2017                [Page 2]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
-     15.1.  DHCPv4 and DHCPv6 Options  . . . . . . . . . . . . . . .  28
-     15.2.  PKIX Extensions  . . . . . . . . . . . . . . . . . . . .  28
-     15.3.  Well Known URI Suffix  . . . . . . . . . . . . . . . . .  28
-     15.4.  MIME Media-type Registration for MUD files . . . . . . .  28
-     15.5.  LLDP IANA TLV Subtype Registry . . . . . . . . . . . . .  29
-     15.6.  The MUD Well Known Universal Resource Name (URNs)  . . .  30
-   16. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  30
-   17. References  . . . . . . . . . . . . . . . . . . . . . . . . .  30
-     17.1.  Normative References . . . . . . . . . . . . . . . . . .  30
-     17.2.  Informative References . . . . . . . . . . . . . . . . .  32
-   Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  34
-   Appendix B.  Default MUD elements . . . . . . . . . . . . . . . .  34
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  39
+   14. Deployment Considerations . . . . . . . . . . . . . . . . . .  27
+   15. Security Considerations . . . . . . . . . . . . . . . . . . .  27
+   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  29
+     16.1.  DHCPv4 and DHCPv6 Options  . . . . . . . . . . . . . . .  29
+     16.2.  PKIX Extensions  . . . . . . . . . . . . . . . . . . . .  29
+     16.3.  Well Known URI Suffix  . . . . . . . . . . . . . . . . .  30
+     16.4.  MIME Media-type Registration for MUD files . . . . . . .  30
+     16.5.  LLDP IANA TLV Subtype Registry . . . . . . . . . . . . .  30
+     16.6.  The MUD Well Known Universal Resource Name (URNs)  . . .  31
+   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  31
+   18. References  . . . . . . . . . . . . . . . . . . . . . . . . .  31
+     18.1.  Normative References . . . . . . . . . . . . . . . . . .  31
+     18.2.  Informative References . . . . . . . . . . . . . . . . .  34
+   Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  35
+   Appendix B.  Default MUD elements . . . . . . . . . . . . . . . .  36
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  41
 
 1.  Introduction
 
@@ -140,7 +143,7 @@ Internet-Draft               MUD YANG Model                February 2017
 
    [RFC7452] discusses design patterns for, and poses questions about,
    smart objects.  Let us then posit a group of objects that are
-   specifically not general purpose computers.  These devices therefore
+   specifically NOT general purpose computers.  These devices therefore
    have a purpose to their use.  By definition, therefore, all other
    purposes are NOT intended.  The combination of these two statements
    can be restated as a manufacturer usage description (MUD) that can be
@@ -158,19 +161,14 @@ Internet-Draft               MUD YANG Model                February 2017
    in the supply chain of that device that will take responsibility for
    informing the network about that purpose.
 
-   The converse statement holds that general computing systems will
-   benefit very little from MUD, as their manufacturers cannot envision
-   a specific communication pattern to describe.
-
-
-
-
-Lear, et al.             Expires August 27, 2017                [Page 3]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
    The intent of MUD is to therefore solve for the following problems:
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 3]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
 
    o  Substantially reduce the threat surface on a device entering a
       network to those communications intended by the manufacturer.
@@ -186,12 +184,30 @@ Internet-Draft               MUD YANG Model                February 2017
    o  Keep the cost of implementation of such a system to the bare
       minimum.
 
+   MUD therefore consists of three architectural building blocks: - A
+   classifier that a device emits that can be used to locate a
+   description; - The description itself, including how it is
+   interpreted, and; - A means to retrieve the description.
+
+   In this specification we specify each of these building blocks and
+   how they are intended to be used together.  However, they may also be
+   used separately, independent of this specification by enterprise
+   networks for their own purposes.
+
+1.1.  What MUD doesn't do
+
+   General computing systems will benefit very little from MUD, as their
+   manufacturers cannot envision a specific communication pattern to
+   describe.  In addition, even those devices that have a single or
+   small number of uses might have very broad communication patterns.
+   MUD is not for them either.
+
    No matter how good a MUD-enabled network is, it will never replace
    the need for manufacturers to patch vulnerabilities.  It may,
    however, provide network administrators with some additional
    protection when those vulnerabilities exist.
 
-1.1.  A Simple Example
+1.2.  A Simple Example
 
    A light bulb is intended to light a room.  It may be remotely
    controlled through the network; and it may make use of a rendezvous
@@ -202,10 +218,18 @@ Internet-Draft               MUD YANG Model                February 2017
    has no Facebook friends.  Therefore, an access list applied to it
    that states that it will only connect to the single rendezvous
    service will not impede the light bulb in performing its function,
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 4]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    while at the same time allowing the network to provide both it and
    other devices an additional layer of protection.
 
-1.2.  Determining Intended Use
+1.3.  Determining Intended Use
 
    The notion of intended use is in itself not new.  Network
    administrators apply access lists every day to allow for only such
@@ -218,21 +242,13 @@ Internet-Draft               MUD YANG Model                February 2017
    protection it requires without going into what sort of system it is.
    This would, in effect, be the converse of [RFC7488].  In seeking a
    general purpose solution, however, we assume that a device has so few
-
-
-
-Lear, et al.             Expires August 27, 2017                [Page 4]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
    capabilities that it will implement the least necessary capabilities
    to function properly.  This is a basic economic constraint.  Unless
    the network would refuse access to such a device, its developers
    would have no reason to implement such an approach.  To date, such an
    assertion has held true.
 
-1.3.  Finding A Policy: The MUD URL
+1.4.  Finding A Policy: The MUD URL
 
    Our work begins, therefore, with the device emitting a Universal
    Resource Locator (URL) [RFC3986].  This URL may serves both to
@@ -249,10 +265,24 @@ Internet-Draft               MUD YANG Model                February 2017
    which itself relies on [RFC5280].  The MUD URL extension is non-
    critical, as required by IEEE 802.1AR.  Various means may be used to
    communicate that certificate, including Tunnel Extensible
-   Authentication Protocol (TEAP) [RFC7170].  Finally, an LLDP frame is
-   defined.
+   Authentication Protocol (TEAP) [RFC7170].  Finally, a Link Layer
+   Discovery Protocol (LLDP) frame is defined [IEEE8021AB].
 
-1.4.  Types of Policies
+   It is possible that there may be other means for a MUD URL to be
+   learned by a network.  For instance, if a device has a serial number,
+   it may be possible for the MUD controller to perform a lookup of the
+   device, if it has some knowledge as to who the device manufacturer
+   is, and what its MUD file server is.  Such mechanisms are not
+   described in this memo, but are possible.
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 5]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
+1.5.  Types of Policies
 
    When the MUD URL is resolved, the MUD controller retrieves a file
    that describes what sort of communications a device is designed to
@@ -260,11 +290,10 @@ Internet-Draft               MUD YANG Model                February 2017
    based services or certain classes for access within an operational
    network.  An example of a class might be "devices of a specified
    manufacturer type", where the manufacturer type itself is indicated
-   simply by the authority of the MUD URL.  Another example might to
-   allow or disallow local access.  Just like other policies, these may
-   be combined.  For example:
+   simply by the authority component (e.g, the domain name) of the MUD
+   URL.  Another example might to allow or disallow local access.  Just
+   like other policies, these may be combined.  For example:
 
-      Allow access to host controller.example.com with QoS AF11
       Allow access to devices of the same manufacturer
       Allow access to and from controllers who need to speak COAP
       Allow access to local DNS/DHCP
@@ -273,14 +302,6 @@ Internet-Draft               MUD YANG Model                February 2017
    To add a bit more depth that should not be a stretch of anyone's
    imagination, one could also make use of port-based access lists.
    Thus a printer might have a description that states:
-
-
-
-
-Lear, et al.             Expires August 27, 2017                [Page 5]
-
-Internet-Draft               MUD YANG Model                February 2017
-
 
       Allow access for port IPP or port LPD
       Allow local access for port HTTP
@@ -309,6 +330,14 @@ Internet-Draft               MUD YANG Model                February 2017
    that are instantiated into actual IP addresses through local
    processing.  Through these classes, manufacturers can specify how the
    device is designed to communicate, so that network elements can be
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 6]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    configured by local systems that have local topological knowledge.
    That is, the deployment populates the classes that the manufacturer
    specifies.  The abstractions are as follows:
@@ -316,7 +345,7 @@ Internet-Draft               MUD YANG Model                February 2017
    Manufacturer:  A device made by a particular manufacturer, as
       identified by the authority component of its MUD-URL
 
-   my-manufacturer:  Devices that have the same authority section of
+   my-manufacturer:  Devices that have the same authority component of
       their MUD-URL.
 
    Controller:  A device that the local network administrator admits to
@@ -329,22 +358,13 @@ Internet-Draft               MUD YANG Model                February 2017
    manufacturer, whereas controller classes are initially envisioned to
    be specified by the administrator.
 
-
-
-
-
-Lear, et al.             Expires August 27, 2017                [Page 6]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
    Because manufacturers do not know who will be using their devices, it
    is important for functionality referenced in usage descriptions to be
    relatively ubiquitous, and therefore, mature.  Therefore, only a a
    limited subset YANG-based configuration of is permitted in a MUD
    file.
 
-1.5.  Terminology
+1.6.  Terminology
 
    MUD:  manufacturer usage description.
 
@@ -365,6 +385,15 @@ Internet-Draft               MUD YANG Model                February 2017
    Manufacturer:  the entity that configures the Thing to emit the MUD
       URL and the one who asserts a recommendation in a MUD file.  The
       manufacturer might not always be the entity that constructs a
+
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 7]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
       device.  It could, for instance, be a systems integrator, or even
       a component provider.
 
@@ -372,27 +401,10 @@ Internet-Draft               MUD YANG Model                February 2017
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
 
-1.6.  The Manufacturer Usage Description Architecture
+1.7.  The Manufacturer Usage Description Architecture
 
    With these components laid out we now have the basis for an
    archicture.  This leads us to ASCII art.
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017                [Page 7]
-
-Internet-Draft               MUD YANG Model                February 2017
-
 
     .........................................
     .                      ____________     .           _____________
@@ -416,9 +428,10 @@ Internet-Draft               MUD YANG Model                February 2017
    happens in different ways, depending on how the URI is communicated.
    For instance, in the case of DHCP, the DHCP server might receive the
    URI and then process it.  In the case of IEEE 802.1X, the switch
-   would tunnel the URI via a certificate to the authentication server,
-   who would then process it.  One method to do this is TEAP, described
-   in [RFC7170].  The certificate extension is described below.
+   would carry the URI via a certificate to the authentication server
+   via EAP over Radius[RFC3748], which would then process it.  One
+   method to do this is TEAP, described in [RFC7170].  The certificate
+   extension is described below.
 
    The information returned by the web site is valid for the duration of
    the device's connection, or as specified in the description.  Thus if
@@ -429,9 +442,46 @@ Internet-Draft               MUD YANG Model                February 2017
 
    The web site is typically run by or on behalf of the manufacturer.
    Its domain name is that of the authority found in the MUD URL.  For
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 8]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    legacy cases where Things cannot emit a URL, if the switch is able to
    determine the appropriate URI, it may proxy it, the trivial cases
    being a map between some registered device or port and a URL.
+
+1.8.  Order of operations
+
+   As mentioned above, MUD contains architectural building blocks, and
+   so order of operation may vary.  However, here is one clear intended
+   example:
+
+   1.  Device emits URL.
+
+   2.  That URL is forwarded to a MUD controller by the nearest switch
+       (how this happens depends on the way in which the MUD URL is
+       emitted).
+
+   3.  The MUD controller retrieves the MUD file from the MUD file
+       server, assuming it doesn't already have a copy.  It may test the
+       URL against a reputation service, and it may test any hosts
+       within the file against reputation services, as it deems fit.
+
+   4.  The MUD controller may query the administrator for permission to
+       add the device and associated policy.  If the device is known or
+       the device type is known, it may skip this step.
+
+   5.  The MUD controller instantiates local configuration based on the
+       abstractions defined in this document.
+
+   6.  The MUD controller configures the switch nearest the device.
+       Other systems may be configured as well.
+
+   7.  When the device disconnects, policy is removed.
 
 2.  The MUD Model and Semantic Meaning
 
@@ -443,17 +493,19 @@ Internet-Draft               MUD YANG Model                February 2017
 
    o  [I-D.ietf-netmod-acl-model]
 
-
-
-Lear, et al.             Expires August 27, 2017                [Page 8]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
    o  [RFC6991]
 
    Publishers of MUD files MUST NOT include other elements except as
-   described in Section 13, and MUST only contain information relevant
+   described in Section 3.6, and MUST only contain information relevant
+
+
+
+
+Lear, et al.            Expires October 20, 2017                [Page 9]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    to the device being described.  Devices parsing MUD files MUST cease
    processing if they find other elements.
 
@@ -465,24 +517,28 @@ Internet-Draft               MUD YANG Model                February 2017
    elements that are relevant to the MUD URL, or other otherwise
    abstracted for use within a local environment.
 
-     module: ietf-mud
-       +--rw meta-info
-           +--rw last-update?         yang:date-and-time
-           +--rw previous-mud-file?   yang:uri
-           +--rw cache-validity?      uint32
-           +--rw masa-server?         inet:uri
-           +--rw is-supported?        boolean
+   Simplified graphical representation of the data models are used in
+   this document.  The meaning of the symbols in these diagrams is
+   defined in [I-D.ietf-netmod-rfc6087bis].
+
+       +--rw metainfo
+          +--rw last-update?      yang:date-and-time
+          +--rw cache-validity?   uint8
+          +--rw masa-server?      inet:uri
+          +--rw is-supported?     boolean
+          +--rw systeminfo?       inet:uri
+          +--rw extensions*       string
      augment /acl:access-lists/acl:acl:
-        +--rw packet-direction?   direction
-     augment /acl:access-lists/acl:acl
-             /acl:access-list-entries/acl:ace/acl:matches:
-        +--rw manufacturer?          inet:host
-        +--rw same-manufacturer?     empty
-        +--rw model?                 string
-        +--rw local-networks?        empty
-        +--rw controller?            inet:uri
-        +--rw my-controller?         empty
-        +--rw direction-initiated?   direction
+       +--rw packet-direction?   direction
+     augment /acl:access-lists/acl:acl/acl:access-list-entries/
+     acl:ace/acl:matches:
+       +--rw manufacturer?          inet:host
+       +--rw same-manufacturer?     empty
+       +--rw model?                 string
+       +--rw local-networks?        empty
+       +--rw controller?            inet:uri
+       +--rw my-controller?         empty
+       +--rw direction-initiated?   direction
 
 3.  Element Definitions
 
@@ -490,10 +546,10 @@ Internet-Draft               MUD YANG Model                February 2017
 
 3.1.  last-update
 
-   This is a date-and-time value of the last time the MUD file was
-   updated.  This is akin to a version number.  Its form is taken from
-   [RFC6991] which, for those keeping score, turn was taken from
-   Section 5.6 of [RFC3339], which was taken from [ISO.8601.1988].
+   This is a date-and-time value of when the MUD file was generated.
+   This is akin to a version number.  Its form is taken from [RFC6991]
+   which, for those keeping score, turn was taken from Section 5.6 of
+   [RFC3339], which was taken from [ISO.8601.1988].
 
 
 
@@ -501,35 +557,25 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017                [Page 9]
+Lear, et al.            Expires October 20, 2017               [Page 10]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
-3.2.  previous-mud-file
+3.2.  cache-validity
 
-   This is a URL that should point to the previous MUD URL for auditing
-   purposes.  Because it should not be necessary to resign a MUD file
-   when a new one is released, the archival location of a current MUD
-   file should be identified prior to its release.  Note the signature
-   file MUST also be available.  For example, if previous-mud-file is
-   set to "https://example.com/.mud/v1/xxx", the corresponding signature
-   would be found at "https://example.com/.mud/v1/xxx.p7s".
-
-3.3.  cache-validity
-
-   This uint32 is the period of time in hours that a network management
+   This uint8 is the period of time in hours that a network management
    station MUST wait since its last retrieval before checking for an
-   update.  It is RECOMMENDED that this value be no less than 24 and no
-   more than 1440 for any device that is supported.
+   update.  It is RECOMMENDED that this value be no less than 24 and
+   MUST NOT be more than 168 for any device that is supported.
 
-3.4.  masa-server
+3.3.  masa-server
 
    This optional element refers to the URL that should be used to
    resolve the location any MASA service, as specified in
    [I-D.ietf-anima-bootstrapping-keyinfra].
 
-3.5.  is-supported
+3.4.  is-supported
 
    This boolean is an indication from the manufacturer to the network
    administrator as to whether or not the device is supported.  In this
@@ -537,18 +583,25 @@ Internet-Draft               MUD YANG Model                February 2017
    issue an update to the device or if the manufacturer might update the
    MUD file.
 
-3.6.  systeminfo
+3.5.  systeminfo
 
-   This string contains a description of the device that this MUD file
-   supports.  Note that this is a hint, and not intended for consumption
-   by a computer.
+   This is a URL that points to a description of the device to be
+   connected.  The intent is for administrators to be able to read about
+   what the device is the first time the MUD-URL is used.
+
+3.6.  extensions
+
+   This optional leaf-list names MUD extensions that are used in the MUD
+   file.  Note that NO MUD extensions may be used in a MUD file prior to
+   the extensions being declared.  Implementations MUST ignore any
+   elements in this file that they do not understand.
 
 3.7.  packet-direction
 
    [I-D.ietf-netmod-acl-model] describes access-lists but does not
    attempt to indicate where they are applied as that is handled
    elsewhere in a configuration.  However, in this case, a MUD file must
-   be explicit in describing the communcation pattern of a device, and
+   be explicit in describing the communication pattern of a device, and
    that includes indicating what is to be permitted or denied in either
    direction of communication.  This element takes a single value of
    either "to-device" or "from-device", based on a typedef "direction".
@@ -557,15 +610,18 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 10]
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 11]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
 3.8.  manufacturer
 
    This element consists of a hostname that would be matched against the
-   authority section of another device's MUD URL.
+   authority component of another device's MUD URL.
 
 3.9.  same-manufacturer
 
@@ -576,7 +632,7 @@ Internet-Draft               MUD YANG Model                February 2017
 3.10.  model
 
    This string matches the one and only segment following the authority
-   section of the MUD URL.  It refers to a model that is unique within
+   component of the MUD URL.  It refers to a model that is unique within
    the context of the authority.  It may also include product version
    information.  Thus how this field is constructed is entirely a local
    matter for the manufacturer.
@@ -585,21 +641,21 @@ Internet-Draft               MUD YANG Model                February 2017
 
    This null-valued element expands to include local networks.  Its
    default expansion is that packets must not traverse toward a default
-   route that is received from the router.
+   route that is received from the router.  However, administrators may
+   expand the expression as is appropriate in their deployments.
 
 3.12.  controller
 
    This URI specifies a value that a controller will register with the
-   network management station.  The element then is expanded to the set
-   of hosts that are so registered.  This element may also be a URN.  In
-   this case, the URN describes a well known service, such as DNS or
-   NTP.
+   mud controller.  The element then is expanded to the set of hosts
+   that are so registered.  This element may also be a URN.  In this
+   case, the URN describes a well known service, such as DNS or NTP.
 
    Great care should be used when invoking the controller class.  For
    one thing, it requires some understanding by the administrator as to
-   when it is appropriate.  For standard classes, it may be possible to
-   code in certain intelligence.  Nonstandard classes may require
-   substantially more care.  Pre-registration in such classes by
+   when it is appropriate.  Classes that are standardized may make it
+   possible to code in certain intelligence.  Nonstandard classes may
+   require substantially more care.  Pre-registration in such classes by
    controllers with the MUD server is encouraged.  The mechanism to do
    that is beyond the scope of this work.
 
@@ -613,9 +669,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 11]
+Lear, et al.            Expires October 20, 2017               [Page 12]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
 3.14.  direction-initiated
@@ -669,9 +725,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 12]
+Lear, et al.            Expires October 20, 2017               [Page 13]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
    where evidence of that update would appear.  The field should be
@@ -683,8 +739,7 @@ Internet-Draft               MUD YANG Model                February 2017
 
 6.  The MUD YANG Model
 
-<CODE BEGINS>file "ietf-mud@2016-07-20.yang";
-
+<CODE BEGINS>file "ietf-mud@2017-04-18.yang"
 module ietf-mud {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud";
@@ -708,32 +763,31 @@ module ietf-mud {
   contact
        "WG Web: http://tools.ietf.org/wg/opsawg/
        WG List: opsawg@ietf.org
-       WG Chair: Warren Kumari
-       warren@kumari.net
-       WG Chair: Zhou Tianran
-       zhoutianran@huawei.com
-       Editor: Eliot Lear
+       Author: Eliot Lear
        lear@cisco.com
-       Editor: Ralph Droms
-       rdroms@cisco.com
+       Author: Ralph Droms
+       rdroms@gmail.com
+       Author: Dan Romascanu
+       dromasca@gmail.com
+
     ";
 
   description
     "This YANG module defines a component that augments the
      IETF description of an access list.  This specific module
      focuses on additional filters that include local, model,
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 13]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
      and same-manufacturer.
 
-    Copyright (c) 2016 IETF Trust and the persons identified as
-    the document authors.  All rights reserved.
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 14]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
+    Copyright (c) 2016,2017 IETF Trust and the persons
+    identified as the document authors.  All rights reserved.
     Redistribution and use in source and binary forms, with or
     without modification, is permitted pursuant to, and subject
     to the license terms contained in, the Simplified BSD
@@ -743,7 +797,7 @@ Internet-Draft               MUD YANG Model                February 2017
     This version of this YANG module is part of RFC XXXX; see
     the RFC itself for full legal notices.";
 
-  revision "2016-07-20"  {
+  revision "2017-04-18"  {
     description "Base version of MUD extensions to ACL model";
     reference "RFC XXXX: Manufacturer Usage Description
                Specification";
@@ -770,28 +824,24 @@ Internet-Draft               MUD YANG Model                February 2017
 
     leaf last-update {
       type yang:date-and-time;
-      description "This is intended to be the time and date that
+      description "This is intended to be when
                    the MUD file was generated.";
     }
 
-    leaf previous-mud-file {
-       type inet:uri;
-       description "Use to find the previous MUD file location
-                    for auditing purposes.";
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 14]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
-    }
-
     leaf cache-validity {
-      type uint32;
+      type uint8 {
+        range "1..168";
+      }
       description "The information retrieved from the MUD server is
                  valid for these many hours, after which it should
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 15]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
                  be refreshed.";
     }
 
@@ -807,10 +857,16 @@ Internet-Draft               MUD YANG Model                February 2017
                    by the manufacturer.";
     }
     leaf systeminfo {
-      type string;
-      description "A non-normative name and description of the device
-                   this file is used for.";
+      type inet:uri;
+      description "A reference to a description of this device";
     }
+
+    leaf-list extensions {
+      type string;
+      description "A list of extension names that are used in this MUD
+                   file.  Each name is registered with the IANA and
+                   described in an RFC.";
+   }
   }
 
   augment "/acl:access-lists/acl:acl"   {
@@ -837,9 +893,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 15]
+Lear, et al.            Expires October 20, 2017               [Page 16]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
     }
@@ -893,9 +949,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 16]
+Lear, et al.            Expires October 20, 2017               [Page 17]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
    needed.  However, the intent is that resources that are referred to
@@ -931,7 +987,7 @@ Internet-Draft               MUD YANG Model                February 2017
 
 7.3.  The ietf-acldns Model
 
-   <CODE BEGINS>file "ietf-acldns@2016-07-20.yang";
+   <CODE BEGINS>file "ietf-acldns@2016-07-20.yang"
 
    module ietf-acldns {
      yang-version 1.1;
@@ -949,9 +1005,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 17]
+Lear, et al.            Expires October 20, 2017               [Page 18]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
      organization
@@ -960,14 +1016,12 @@ Internet-Draft               MUD YANG Model                February 2017
      contact
           "WG Web: http://tools.ietf.org/wg/opsawg/
           WG List: opsawg@ietf.org
-          WG Chair: Warren Kumari
-          warren@kumari.net
-          WG Chair: Zhou Tianran
-          zhoutianran@huawei.com
-          Editor: Eliot Lear
+          Author: Eliot Lear
           lear@cisco.com
-          Editor: Ralph Droms
-          rdroms@cisco.com
+          Author: Ralph Droms
+          rdroms@gmail.com
+          Author: Dan Romascanu
+          dromasca@gmail.com
        ";
 
 
@@ -1005,9 +1059,11 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 18]
+
+
+Lear, et al.            Expires October 20, 2017               [Page 19]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
 8.  MUD File Example
@@ -1018,7 +1074,7 @@ Internet-Draft               MUD YANG Model                February 2017
    {
       "ietf-mud:metainfo": {
          "last-update": "2016-05-18T20:00:50Z",
-         "cache-validity": 1440
+         "cache-validity": 168
          },
       "ietf-access-control-list:access-lists":  {
         "acl": [ {
@@ -1061,9 +1117,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 19]
+Lear, et al.            Expires October 20, 2017               [Page 20]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
                         "lower-port" : 443,
@@ -1117,9 +1173,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 20]
+Lear, et al.            Expires October 20, 2017               [Page 21]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
    of the network system as managed by the network administrator to
@@ -1161,25 +1217,25 @@ Internet-Draft               MUD YANG Model                February 2017
 
    DHCP servers may implement MUD functionality themselves or they may
    pass along appropriate information to a network management system or
-   controller.  A DHCP server that does process the MUD URL MUST adhere
-   to the process specified in [RFC2818] and [RFC5280] to validate the
-   TLS certificate of the web server hosting the MUD file.  Those
-   servers will retrieve the file, process it, create and install the
-   necessary configuration on the relevant network element.  Servers
+   MUD controller.  A DHCP server that does process the MUD URL MUST
+   adhere to the process specified in [RFC2818] and [RFC5280] to
+   validate the TLS certificate of the web server hosting the MUD file.
+   Those servers will retrieve the file, process it, create and install
+   the necessary configuration on the relevant network element.  Servers
    SHOULD monitor the gateway for state changes on a given interface.  A
    DHCP server that does not provide MUD functionality and has forwarded
-   a MUD URL to a network management system MUST notify the network
-   management of any corresponding change to the DHCP state of the
+   a MUD URL to a MUD controller MUST notify the MUD controller of any
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 21]
+
+Lear, et al.            Expires October 20, 2017               [Page 22]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
-   client (such as expiration or explicit release of a network address
-   lease).
+   corresponding change to the DHCP state of the client (such as
+   expiration or explicit release of a network address lease).
 
 9.3.  Relay Requirements
 
@@ -1229,9 +1285,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 22]
+Lear, et al.            Expires October 20, 2017               [Page 23]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
    <CODE BEGINS>
@@ -1268,27 +1324,32 @@ Internet-Draft               MUD YANG Model                February 2017
 
    <CODE ENDS>
 
+   While this extension can appear in either an 802.AR manufacturer
+   certificate (IDevID) or deployment certificate (LDevID), of course it
+   is not guaranteed in either, nor is it guaranteed to be carried over.
+   It is RECOMMENDED that MUD controller implementations maintain a
+   table that maps a device to its MUD-URL.
+
 11.  The Manufacturer Usage Description LLDP extension
 
-   The IEEE802.1AB Link Layer Discovery Protocol (LLDP) [IEEE8021AB] is
-   a one hop vendor-neutral link layer protocols used by end hosts
-   network devices for advertising their identity, capabilities, and
-   neighbors on an IEEE 802 local area network.  Its Type-Length-Value
-   (TLV) design allows for 'vendor-specific' extensions to be defined.
-   IANA has a registered IEEE 802 organizationally unique identifier
-   (OUI) defined as documented in [RFC7042].  The MUD LLDP extension
-   uses a subtype defined in this document to carry the MUD URL.
+   The IEEE802.1AB Link Layer Discovery Protocol (LLDP) is a one hop
+   vendor-neutral link layer protocols used by end hosts network devices
+   for advertising their identity, capabilities, and neighbors on an
+   IEEE 802 local area network.  Its Type-Length-Value (TLV) design
+   allows for 'vendor-specific' extensions to be defined.  IANA has a
+   registered IEEE 802 organizationally unique identifier (OUI) defined
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 24]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
+   as documented in [RFC7042].  The MUD LLDP extension uses a subtype
+   defined in this document to carry the MUD URL.
 
    The LLDP vendor specific frame has the following format:
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 23]
-
-Internet-Draft               MUD YANG Model                February 2017
-
 
    +--------+--------+----------+---------+--------------
    |TLV Type|  len   |   OUI    |subtype  | MUD URL
@@ -1331,19 +1392,14 @@ Internet-Draft               MUD YANG Model                February 2017
    device.  The other devices do not acknowledge LLDP information
    received from a device. No specific network behavior is guaranteed.
    When a device consumes this extension, it may either forward the URL
-   and relevant remote device information to a network management
-   system, or it will retrieve the usage description by resolving the
-   URL.
+   and relevant remote device information to a MUD controller, or it
+   will retrieve the usage description by resolving the URL.
 
 
 
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 24]
+Lear, et al.            Expires October 20, 2017               [Page 25]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
 12.  Creating and Processing of Signed MUD Files
@@ -1368,7 +1424,7 @@ Internet-Draft               MUD YANG Model                February 2017
                  -in mudfile -binary -outform DER - \
                  -certfile intermediatecert -out mudfile.p7s
 
-   Note: A MUD file may need to be resigned if the signature expires.
+   Note: A MUD file may need to be re-signed if the signature expires.
 
 12.2.  Verifying a MUD file signature
 
@@ -1397,9 +1453,9 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-Lear, et al.             Expires August 27, 2017               [Page 25]
+Lear, et al.            Expires October 20, 2017               [Page 26]
 
-Internet-Draft               MUD YANG Model                February 2017
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
 
 
 13.  Extensibility
@@ -1429,18 +1485,46 @@ Internet-Draft               MUD YANG Model                February 2017
        a component of the ACE array MUST ignore the entire array entry
        (e.g., not the entire array) and MAY ignore the entire MUD file.
 
-14.  Security Considerations
+14.  Deployment Considerations
 
-   Based on the means a URL is procured, a device may be able to lie
-   about what it is, thus gaining additional network access.  There are
+   Because MUD consists of a number of architectural building blocks, it
+   is possible to assemble different deployment scenarios.  One key
+   aspect is where to place policy enforcement.  In order to protect the
+   device from other devices within a local deployment, policy can be
+   enforced on the nearest switch or access point.  In order to limit
+   unwanted traffic within a network, it may also be advisable to
+   enforce policy as close to the Internet as possible.  In some
+   circumstances, policy enforcement may not be available at the closest
+   hop.  At that point, the risk of so-called east-west infection is
+   increased to the number of devices that are able to communicate
+   without protection.
+
+15.  Security Considerations
+
+   Based on how a MUD-URL is emitted, a device may be able to lie about
+   what it is, thus gaining additional network access.  There are
    several means to limit risk in this case.  The most obvious is to
    only believe devices that make use of certificate-based
    authentication such as IEEE 802.1AR certificates.  When those
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 27]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    certificates are not present, devices claiming to be of a certain
    manufacturer SHOULD NOT be included in that manufacturer grouping
    without additional validation of some form.  This will occur when it
    makes use of primitives such as "manufacturer" for the purpose of
-   accessing devices of a particular type.
+   accessing devices of a particular type.  Similarly, network
+   management systems may be able to fingerprint the device.  In such
+   cases, the MUD-URL can act as a classifier that can be proven or
+   disproven.  Fingerprinting may have other advantages as well: when
+   802.1AR certificates are used, because they themselves cannot change,
+   fingerprinting offers the opportunity to add artificats to the MUD-
+   URL.  The meaning of such artifacts is left as future work.
 
    Network management systems SHOULD NOT accept a usage description for
    a device with the same MAC address that has indicated a change of
@@ -1449,15 +1533,6 @@ Internet-Draft               MUD YANG Model                February 2017
    URL SHOULD be validated by some external means when they would be
    otherwise be given increased network access.
 
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 26]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
    It may be possible for a rogue manufacturer to inappropriately
    exercise the MUD file parser, in order to exploit a vulnerability.
    There are three recommended approaches to address this threat.  The
@@ -1465,16 +1540,16 @@ Internet-Draft               MUD YANG Model                February 2017
    have a system do a primary scan of the file to ensure that it is both
    parseable and believable at some level.  MUD files will likely be
    relatively small, to start with.  The number of ACEs used by any
-   given device should be relatively small as well.  Second, it may be
+   given device should be relatively small as well.  It may also be
    useful to limit retrieval of MUD URLs to only those sites that are
    known to have decent web reputations.
 
    Use of a URL necessitates the use of domain names.  If a domain name
    changes ownership, the new owner of that domain may be able to
    provide MUD files that MUD controllers would consider valid.  There
-   are a few approaches that can mitigate this attack.  First, MUD file
-   servers SHOULD cache certificates used by the MUD file server.  When
-   a new certificate is retrieved for whatever reason, the MUD
+   are a few approaches that can mitigate this attack.  First, MUD
+   controllers SHOULD cache certificates used by the MUD file server.
+   When a new certificate is retrieved for whatever reason, the MUD
    controller should check to see if ownership of the domain has
    changed.  A fair programmatic approximation of this is when the name
    servers for the domain have changed.  If the actual MUD file has
@@ -1485,6 +1560,15 @@ Internet-Draft               MUD YANG Model                February 2017
    Note, this remediation does not take into account the case of a
    device that was produced long ago and only recently fielded, or the
    case where a new MUD controller has been installed.
+
+
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 28]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
 
    The release of a MUD URL by a device reveals what the device is, and
    provides an attacker with guidance on what vulnerabilities may be
@@ -1507,16 +1591,14 @@ Internet-Draft               MUD YANG Model                February 2017
    limiting access to the MUD-URL through the use of mechanisms such as
    DHCPv6-Shield [RFC7610].
 
+   Please note that the security considerations mentioned in Section 4.7
+   of [I-D.ietf-netmod-rfc6087bis] are not applicable in this case
+   because the YANG serialization is not intended to be accessed via
+   NETCONF.
 
+16.  IANA Considerations
 
-Lear, et al.             Expires August 27, 2017               [Page 27]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
-15.  IANA Considerations
-
-15.1.  DHCPv4 and DHCPv6 Options
+16.1.  DHCPv4 and DHCPv6 Options
 
    The IANA has allocated option 161 in the Dynamic Host Configuration
    Protocol (DHCP) and Bootstrap Protocol (BOOTP) Parameters registry
@@ -1525,7 +1607,7 @@ Internet-Draft               MUD YANG Model                February 2017
    IANA is requested to allocated the DHCPv4 and v6 options as specified
    in Section 9.
 
-15.2.  PKIX Extensions
+16.2.  PKIX Extensions
 
    IANA is kindly requested to make the following assignments for:
 
@@ -1537,38 +1619,23 @@ Internet-Draft               MUD YANG Model                February 2017
 
    The use fo these values is specified in Section 10.
 
-15.3.  Well Known URI Suffix
+
+
+Lear, et al.            Expires October 20, 2017               [Page 29]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
+16.3.  Well Known URI Suffix
 
    The IANA has allocated the URL suffix of "mud" as follows:
 
    o URI Suffix: "mud" o Specification documents: this document o
    Related information: n/a
 
-15.4.  MIME Media-type Registration for MUD files
+16.4.  MIME Media-type Registration for MUD files
 
    The following media-type is defined for transfer of MUD file:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 28]
-
-Internet-Draft               MUD YANG Model                February 2017
-
 
     o Type name: application
     o Subtype name: mud+json
@@ -1600,12 +1667,20 @@ Internet-Draft               MUD YANG Model                February 2017
     o Provisional registration? (standards tree only): No.
 
 
-15.5.  LLDP IANA TLV Subtype Registry
+16.5.  LLDP IANA TLV Subtype Registry
 
    IANA is requested to create a new registry for IANA Link Layer
    Discovery Protocol (LLDP) TLV subtype values.  The recommended policy
    for this registry is Expert Review.  The maximum number of entries in
    the registry is 256.
+
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 30]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
 
    IANA is required to populate the initial registry with the value:
 
@@ -1617,16 +1692,7 @@ Internet-Draft               MUD YANG Model                February 2017
 
    Reference = < this document >
 
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 29]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
-15.6.  The MUD Well Known Universal Resource Name (URNs)
+16.6.  The MUD Well Known Universal Resource Name (URNs)
 
    The following parameter registry is requested to be added in
    accordance with [RFC3553]
@@ -1644,43 +1710,44 @@ Internet-Draft               MUD YANG Model                February 2017
    [RFC1123].  "urn:ietf:params:mud:ntp" refers to the service specified
    by [RFC5905].
 
-16.  Acknowledgments
+17.  Acknowledgments
 
    The authors would like to thank Einar Nilsen-Nygaard, Bernie Volz,
    Tom Gindin, Brian Weis, Sandeep Kumar, Thorsten Dahm, John Bashinski,
    Steve Rich, Jim Bieda, and Dan Wing for their valuable advice and
    reviews.  Russ Housley entirely rewrote Section 10 to be a complete
    module.  Adrian Farrel provided the basis for privacy considerations
-   text.  The remaining errors in this work are entirely the
-   responsibility of the author.
+   text.  Kent Watson provided a thorough review of the archictecture
+   and the YANG model.  The remaining errors in this work are entirely
+   the responsibility of the author.
 
-17.  References
+18.  References
 
-17.1.  Normative References
+18.1.  Normative References
 
    [I-D.ietf-anima-bootstrapping-keyinfra]
               Pritikin, M., Richardson, M., Behringer, M., Bjarnason,
               S., and K. Watsen, "Bootstrapping Remote Secure Key
               Infrastructures (BRSKI)", draft-ietf-anima-bootstrapping-
-              keyinfra-04 (work in progress), October 2016.
+              keyinfra-05 (work in progress), March 2017.
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 31]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
 
    [I-D.ietf-netmod-acl-model]
               Bogdanovic, D., Koushik, K., Huang, L., and D. Blair,
               "Network Access Control List (ACL) YANG Data Model",
-              draft-ietf-netmod-acl-model-09 (work in progress), October
-              2016.
+              draft-ietf-netmod-acl-model-10 (work in progress), March
+              2017.
 
-
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 30]
-
-Internet-Draft               MUD YANG Model                February 2017
-
+   [I-D.ietf-netmod-rfc6087bis]
+              Bierman, A., "Guidelines for Authors and Reviewers of YANG
+              Data Model Documents", draft-ietf-netmod-rfc6087bis-12
+              (work in progress), March 2017.
 
    [IEEE8021AB]
               Institute for Electrical and Electronics Engineers, "IEEE
@@ -1711,6 +1778,22 @@ Internet-Draft               MUD YANG Model                February 2017
               for IPv6 (DHCPv6)", RFC 3315, DOI 10.17487/RFC3315, July
               2003, <http://www.rfc-editor.org/info/rfc3315>.
 
+   [RFC3748]  Aboba, B., Blunk, L., Vollbrecht, J., Carlson, J., and H.
+              Levkowetz, Ed., "Extensible Authentication Protocol
+              (EAP)", RFC 3748, DOI 10.17487/RFC3748, June 2004,
+              <http://www.rfc-editor.org/info/rfc3748>.
+
+
+
+
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 32]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
               Resource Identifier (URI): Generic Syntax", STD 66,
               RFC 3986, DOI 10.17487/RFC3986, January 2005,
@@ -1729,14 +1812,6 @@ Internet-Draft               MUD YANG Model                February 2017
    [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
               RFC 5652, DOI 10.17487/RFC5652, September 2009,
               <http://www.rfc-editor.org/info/rfc5652>.
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 31]
-
-Internet-Draft               MUD YANG Model                February 2017
-
 
    [RFC5905]  Mills, D., Martin, J., Ed., Burbank, J., and W. Kasch,
               "Network Time Protocol Version 4: Protocol and Algorithms
@@ -1765,6 +1840,16 @@ Internet-Draft               MUD YANG Model                February 2017
               RFC 6991, DOI 10.17487/RFC6991, July 2013,
               <http://www.rfc-editor.org/info/rfc6991>.
 
+
+
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 33]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    [RFC7227]  Hankins, D., Mrugalski, T., Siodelski, M., Jiang, S., and
               S. Krishnan, "Guidelines for Creating New DHCPv6 Options",
               BCP 187, RFC 7227, DOI 10.17487/RFC7227, May 2014,
@@ -1775,7 +1860,7 @@ Internet-Draft               MUD YANG Model                February 2017
               RFC 7610, DOI 10.17487/RFC7610, August 2015,
               <http://www.rfc-editor.org/info/rfc7610>.
 
-17.2.  Informative References
+18.2.  Informative References
 
    [FW95]     Chapman, D. and E. Zwicky, "Building Internet Firewalls",
               January 1995.
@@ -1783,16 +1868,6 @@ Internet-Draft               MUD YANG Model                February 2017
    [IEEE8021AR]
               Institute for Electrical and Electronics Engineers,
               "Secure Device Identity", 1998.
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 32]
-
-Internet-Draft               MUD YANG Model                February 2017
-
 
    [ISO.8601.1988]
               International Organization for Standardization, "Data
@@ -1820,6 +1895,17 @@ Internet-Draft               MUD YANG Model                February 2017
               Information Model", RFC 6872, DOI 10.17487/RFC6872,
               February 2013, <http://www.rfc-editor.org/info/rfc6872>.
 
+
+
+
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 34]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
    [RFC7042]  Eastlake 3rd, D. and J. Abley, "IANA Considerations and
               IETF Protocol and Documentation Usage for IEEE 802
               Parameters", BCP 141, RFC 7042, DOI 10.17487/RFC7042,
@@ -1840,19 +1926,23 @@ Internet-Draft               MUD YANG Model                February 2017
               RFC 7488, DOI 10.17487/RFC7488, March 2015,
               <http://www.rfc-editor.org/info/rfc7488>.
 
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 33]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
 Appendix A.  Changes from Earlier Versions
 
    RFC Editor to remove this section prior to publication.
+
+   Draft -05 to -06: * Make clear that this is a component architecture
+   (Polk and Watson) * Add order of operations (Watson) * Add extensions
+   leaf-list (Pritikin) * Remove previous-mud-file (Watson) * Modify
+   text in last-update (Watson) * Clarify local networks (Weis, Watson)
+   * Fix contact info (Watson) * Terminology clarification (Weis) *
+   Advice on how to handle LDevIDs (Watson) * Add deployment
+   considerations (Watson) * Add some additional text about
+   fingerprinting (Watson) * Appropriate references to 6087bis (Watson)
+   * Change systeminfo to a URL to be referenced (Lear)
+
+   Draft -04 to -05: * syntax error correction
+
+   Draft -03 to -04: * Re-add my-controller
 
    Draft -02 to -03: * Additional IANA updates * Format correction in
    YANG.  * Add reference to TEAP.
@@ -1861,6 +1951,16 @@ Appendix A.  Changes from Earlier Versions
    rewrite of X.509 text * Include privacy considerations text * Redo
    the URL limit.  Still 255 bytes, but now stated in the URL
    definition.  * Change URI registration to be under urn:ietf:params
+
+
+
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 35]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
 
    Draft -00 to -01: * Fix cert trust text.  * change supportInformation
    to meta-info * Add an informaitonal element in.  * add urn registry
@@ -1881,9 +1981,9 @@ Appendix B.  Default MUD elements
    A complete MUD entry is included below.
 
    {
-     "ietf-mud:meta-info": {
-       "lastUpdate": "2016-09-27T15:10:24+02:00",
-       "cacheValidity": 1440
+     "ietf-mud:metainfo": {
+       "last-update": "2016-09-27T15:10:24+02:00",
+       "cache-validity": 168
      },
      "ietf-acl:access-lists": {
        "ietf-acl:access-list": [
@@ -1898,14 +1998,6 @@ Appendix B.  Default MUD elements
                  "matches": {
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
                    "protocol": 17,
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 34]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
@@ -1918,6 +2010,14 @@ Internet-Draft               MUD YANG Model                February 2017
                  }
                },
                {
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 36]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
                  "rule-name": "entout1-in",
                  "matches": {
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
@@ -1954,14 +2054,6 @@ Internet-Draft               MUD YANG Model                February 2017
          },
          {
            "acl-name": "mud-53134-v4out",
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 35]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
            "acl-type": "ipv4-acl",
            "ietf-mud:packet-direction": "from-device",
            "access-list-entries": {
@@ -1974,6 +2066,14 @@ Internet-Draft               MUD YANG Model                February 2017
                    "source-port-range": {
                      "lower-port": 53,
                      "upper-port": 53
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 37]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
                    }
                  },
                  "actions": {
@@ -2010,14 +2110,6 @@ Internet-Draft               MUD YANG Model                February 2017
                  },
                  "actions": {
                    "permit": [
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 36]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                      null
                    ]
                  }
@@ -2030,6 +2122,14 @@ Internet-Draft               MUD YANG Model                February 2017
            "acl-type": "ipv6-acl",
            "ietf-mud:packet-direction": "to-device",
            "access-list-entries": {
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 38]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
              "ace": [
                {
                  "rule-name": "entout0-in",
@@ -2066,14 +2166,6 @@ Internet-Draft               MUD YANG Model                February 2017
                {
                  "rule-name": "entout2-in",
                  "matches": {
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 37]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                    "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
@@ -2086,6 +2178,14 @@ Internet-Draft               MUD YANG Model                February 2017
                      null
                    ]
                  }
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 39]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
                }
              ]
            }
@@ -2122,14 +2222,6 @@ Internet-Draft               MUD YANG Model                February 2017
                      "upper-port": 53
                    }
                  },
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 38]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
                  "actions": {
                    "permit": [
                      null
@@ -2142,6 +2234,14 @@ Internet-Draft               MUD YANG Model                February 2017
                    "ietf-mud:controller": "urn:ietf:params:mud:ntp",
                    "protocol": 17,
                    "source-port-range": {
+
+
+
+Lear, et al.            Expires October 20, 2017               [Page 40]
+
+Internet-Draft       Manufacturer Usage Descriptions          April 2017
+
+
                      "lower-port": 123,
                      "upper-port": 123
                    }
@@ -2177,15 +2277,6 @@ Authors' Addresses
    Email: rdroms@gmail.com
 
 
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 39]
-
-Internet-Draft               MUD YANG Model                February 2017
-
-
    Dan Romascanu
 
    Email: dromasca@gmail.com
@@ -2202,39 +2293,4 @@ Internet-Draft               MUD YANG Model                February 2017
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.             Expires August 27, 2017               [Page 40]
+Lear, et al.            Expires October 20, 2017               [Page 41]

@@ -37,11 +37,12 @@
     <author initials="D." surname="Romascanu" fullname="Dan Romascanu">
       <organization></organization>
       <address>
+        <phone>+972 54 5555347</phone>
         <email>dromasca@gmail.com</email>
       </address>
     </author>
 
-    <date year="2017" month="April" day="18"/>
+    <date year="2017" month="May" day="15"/>
 
     
     
@@ -254,7 +255,7 @@ specifies.  The abstractions are as follows:</t>
   <t hangText='Manufacturer:'>
   A device made by a particular manufacturer, as identified by the authority
 component of its MUD-URL</t>
-  <t hangText='my-manufacturer:'>
+  <t hangText='same-manufacturer:'>
   Devices that have the same authority component of their MUD-URL.</t>
   <t hangText='Controller:'>
   A device that the local network administrator admits to the particular class.</t>
@@ -885,7 +886,7 @@ outbound access to a cloud service on TCP port 443.</t>
      "acl": [ {
       "acl-name": "inbound-stuff",
       "acl-type" : "ipv4-acl",
-      "ietf-mud:direction" : "to-device",
+      "ietf-mud:packet-direction" : "to-device",
       "access-list-entries": {
          "ace": [
             {
@@ -909,7 +910,7 @@ outbound access to a cloud service on TCP port 443.</t>
          {
       "acl-name": "outbound-stuff",
       "acl-type" : "ipv4-acl",
-      "ietf-mud:direction" : "from-device",
+      "ietf-mud:packet-direction" : "from-device",
       "access-list-entries": {
          "ace": [
             {
@@ -1247,6 +1248,14 @@ policy enforcement may not be available at the closest hop.  At that
 point, the risk of so-called east-west infection is increased to the
 number of devices that are able to communicate without protection.</t>
 
+<t>A caution about some of the classes: admission of a device into the
+“manufacturer” and “same-manufacturer” class may have impact on access
+of other devices.  Put another way, the admission may grow the
+access-list on switches connected to other devices, depending on how
+access is managed.  Therefore, care should be given on managing that
+access-list growth.  Alternative methods such as additional
+segmentation can be used to keep that growth within reason.</t>
+
 </section>
 <section anchor="secon" title="Security Considerations">
 <t>Based on how a MUD-URL is emitted, a device may be able to lie about
@@ -1325,11 +1334,38 @@ DHCPv6-Shield <xref target="RFC7610"/>.</t>
 <t>Please note that the security considerations mentioned in Section 4.7
 of <xref target="I-D.ietf-netmod-rfc6087bis"/> are not applicable in this case
 because the YANG serialization is not intended to be accessed via
-NETCONF.</t>
+NETCONF.  However, for those who try to instantiate this model in a
+device via NETCONF, all objects in each model in this draft exhibit
+similar security characteristics as <xref target="I-D.ietf-netmod-acl-model"/>.
+The basic purpose of MUD is to configure access, and so by its very
+nature can be disruptive if used by unauthorized parties.</t>
 
 </section>
 <section anchor="iana-considerations" title="IANA Considerations">
 
+<section anchor="yang-module-registrations" title="YANG Module Registrations">
+<t>The following YANG modules are requested to be registred in the “IANA
+Module Names” registry:</t>
+
+<t>The ietf-mud module:</t>
+
+<t><list style="symbols">
+  <t>Name: ietf-mud</t>
+  <t>XML Namespace: urn:ietf:params:xml:ns:yang:ietf-mud</t>
+  <t>Prefix: ief-mud</t>
+  <t>Reference: This memo</t>
+</list></t>
+
+<t>The ietf-acldns module:</t>
+
+<t><list style="symbols">
+  <t>Name: ietf-acldns</t>
+  <t>XML Namespace: urn:ietf:params:xml:ns:yang:ietf-acldns</t>
+  <t>Prefix: ietf-acldns</t>
+  <t>Reference: This memo</t>
+</list></t>
+
+</section>
 <section anchor="dhcpv4-and-dhcpv6-options" title="DHCPv4 and DHCPv6 Options">
 
 <t>The IANA has allocated option 161 in the Dynamic Host Configuration
@@ -1995,20 +2031,23 @@ responsibility of the author.</t>
 
 <t>RFC Editor to remove this section prior to publication.</t>
 
-<t>Draft -05 to -06:
- * Make clear that this is a component architecture (Polk and Watson)
- * Add order of operations (Watson)
- * Add extensions leaf-list (Pritikin)
- * Remove previous-mud-file (Watson)
- * Modify text in last-update (Watson)
- * Clarify local networks (Weis, Watson)
- * Fix contact info (Watson)
- * Terminology clarification (Weis)
- * Advice on how to handle LDevIDs (Watson)
- * Add deployment considerations (Watson)
- * Add some additional text about fingerprinting (Watson)
- * Appropriate references to 6087bis (Watson)
- * Change systeminfo to a URL to be referenced (Lear)</t>
+<t>Draft -05 to -06:</t>
+
+<t><list style="symbols">
+  <t>Make clear that this is a component architecture (Polk and Watson)</t>
+  <t>Add order of operations (Watson)</t>
+  <t>Add extensions leaf-list (Pritikin)</t>
+  <t>Remove previous-mud-file (Watson)</t>
+  <t>Modify text in last-update (Watson)</t>
+  <t>Clarify local networks (Weis, Watson)</t>
+  <t>Fix contact info (Watson)</t>
+  <t>Terminology clarification (Weis)</t>
+  <t>Advice on how to handle LDevIDs (Watson)</t>
+  <t>Add deployment considerations (Watson)</t>
+  <t>Add some additional text about fingerprinting (Watson)</t>
+  <t>Appropriate references to 6087bis (Watson)</t>
+  <t>Change systeminfo to a URL to be referenced (Lear)</t>
+</list></t>
 
 <t>Draft -04 to -05:
  * syntax error correction</t>
@@ -2056,8 +2095,8 @@ defaults when they are overriden.</t>
     "last-update": "2016-09-27T15:10:24+02:00",
     "cache-validity": 168
   },
-  "ietf-acl:access-lists": {
-    "ietf-acl:access-list": [
+  "acl:access-lists": {
+    "access-list": [
       {
         "acl-name": "mud-53134-v4in",
         "acl-type": "ipv4-acl",

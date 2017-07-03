@@ -441,7 +441,7 @@
 
   <meta name="dct.creator" content="Lear, E., Droms, R., and D. Romascanu" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-opsawg-mud-07" />
-  <meta name="dct.issued" scheme="ISO8601" content="2017-6-29" />
+  <meta name="dct.issued" scheme="ISO8601" content="2017-7-03" />
   <meta name="dct.abstract" content="This memo specifies a component-based architecture for manufacturer usage descriptions (MUD). This includes two YANG modules, IPv4 and IPv6 DHCP options, an LLDP TLV, a URL suffix specification, an X.509 certificate extension and a means to sign and verify the descriptions." />
   <meta name="description" content="This memo specifies a component-based architecture for manufacturer usage descriptions (MUD). This includes two YANG modules, IPv4 and IPv6 DHCP options, an LLDP TLV, a URL suffix specification, an X.509 certificate extension and a means to sign and verify the descriptions." />
 
@@ -465,7 +465,7 @@
 <td class="right">R. Droms</td>
 </tr>
 <tr>
-<td class="left">Expires: December 31, 2017</td>
+<td class="left">Expires: January 4, 2018</td>
 <td class="right"></td>
 </tr>
 <tr>
@@ -474,7 +474,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">June 29, 2017</td>
+<td class="right">July 03, 2017</td>
 </tr>
 
     	
@@ -490,7 +490,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on December 31, 2017.</p>
+<p>This Internet-Draft will expire on January 4, 2018.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2017 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (http://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -770,13 +770,14 @@
 <li><a href="#RFC6991" class="xref">[RFC6991]</a></li>
 </ul>
 <p id="rfc.section.2.p.3">Publishers of MUD files MUST NOT include other elements except as described in <a href="#extensions" class="xref">Section 3.6</a>, and MUST only contain information relevant to the device being described.  Devices parsing MUD files MUST cease processing if they find other elements.</p>
-<p id="rfc.section.2.p.4">This module is structured into three parts:</p>
+<p id="rfc.section.2.p.4">This module is structured into four parts:</p>
 <p></p>
 
 <ul>
 <li>The first container, metainfo, holds information that is relevant to retrieval and validity of the MUD file itself.</li>
 <li>The second container, device, describes the policies to be applied to traffic to and from the device. The only policy currently defined is a list of access control lists, but the from-device-policy and to-device-policy containers serve as extension points for subsequent augmentation.</li>
-<li>The final container augments the matching container of the ACL model to add several elements that are relevant to the MUD URL, or other otherwise abstracted for use within a local environment.</li>
+<li>The third container augments the matching container of the ACL model to add several elements that are relevant to the MUD URL, or other otherwise abstracted for use within a local environment.</li>
+<li>The fourth container augments the tcp-acl container of the ACL model to add the ability to match on the direction of initiation of a TCP connection.</li>
 </ul>
 <p id="rfc.section.2.p.6">A simplified graphical representation of the data models is used in this document.  The meaning of the symbols in these diagrams is defined in <a href="#I-D.ietf-netmod-rfc6087bis" class="xref">[I-D.ietf-netmod-rfc6087bis]</a>.</p>
 <pre>
@@ -799,14 +800,17 @@ module: ietf-mud
              +--rw access-list* [acl-name acl-type]
                 +--rw acl-name    -&gt; /acl:access-lists/acl/acl-name
                 +--rw acl-type    identityref
-  augment "/acl:access-lists/acl:acl" +
-          "/acl:access-list-entries/acl:ace/acl:matches":
-    +--rw manufacturer?          inet:host
-    +--rw same-manufacturer?     empty
-    +--rw model?                 string
-    +--rw local-networks?        empty
-    +--rw controller?            inet:uri
-    +--rw my-controller?         empty
+  augment /acl:access-lists/acl:acl/acl:access-list-entries\
+          /acl:ace/acl:matches:
+    +--rw mud-acl {mud-acl}?
+       +--rw manufacturer?        inet:host
+       +--rw same-manufacturer?   empty
+       +--rw model?               string
+       +--rw local-networks?      empty
+       +--rw controller?          inet:uri
+       +--rw my-controller?       empty
+  augment /acl:access-lists/acl:acl/acl:access-list-entries\
+          /acl:ace/acl:matches/acl:tcp-acl:
     +--rw direction-initiated?   direction
 </pre>
 <h1 id="rfc.section.3">

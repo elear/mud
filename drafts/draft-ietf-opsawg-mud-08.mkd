@@ -436,7 +436,7 @@ described in {{extensions}}, and MUST only contain information
 relevant to the device being described.  Devices parsing MUD files
 MUST cease processing if they find other elements.
 
-This module is structured into three parts:
+This module is structured into four parts:
 
  * The first container, metainfo, holds information that is relevant
 to retrieval and validity of the MUD file itself.
@@ -447,9 +447,13 @@ to retrieval and validity of the MUD file itself.
  to-device-policy containers serve as extension points for subsequent
  augmentation.
 
- * The final container augments the matching container of the ACL
+ * The third container augments the matching container of the ACL
 model to add several elements that are relevant to the MUD URL, or
 other otherwise abstracted for use within a local environment.
+
+ * The fourth container augments the tcp-acl container of the ACL
+ model to add the ability to match on the direction of initiation of a
+ TCP connection.
 
 A simplified graphical representation of the data models is used in
 this document.  The meaning of the symbols in these diagrams is
@@ -475,14 +479,17 @@ module: ietf-mud
              +--rw access-list* [acl-name acl-type]
                 +--rw acl-name    -> /acl:access-lists/acl/acl-name
                 +--rw acl-type    identityref
-  augment "/acl:access-lists/acl:acl" +
-          "/acl:access-list-entries/acl:ace/acl:matches":
-    +--rw manufacturer?          inet:host
-    +--rw same-manufacturer?     empty
-    +--rw model?                 string
-    +--rw local-networks?        empty
-    +--rw controller?            inet:uri
-    +--rw my-controller?         empty
+  augment /acl:access-lists/acl:acl/acl:access-list-entries\
+          /acl:ace/acl:matches:
+    +--rw mud-acl {mud-acl}?
+       +--rw manufacturer?        inet:host
+       +--rw same-manufacturer?   empty
+       +--rw model?               string
+       +--rw local-networks?      empty
+       +--rw controller?          inet:uri
+       +--rw my-controller?       empty
+  augment /acl:access-lists/acl:acl/acl:access-list-entries\
+          /acl:ace/acl:matches/acl:tcp-acl:
     +--rw direction-initiated?   direction
 ~~~~~~~~~~~~~~~~~
 

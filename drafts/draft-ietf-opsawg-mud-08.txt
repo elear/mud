@@ -5,9 +5,9 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                             Cisco Systems
 Intended status: Standards Track                                R. Droms
-Expires: December 31, 2017
+Expires: January 4, 2018
                                                             D. Romascanu
-                                                           June 29, 2017
+                                                           July 03, 2017
 
 
               Manufacturer Usage Description Specification
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 31, 2017.
+   This Internet-Draft will expire on January 4, 2018.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 1]
+Lear, et al.             Expires January 4, 2018                [Page 1]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    the Trust Legal Provisions and are provided without warranty as
@@ -82,7 +82,7 @@ Table of Contents
      3.6.  extensions  . . . . . . . . . . . . . . . . . . . . . . .  12
      3.7.  packet-direction  . . . . . . . . . . . . . . . . . . . .  12
      3.8.  manufacturer  . . . . . . . . . . . . . . . . . . . . . .  12
-     3.9.  same-manufacturer . . . . . . . . . . . . . . . . . . . .  12
+     3.9.  same-manufacturer . . . . . . . . . . . . . . . . . . . .  13
      3.10. model . . . . . . . . . . . . . . . . . . . . . . . . . .  13
      3.11. local-networks  . . . . . . . . . . . . . . . . . . . . .  13
      3.12. controller  . . . . . . . . . . . . . . . . . . . . . . .  13
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 2]
+Lear, et al.             Expires January 4, 2018                [Page 2]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    14. Deployment Considerations . . . . . . . . . . . . . . . . . .  29
@@ -165,9 +165,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 3]
+Lear, et al.             Expires January 4, 2018                [Page 3]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    The intent of MUD is to therefore solve for the following problems:
@@ -221,9 +221,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 4]
+Lear, et al.             Expires January 4, 2018                [Page 4]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    that states that it will only connect to the single rendezvous
@@ -277,9 +277,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 5]
+Lear, et al.             Expires January 4, 2018                [Page 5]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    is, and what its MUD file server is.  Such mechanisms are not
@@ -333,9 +333,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 6]
+Lear, et al.             Expires January 4, 2018                [Page 6]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    modules are specified.  The first module specifies a means for domain
@@ -389,9 +389,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 7]
+Lear, et al.             Expires January 4, 2018                [Page 7]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    MUD URL:  a URL that can be used by the MUD controller to receive the
@@ -445,9 +445,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 8]
+Lear, et al.             Expires January 4, 2018                [Page 8]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    The information returned by the web site is valid for the duration of
@@ -501,9 +501,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017               [Page 9]
+Lear, et al.             Expires January 4, 2018                [Page 9]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    small number of YANG schema, including the models specified in the
@@ -518,7 +518,7 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
    to the device being described.  Devices parsing MUD files MUST cease
    processing if they find other elements.
 
-   This module is structured into three parts:
+   This module is structured into four parts:
 
    o  The first container, metainfo, holds information that is relevant
       to retrieval and validity of the MUD file itself.
@@ -529,9 +529,13 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
       policy and to-device-policy containers serve as extension points
       for subsequent augmentation.
 
-   o  The final container augments the matching container of the ACL
+   o  The third container augments the matching container of the ACL
       model to add several elements that are relevant to the MUD URL, or
       other otherwise abstracted for use within a local environment.
+
+   o  The fourth container augments the tcp-acl container of the ACL
+      model to add the ability to match on the direction of initiation
+      of a TCP connection.
 
    A simplified graphical representation of the data models is used in
    this document.  The meaning of the symbols in these diagrams is
@@ -553,13 +557,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-
-
-
-
-Lear, et al.            Expires December 31, 2017              [Page 10]
+Lear, et al.             Expires January 4, 2018               [Page 10]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    module: ietf-mud
@@ -581,14 +581,17 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
                 +--rw access-list* [acl-name acl-type]
                    +--rw acl-name    -> /acl:access-lists/acl/acl-name
                    +--rw acl-type    identityref
-     augment "/acl:access-lists/acl:acl" +
-             "/acl:access-list-entries/acl:ace/acl:matches":
-       +--rw manufacturer?          inet:host
-       +--rw same-manufacturer?     empty
-       +--rw model?                 string
-       +--rw local-networks?        empty
-       +--rw controller?            inet:uri
-       +--rw my-controller?         empty
+     augment /acl:access-lists/acl:acl/acl:access-list-entries\
+             /acl:ace/acl:matches:
+       +--rw mud-acl {mud-acl}?
+          +--rw manufacturer?        inet:host
+          +--rw same-manufacturer?   empty
+          +--rw model?               string
+          +--rw local-networks?      empty
+          +--rw controller?          inet:uri
+          +--rw my-controller?       empty
+     augment /acl:access-lists/acl:acl/acl:access-list-entries\
+             /acl:ace/acl:matches/acl:tcp-acl:
        +--rw direction-initiated?   direction
 
 3.  Element Definitions
@@ -606,17 +609,17 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
    This uint8 is the period of time in hours that a network management
    station MUST wait since its last retrieval before checking for an
+
+
+
+
+Lear, et al.             Expires January 4, 2018               [Page 11]
+
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
+
+
    update.  It is RECOMMENDED that this value be no less than 24 and
    MUST NOT be more than 168 for any device that is supported.
-
-
-
-
-
-Lear, et al.            Expires December 31, 2017              [Page 11]
-
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
-
 
 3.3.  masa-server
 
@@ -660,19 +663,22 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
    This element consists of a hostname that would be matched against the
    authority component of another device's MUD URL.
 
+
+
+
+
+
+
+Lear, et al.             Expires January 4, 2018               [Page 12]
+
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
+
+
 3.9.  same-manufacturer
 
    This is an equivalent for when the manufacturer element is used to
    indicate the authority that is found in another device's MUD URL
    matches that of the authority found in this device's MUD URL.
-
-
-
-
-Lear, et al.            Expires December 31, 2017              [Page 12]
-
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
-
 
 3.10.  model
 
@@ -716,19 +722,17 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
    corresponding direction.  [RFC6092] specifies IPv6 guidance best
    practices.  While that document is scoped specifically to IPv6, its
    contents are applicable for IPv4 as well.  When this flag is set, and
+
+
+
+Lear, et al.             Expires January 4, 2018               [Page 13]
+
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
+
+
    the system has no reason to believe a flow has been initiated it MUST
    drop the packet.  This match SHOULD be applied with specific
    transport parameters, such as protocol.
-
-
-
-
-
-
-Lear, et al.            Expires December 31, 2017              [Page 13]
-
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
-
 
 4.  Processing of the MUD file
 
@@ -777,13 +781,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-
-
-
-
-Lear, et al.            Expires December 31, 2017              [Page 14]
+Lear, et al.             Expires January 4, 2018               [Page 14]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 6.  The MUD YANG Model
@@ -837,9 +837,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 15]
+Lear, et al.             Expires January 4, 2018               [Page 15]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
     (http://trustee.ietf.org/license-info).
@@ -893,9 +893,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 16]
+Lear, et al.             Expires January 4, 2018               [Page 16]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
                  valid for these many hours, after which it should
@@ -949,9 +949,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 17]
+Lear, et al.             Expires January 4, 2018               [Page 17]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
             base acl:acl-base;
@@ -1005,9 +1005,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 18]
+Lear, et al.             Expires January 4, 2018               [Page 18]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
     }
@@ -1061,9 +1061,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 19]
+Lear, et al.             Expires January 4, 2018               [Page 19]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
       augment
@@ -1117,9 +1117,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 20]
+Lear, et al.             Expires January 4, 2018               [Page 20]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
           WG List: opsawg@ietf.org
@@ -1173,9 +1173,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 21]
+Lear, et al.             Expires January 4, 2018               [Page 21]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
          },
@@ -1229,9 +1229,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 22]
+Lear, et al.             Expires January 4, 2018               [Page 22]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
               }
@@ -1285,9 +1285,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 23]
+Lear, et al.             Expires January 4, 2018               [Page 23]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 9.1.  Client Behavior
@@ -1341,9 +1341,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 24]
+Lear, et al.             Expires January 4, 2018               [Page 24]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 9.3.  Relay Requirements
@@ -1397,9 +1397,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 25]
+Lear, et al.             Expires January 4, 2018               [Page 25]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    <CODE BEGINS>
@@ -1453,9 +1453,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 26]
+Lear, et al.             Expires January 4, 2018               [Page 26]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    as documented in [RFC7042].  The MUD LLDP extension uses a subtype
@@ -1509,9 +1509,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 27]
+Lear, et al.             Expires January 4, 2018               [Page 27]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 12.  Creating and Processing of Signed MUD Files
@@ -1565,9 +1565,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 28]
+Lear, et al.             Expires January 4, 2018               [Page 28]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 13.  Extensibility
@@ -1621,9 +1621,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 29]
+Lear, et al.             Expires January 4, 2018               [Page 29]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 15.  Security Considerations
@@ -1677,9 +1677,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 30]
+Lear, et al.             Expires January 4, 2018               [Page 30]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    occured, or if for some reason it is not possible to determine
@@ -1733,9 +1733,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 31]
+Lear, et al.             Expires January 4, 2018               [Page 31]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    o  Prefix: ief-mud
@@ -1789,9 +1789,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 32]
+Lear, et al.             Expires January 4, 2018               [Page 32]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
     o Type name: application
@@ -1845,9 +1845,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 33]
+Lear, et al.             Expires January 4, 2018               [Page 33]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 16.7.  The MUD Well Known Universal Resource Name (URNs)
@@ -1901,9 +1901,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 34]
+Lear, et al.             Expires January 4, 2018               [Page 34]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    [I-D.ietf-netmod-rfc6087bis]
@@ -1957,9 +1957,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 35]
+Lear, et al.             Expires January 4, 2018               [Page 35]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
@@ -2013,9 +2013,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 36]
+Lear, et al.             Expires January 4, 2018               [Page 36]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
 18.2.  Informative References
@@ -2069,9 +2069,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 37]
+Lear, et al.             Expires January 4, 2018               [Page 37]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    [RFC7452]  Tschofenig, H., Arkko, J., Thaler, D., and D. McPherson,
@@ -2125,9 +2125,9 @@ Appendix A.  Changes from Earlier Versions
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 38]
+Lear, et al.             Expires January 4, 2018               [Page 38]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
    Draft -01 to -02: * Update IANA considerations * Accept Russ Housley
@@ -2181,9 +2181,9 @@ Appendix B.  Default MUD elements
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 39]
+Lear, et al.             Expires January 4, 2018               [Page 39]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
                      null
@@ -2237,9 +2237,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 40]
+Lear, et al.             Expires January 4, 2018               [Page 40]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
                    "ietf-mud:controller": "urn:ietf:params:mud:dns",
@@ -2293,9 +2293,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 41]
+Lear, et al.             Expires January 4, 2018               [Page 41]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
          {
@@ -2349,9 +2349,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 42]
+Lear, et al.             Expires January 4, 2018               [Page 42]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
                  "actions": {
@@ -2405,9 +2405,9 @@ Internet-Draft       Manufacturer Usage Descriptions           June 2017
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 43]
+Lear, et al.             Expires January 4, 2018               [Page 43]
 
-Internet-Draft       Manufacturer Usage Descriptions           June 2017
+Internet-Draft       Manufacturer Usage Descriptions           July 2017
 
 
                  "rule-name": "entout2-in",
@@ -2461,4 +2461,4 @@ Authors' Addresses
 
 
 
-Lear, et al.            Expires December 31, 2017              [Page 44]
+Lear, et al.             Expires January 4, 2018               [Page 44]

@@ -770,16 +770,21 @@
 <li><a href="#RFC6991" class="xref">[RFC6991]</a></li>
 </ul>
 <p id="rfc.section.2.p.3">Publishers of MUD files MUST NOT include other elements except as described in <a href="#extensions" class="xref">Section 3.6</a>, and MUST only contain information relevant to the device being described.  Devices parsing MUD files MUST cease processing if they find other elements.</p>
-<p id="rfc.section.2.p.4">This module is structured into four parts:</p>
+<p id="rfc.section.2.p.4">&#171;&#171;&#171;&lt; HEAD This module is structured into four parts: ======= This module is structured into three parts: &#187;&#187;&#187;&gt; 65993f0e9f5c2f7fbecf691a46d9374307e1891e</p>
 <p></p>
 
 <ul>
 <li>The first container, metainfo, holds information that is relevant to retrieval and validity of the MUD file itself.</li>
 <li>The second container, device, describes the policies to be applied to traffic to and from the device. The only policy currently defined is a list of access control lists, but the from-device-policy and to-device-policy containers serve as extension points for subsequent augmentation.</li>
-<li>The third container augments the matching container of the ACL model to add several elements that are relevant to the MUD URL, or other otherwise abstracted for use within a local environment.</li>
-<li>The fourth container augments the tcp-acl container of the ACL model to add the ability to match on the direction of initiation of a TCP connection.</li>
 </ul>
-<p id="rfc.section.2.p.6">A simplified graphical representation of the data models is used in this document.  The meaning of the symbols in these diagrams is defined in <a href="#I-D.ietf-netmod-rfc6087bis" class="xref">[I-D.ietf-netmod-rfc6087bis]</a>.</p>
+<p id="rfc.section.2.p.6">&#171;&#171;&#171;&lt; HEAD * The third container augments the matching container of the ACL model to add several elements that are relevant to the MUD URL, or other otherwise abstracted for use within a local environment.</p>
+<p></p>
+
+<ul><li>The fourth container augments the tcp-acl container of the ACL model to add the ability to match on the direction of initiation of a TCP connection.</li></ul>
+<p id="rfc.section.2.p.8">======= * The final container augments the matching container of the ACL model to add several elements that are relevant to the MUD URL, or other otherwise abstracted for use within a local environment.</p>
+<p></p>
+
+<ul class="empty"><li><ul class="empty"><li><ul class="empty"><li><ul class="empty"><li><ul class="empty"><li><ul class="empty"><li><ul class="empty"><li>65993f0e9f5c2f7fbecf691a46d9374307e1891e A simplified graphical representation of the data models is used in this document.  The meaning of the symbols in these diagrams is defined in <a href="#I-D.ietf-netmod-rfc6087bis" class="xref">[I-D.ietf-netmod-rfc6087bis]</a>.</li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></li></ul>
 <pre>
 module: ietf-mud
     +--rw metainfo
@@ -800,7 +805,7 @@ module: ietf-mud
              +--rw access-list* [acl-name acl-type]
                 +--rw acl-name    -&gt; /acl:access-lists/acl/acl-name
                 +--rw acl-type    identityref
-  augment /acl:access-lists/acl:acl/acl:access-list-entries\
+  augment /acl:access-lists/acl:acl/acl:access-list-entries \
           /acl:ace/acl:matches:
     +--rw mud-acl {mud-acl}?
        +--rw manufacturer?        inet:host
@@ -809,7 +814,7 @@ module: ietf-mud
        +--rw local-networks?      empty
        +--rw controller?          inet:uri
        +--rw my-controller?       empty
-  augment /acl:access-lists/acl:acl/acl:access-list-entries\
+  augment /acl:access-lists/acl:acl/acl:access-list-entries \
           /acl:ace/acl:matches/acl:tcp-acl:
     +--rw direction-initiated?   direction
 </pre>
@@ -904,7 +909,7 @@ module: ietf-mud
 <a href="#rfc.section.6">6.</a> <a href="#the-mud-yang-model" id="the-mud-yang-model">The MUD YANG Model</a>
 </h1>
 <pre>
-&lt;CODE BEGINS&gt;file "ietf-mud@2017-06-29.yang"
+&lt;CODE BEGINS&gt;file "ietf-mud@2017-07-03.yang"
 module ietf-mud {
  yang-version 1.1;
  namespace "urn:ietf:params:xml:ns:yang:ietf-mud";
@@ -954,6 +959,13 @@ module ietf-mud {
    This version of this YANG module is part of RFC XXXX; see
    the RFC itself for full legal notices.";
 
+ revision "2017-07-03"  {
+   description
+     "More work on ACL usage.";
+   reference "RFC XXXX: Manufacturer Usage Description
+              Specification";
+ }
+
  revision "2017-06-29"  {
    description
      "Take packet directionality out of ACL. " +
@@ -981,7 +993,18 @@ module ietf-mud {
         }
     description "Which way are we talking about?";
  }
- 
+
+ identity mud-acl {
+   base "acl:acl-base";
+   description
+     "ACL that contains MUD-specific access control list entries.";
+ }
+
+ feature mud-acl {
+   description
+     "MUD ACL augmentations supported.";
+ }
+
  container metainfo  {
 
    description "Information about when support end(ed), and
@@ -1085,41 +1108,56 @@ module ietf-mud {
     "acl:matches" {
    description "adding abstractions to avoid need of IP addresses";
 
-   leaf manufacturer {
-     type inet:host;
-     description "authority component of the manufacturer URI";
-   }
-
-   leaf same-manufacturer {
-     type empty;
-     description "expand to ACEs for each device
+   container mud-acl {
+     if-feature mud-acl;
+     must "../../../../acl-type = 'ietf-mud:mud-acl'";
+     
+     description
+       "TODO; improve. MUD-specific matches.";
+     
+     leaf manufacturer {
+       type inet:host;
+       description "authority component of the manufacturer URI";
+     }
+     
+     leaf same-manufacturer {
+       type empty;
+       description "expand to ACEs for each device
                   with the same origin";
-   }
-
-   leaf model {
+     }
+     
+     leaf model {
        type string;
        description "specific model (including version) for a
                     given manufacturer";
-   }
-
-   leaf local-networks {
-     type empty;
-     description "this string is used to indicate networks
+     }
+     
+     leaf local-networks {
+       type empty;
+       description "this string is used to indicate networks
                   considered local in a given environment.";
-   }
-
-   leaf controller {
-     type inet:uri;
-     description "expands to one or more controllers for a
+     }
+     
+     leaf controller {
+       type inet:uri;
+       description "expands to one or more controllers for a
                   given service that is codified by inet:uri.";
-   }
-
-   leaf my-controller {
-     type empty;
-     description "This element indicates that the network should manage
+     }
+     
+     leaf my-controller {
+       type empty;
+       description "This element indicates that the network should manage
                   a class of devices related to this MUD-URL that are
                   intended to control this device.";
+     }
    }
+ 
+ }
+ 
+ augment "/acl:access-lists/acl:acl/" +
+   "acl:access-list-entries/acl:ace/" +
+   "acl:matches/acl:tcp-acl" {
+   description "Adding domain names to matching";
    leaf direction-initiated {
      type direction;
      description "which direction a flow was initiated";
@@ -1134,13 +1172,17 @@ module ietf-mud {
 <p id="rfc.section.7.p.1">This module specifies an extension to IETF-ACL model such that domain names may be referenced by augmenting the &#8220;matches&#8221; element.  Different implementations may deploy differing methods to maintain the mapping between IP address and domain name, if indeed any are needed.  However, the intent is that resources that are referred to using a name should be authorized (or not) within an access list.</p>
 <p id="rfc.section.7.p.2">The structure of the change is as follows:</p>
 <pre>
-   augment
-   /acl:access-lists/acl:acl/acl:access-list-entries
-      /acl:ace/acl:matches/acl:ace-type/acl:ace-ip:
-      +--rw src-dnsname?        inet:host
-      +--rw dst-dnsname?        inet:host
+module: ietf-acldns
+  augment /acl:access-lists/acl:acl/acl:access-list-entries \
+          /acl:ace/acl:matches/acl:ipv4-acl:
+    +--rw src-dnsname?   inet:host
+    +--rw dst-dnsname?   inet:host
+  augment /acl:access-lists/acl:acl/acl:access-list-entries \
+          /acl:ace/acl:matches/acl:ipv6-acl:
+    +--rw src-dnsname?   inet:host
+    +--rw dst-dnsname?   inet:host
 </pre>
-<p id="rfc.section.7.p.3">The choice of this particular point in the access-list model is based on the assumption that we are in some way referring to IP-related resources, as that is what the DNS returns.  A domain name in our context is defined in <a href="#RFC6991" class="xref">[RFC6991]</a>.</p>
+<p id="rfc.section.7.p.3">The choice of these particular points in the access-list model is based on the assumption that we are in some way referring to IP-related resources, as that is what the DNS returns.  A domain name in our context is defined in <a href="#RFC6991" class="xref">[RFC6991]</a>. The augmentations are replicated across IPv4 and IPv6 to allow MUD file autjors the ability to control the IP version that the device may utilize.</p>
 <p id="rfc.section.7.p.4">The following elements are defined.</p>
 <h1 id="rfc.section.7.1">
 <a href="#rfc.section.7.1">7.1.</a> <a href="#source-dnsname" id="source-dnsname">source-dnsname</a>
@@ -1155,12 +1197,11 @@ module ietf-mud {
 </h1>
 <pre>
 &lt;CODE BEGINS&gt;file "ietf-acldns@2016-07-20.yang"
-
 module ietf-acldns {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-acldns";
   prefix "ietf-acldns";
-  
+
   import ietf-access-control-list {
     prefix "acl";
   }
@@ -1168,7 +1209,7 @@ module ietf-acldns {
   import ietf-inet-types {
     prefix "inet";
   }
-  
+
   organization
     "IETF OPSAWG (Ops Area) Working Group";
 
@@ -1183,11 +1224,16 @@ module ietf-acldns {
        dromasca@gmail.com
     ";
 
-
   description
     "This YANG module defines a component that augments the
      IETF description of an access list to allow dns names
      as matching criteria.";
+
+  revision "2017-07-03" {
+    description "Clone across IP ACL types.";
+    reference "RFC XXXX: Manufacturer Usage Description
+               Specification";
+  }
 
   revision "2016-07-20" {
     description "Base version of dnsname extension of ACL model";
@@ -1195,10 +1241,8 @@ module ietf-acldns {
                Specification";
   }
 
-  augment "/acl:access-lists/acl:acl/" +
-     "acl:access-list-entries/acl:ace/" +
-     "acl:matches/acl:ace-type/acl:ace-ip" {
-    description "adding domain names to matching";
+  grouping DNS_MATCHES {
+    description "Domain names for matching.";
 
     leaf src-dnsname {
       type inet:host;
@@ -1209,14 +1253,28 @@ module ietf-acldns {
       description "domain name to be matched against";
     }
   }
+  
+  augment "/acl:access-lists/acl:acl/" +
+     "acl:access-list-entries/acl:ace/" +
+     "acl:matches/acl:ipv4-acl" {
+    description "Adding domain names to matching";
+    uses DNS_MATCHES;
+  }
+  
+  augment "/acl:access-lists/acl:acl/" +
+     "acl:access-list-entries/acl:ace/" +
+     "acl:matches/acl:ipv6-acl" {
+    description "Adding domain names to matching";
+    uses DNS_MATCHES;
+  }
 }
-
 &lt;CODE ENDS&gt;
 </pre>
 <h1 id="rfc.section.8">
 <a href="#rfc.section.8">8.</a> <a href="#mud-file-example" id="mud-file-example">MUD File Example</a>
 </h1>
 <p id="rfc.section.8.p.1">This example contains two access lists that are intended to provide outbound access to a cloud service on TCP port 443.</p>
+<p id="rfc.section.8.p.2">TODO: MAY NEED REVISED!</p>
 <pre>
 {
    "ietf-mud:metainfo": {

@@ -44,7 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use \DateTime;
 
 $aclhead= <<< ACL_HEAD
-"ietf-acl:access-lists" : {
+"ietf-access-control-list:access-lists" : {
   "acl" : 
   
 ACL_HEAD;
@@ -57,11 +57,41 @@ $downloadtext=<<< DOWNLOAD
 </form>
 DOWNLOAD;
   
+$actxt1=<<<  ACTXT1
+
+  "ietf-mud:device" : {
+    "from-device-policy" : {
+        "access-lists" : {
+            "access-list" : [
+
+ACTXT1;
+
+$actxt1a=<<< ACTXT1A
+            ] 
+        }
+    },
+    "to-device-policy" : {
+      "access-lists" : {
+            "access-list" : [
+ACTXT1A;
+                
+
+$actxt2=<<< ACTXT2
+                   ]
+                 }
+        }
+},
+ACTXT2;
+
+
 define("IS_LOCAL",1);
 define("IS_MFG", 2);
 define("IS_CONTROLLER", 3);
 define("IS_CLOUD", 4);
+define("IS_MY_CONTROLLER", 5);
+define("IS_MYMFG", 6);
 
+  
 
 /* Rather than try to pretty print the json throughout, I have 
  * borrowed some code from Kendall Hopkins and George Garchagudashvili
@@ -140,90 +170,122 @@ function prettyPrint( $json )
 
 
 
-define(IS_LOCAL,1);
-define(IS_MFG, 2);
-define(IS_CONTROLLER, 3);
-define(IS_CLOUD, 4);
-
-
 // add a line to an acl.  
 
 $gotin = 0;
 $gotout = 0;
 $fail=0;	/* set if someone is screwing with us */
 
+function errorexit($errstr)  {
+    
+  print "<!DOCTYPE html>\n<html>\n<body>\n";
 
-function addace($acename, $pdirect, $target, $proto, $port, $type,$idirect) {
+  print "<h1>Error</h1>";
+  print "<p>";
+  print $errstr;
+  print "</p><p>Please click back and correct.</p>";
+  print "</body></html>";
+  exit;
+}
   
+function mkportrange($rname,$port) {
+    if ( $port == 'any' ) {
+        return "";
+    }
+    $frag = ', "' . $rname . '"  : ' . 
+    "{\n" . '"lower-port" : ' . $port . ",\n" .
+    ' "upper-port" : ' . $port . "\n }";
+    return $frag;
+}
+  
+
+function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirinit) {
+  
+
   $ace="   {\n   " . '"rule-name" :' . '"' . $acename . '"' . ",\n" .
     '   "matches" : {';
 
-  $ace = $ace . '"ietf-mud:direction-initiated": "' . $idirect . '",' . "\n";
-  
-  if ( $pdirect == "to-device" ) {
-    $protmfrag = '"source-port-range"';
-    } else {
-    $protmfrag = '"destination-port-range"';
-  }
   
   if ( strlen($target) > 120 ) {
-    $fail=1;
-    return('');
+    errorexit("string too long: " . $target);
   }
 
   switch ($type) {
     case IS_LOCAL:
-      $ace = $ace . '  "ietf-mud:local-networks" : [ null ]';
+      $ace = $ace . '  "ietf-mud:mud-acl" : { "local-networks" : [ null ] }';
+      break;
+    case IS_MY_CONTROLLER:
+      $ace = $ace . '  "ietf-mud:mud-acl" : { "my-controller" : [ null ] }';
       break;
     case IS_CONTROLLER:
       // uri validator courtesy of...
       // https://www.sitepoint.com/community/t/url-validation-with-preg-match/3255/2
-      if ( ! preg_match('/^(http|https):\\/\\/[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i',$target) &&
-	   ! preg_match ("^urn:[a-z0-9][a-z0-9-]{0,31}:[a-z0-9()+,\-.:=@;\$_!*'%/?#]+$^", $target)) {
-	$fail=1;
-	return('');
+      if ( ! preg_match('/^(http|https):\\/\\/[a-zA-Z0-9_]+([\\-\\.]{1}[a-zA-Z_0-9]+)*\\.[_a-zA-Z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i',$target) &&
+	   ! preg_match ("^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:[a-zA-Z0-9()+,\-.:=@;\$_!*'%/?#]+$^", $target)) {
+	errorexit("Not a valid URL: " . $target);
       }
-      $ace = $ace . '      "ietf-mud:controller" : "' . $target . '"';
+      $ace = $ace . '      "ietf-mud:mud-acl" { "controller" : "' . $target . '" }';
       break;
     case IS_CLOUD:
-      if ( $pdirect == "to-device" ) {
-	$ace = $ace . '"ietf-acldns:src-dnsname": "';
-      } else {
-	$ace = $ace . '"ietf-acldns:dst-dnsname": "';
+      if ( ! preg_match('/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/',$target)) {
+	errorexit("Not a domain name: " . $target);
       }
-      $ace = $ace . $target . '"'; /* add host to ACE */
+    
+      if ( $pdirect == "to-device" ) {
+	$ace = $ace . '"ipv4-acl" : { "ietf-acldns:src-dnsname": "';
+      } else {
+	$ace = $ace . '"ipv4-acl" : { "ietf-acldns:dst-dnsname": "';
+      }
+      $ace = $ace . $target . '" }'; /* add host to ACE */
       break;
     case IS_MFG:
-      if ( ! preg_match('/[a-z0-9.-]+\.[a-z]{2,3}$/',$target)) {
-        $fail=1;
-        return('');
-      }
-      $ace = $ace . '      "ietf-mud:manufacturer" : "' . $target . '"';
-      break;
+        if ( ! preg_match('/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/',$target)) {
+            errorexit("Not a domain name: " . $target);
+        }
+        $ace = $ace . '      "ietf-mud:manufacturer" : "' . $target . '"';
+        break;
+    case IS_MYMFG:
+        $ace = $ace . '     "ietf-mud:same-manufacturer" : [ null ]';
+        break;
+    
   }
   
     /* in both cases we left off the comma because we don't know if there
      * is another line, so... */
 
-    if ( $proto != 'any' ) {
+  if ( $proto != 'any' ) {
       if ( $proto == 'tcp' ) {
-	$np = '6';
+          $np = '6';
+          if ( $dirinit == 'thing' ) {
+              $initfrag=', "tcp-acl" : { "ietf-mud:direction-initiated" : "from-device" }';
+          } else {
+              if ( $dirinit == "remote" ) {
+              $initfrag=', "tcp-acl" : { "ietf-mud:direction-initiated" : "to-device" }';
+              }
+          }
       } else {
-	if ( $proto == 'udp') {
-	  $np = '17';
-	}
-	else {
-	  $fail=1;
-	  return('');
-	  
-	}
+          if ( $proto == 'udp') {
+              $np = '17';
+          }
+          else {
+              errorexit("Impossible proto error? " . $proto);
+          }
       }
-      $protbfrag = ",\n" . ' "protocol" : ' . $np . ",\n";
-      $protefrag = " : {\n" . '"lower-port" : ' . $port . ",\n" .
-	'      "upper-port" : ' . $port . "\n }";
+  $protbfrag = ",\n" . ' "protocol" : ' . $np . "\n";
+  $protoefrag='';
+
+  if ( $pdirect == "to-device"  ) {
+      $pfrag= mkportrange("source-port-range",$port);
+      $pfrag= $pfrag . mkportrange("destination-port-range",$lport);
+  } else {
+      $pfrag=mkportrange("destination-port-range",$port);
+      $pfrag=$pfrag . mkportrange("source-port-range",$lport);
+  }
       
-      $ace = $ace . $protbfrag . $protmfrag . $protefrag;
-    }
+      $ace = $ace . $protbfrag . $pfrag . $initfrag;
+  
+  }
+  
     
 
     /* now close off matches, add action to the ACE and return it. */
@@ -233,9 +295,18 @@ function addace($acename, $pdirect, $target, $proto, $port, $type,$idirect) {
     return($ace);
 }
                
+  function checkportrange($p) {
 
+      if ( $p != 'any' ) {
+          if ( (! is_numeric($p)) || ( $p < 0 || $p > 65535 )) {
+              errorexit('Invalid port range: use "any" or 0 - 65536');
+          }
+      }
+}
+  
 
-function buildacegroup(&$target, &$proto, &$portarray, $namehead,$type,$direction) 
+function buildacegroup(&$target, &$proto, &$portl, &$portarray,
+                       &$dirinit,  $namehead,$type) 
 {
   global $inbound, $outbound, $gotin, $gotout;
 
@@ -252,169 +323,153 @@ function buildacegroup(&$target, &$proto, &$portarray, $namehead,$type,$directio
   }
 
   // loop through all entries in array
+  // we can rely on proto as being set to SOME value...
+
   for ($i = 0; isset($proto[$i]); $i++)
     {
-      // for each outbound connection build two ACEs, one for the inbound ACL and
+      // for each line build two ACEs, one for the inbound ACL and
       // one for the outbound ACL.
-
+      
       if ( $target[$i] == '' ) { // there may be no there there, especially on 0.
-	continue;
+          continue;
       }
       
       if ( $i > 0 ) {
-	$outbound = $outbound . "  ,\n";
-	$inbound = $inbound . "  ,\n";
+          $outbound = $outbound . "  ,\n";
+          $inbound = $inbound . "  ,\n";
       }
 
       if ( $proto[$i] == 'any' ) {
-	$port = FALSE;
+          $port = FALSE;
       } else {
-	if ( $proto[$i] == 'udp' || $proto[$i] == 'tcp') {
-	  $port = $portarray[$i];
-	  if (! is_numeric($port) ) {
-	    $fail=1;
-	    return;
-	  }
-	  if ( $port < 0 || $port > 65535 ) {
-	    $fail=1;
-	    return;
-	  }
-	}
-	else {
-	  $fail=1;
-	  return;
-	}
+          if ( $proto[$i] == 'udp' || $proto[$i] == 'tcp') {
+              $port = $portarray[$i];
+      
+              checkportrange($port);
+              checkportrange($portl[$i]);
+          }
+          else {
+              errorexit("unsupported protocol");
+          }
+      }
+      if ( $proto[$i] != 'tcp' && $dirinit[$i] != 'either' ) {
+          errorexit("direction initiated requires TCP");
       }
       
-      $s1= $namehead  . $i . "-out" ;
-      $s2= $namehead . $i . "-in";
+      
+      $s1= $namehead  . $i . "-frdev" ;
+      $s2= $namehead . $i . "-todev";
       
       /* a little kludge here.  if we are dealing with local networks
        * then $target is = FALSE.
        */
 
       if ( $type == IS_LOCAL ) {
-	$t2 = 'local';
+          $t2 = 'local';
       } else {
-	$t2= $target[$i];
+          $t2= $target[$i];
       }
       
-      
-      
       $outbound = $outbound . addace($s1,"from-device", 
-				     $t2, $proto[$i],
-				     $port, $type,$direction);
+                     $t2, $proto[$i],$portl[$i],
+				     $port, $type,$dirinit[$i]);
       
       $inbound = $inbound . addace($s2,"to-device",
-				     $t2, $proto[$i],
-				   $port, $type,$direction);
+                   $t2, $proto[$i], $portl[$i],
+				   $port, $type,$dirinit[$i]);
     }
 }
+
 
   
 $inbound="";
 $outbound="";
     
-  
-// We start by processing outbound cloud communications
+$choice=$_POST['ipchoice'];
 
-if ( isset($_POST['cloutbox'] ) ) {
+if ( $choice != 'ipv4' && $choice != 'ipv6' && $choice != 'both' ) {
+  errorexit("No IP version chosen");
+}
+  
+// We start by processing cloud communications
+
+if ( isset($_POST['clbox'] ) ) {
   // build based on cloud outbound
 
-  if (isset($_POST['clportout']))  { // distinctly possible user didn't enter ports
-    $clportout= $_POST['clportout'];
+  if (isset($_POST['clport']))  { // distinctly possible user didn't enter ports
+    $clport= $_POST['clport'];
   } else {
-    $clportout= FALSE;
+    $clport= FALSE;
   }
   
-  buildacegroup($_POST['clnamesout'],$_POST['clprotoout'],$clportout,
-		"clout",IS_CLOUD,"from-device");
+  buildacegroup($_POST['clnames'],$_POST['clproto'],$_POST['clportl'],$clport,
+      $_POST['clinit'], "cl",IS_CLOUD);
 
 }
 
 
-// Next cloud inbound communications
 
-if ( isset($_POST['clinbox'] )) {
-  // build based on cloud inbound
+// Next controller (enterprise)
 
-  if (isset($_POST['clportin'])) {
-    $clportin =  $_POST['clportin'];
-  } 
-  else {
-    $clportin = FALSE;
-  }
-
-  buildacegroup($_POST['clnamesin'],$_POST['clprotoin'],$clportin,
-		"clin",IS_CLOUD,"to-device");
-}
-
-
-
-// Next enterprise outbound
-
-if ( isset($_POST['entoutbox'] )) {
+if ( isset($_POST['entbox'] )) {
   // build based on enterprise outbound
   
-  if (isset($_POST['entportout']))  {
+  if (isset($_POST['entproto']))  {
     // distinctly possible user didn't enter ports   
-    $entportout= $_POST['entportout'];
+    $entport= $_POST['entport'];
     
   } else {
-    $entportout= FALSE;
+    $entport= FALSE;
   }
   
-  buildacegroup($_POST['entctrlout'],$_POST['entprotoout'],$entportout,
-		"entout",IS_CONTROLLER,"from-device");
+  buildacegroup($_POST['entnames'],$_POST['entproto'],$_POST['entportl'],$entport,
+      $_POST['entinit'], "ent",IS_CONTROLLER);
+
 }
 
-// enterprise inbound
-if ( isset($_POST['entinbox'] )) {
-  // build based on enterprise inbound
-  if (isset($_POST['entportin']))  {
-    $entportout= $_POST['entportin'];    
-  }
-  else {
-    $entportout= FALSE;
-  }
+// my-controller 
 
-  buildacegroup($_POST['entctrlin'],$_POST['entprotoin'],$entportin,
-		"entin",IS_CONTROLLER,"to-device");
-}
+  if (isset($_POST['myctlport']))  {
+    // distinctly possible user didn't enter ports   
+    $myctlport= $_POST['myctlport'];
+    
+  } else {
+    $myctlport= FALSE;
+  }
+  if ( isset($_POST['myctlbox']) ) {
+    // build my-controller
+      
+      buildacegroup($_POST['myctlnames'],$_POST['myctlproto'],$_POST['myctlportl'],
+      $myctlport, $_POST['myctlinit'], "myctl",IS_MY_CONTROLLER);
+  }
 
 // local services
 
-if ( isset($_POST['localoutbox'])) {
+if ( isset($_POST['locbox'])) {
   // build local outbound services.
-  buildacegroup($_POST['localout'], $_POST['locprotoout'], $_POST['locportout'],
-		"locout",IS_LOCAL,"from-device");
+    
+  buildacegroup($_POST['locnames'],$_POST['locproto'],$_POST['locportl'],
+     $_POST['locport'], $_POST['locinit'], "loc",IS_LOCAL);
 }
 
-if ( isset($_POST['localinbox'])) {
+// manufacturer
+
+if ( isset($_POST['manbox'])) {
   // build local inbound services.
-  buildacegroup($_POST['localin'], $_POST['locprotoin'], $_POST['locportin'],
-		"locin",IS_LOCAL,"to-device");
+  buildacegroup($_POST['mannames'],$_POST['manproto'],$_POST['manportl'],
+     $manport, $_POST['maninit'], "man",IS_MFG);
 }
 
-// Same manufacturer
-
-if ( isset($_POST['maninbox'])) {
+// my-manufacturer
+if ( isset($_POST['mymanbox'])) {
   // build local inbound services.
-  buildacegroup($_POST['mannamesin'], $_POST['manprotoin'], $_POST['manportin'],
-		"manin",IS_MFG,"to-device");
-}
-if ( isset($_POST['manoutbox'])) {
-  // build local inbound services.
-  buildacegroup($_POST['mannamesout'], $_POST['manprotoout'], $_POST['manportout'],
-		"manout",IS_MFG,"from-device");
+  buildacegroup($_POST['mymannames'],$_POST['mymanproto'],$_POST['mymanportl'],
+     $mymanport, $_POST['mymaninit'], "myman",IS_MYMFG);
+
 }
 
 
-  $choice=$_POST['ipchoice'];
-  if ( $choice != 'ipv4' && $choice != 'ipv6' && $choice != 'both' ) {
-    $fail=1;
-  }
-  
+
 if ( $fail ) {
   exit;
 }
@@ -434,48 +489,89 @@ if ( $gotin > 0 || $gotout > 0 ) {
   }
   $sysDesc=htmlspecialchars($_POST['sysDescr'],ENT_QUOTES);
 
-  $supportInfo = '"ietf-mud:meta-info": { "lastUpdate" : "' . $time . '",' . "\n" .
+  $supportInfo = '"ietf-mud:metainfo": { "last-update" : "' . $time . '",' . "\n" .
   $masa . '"systeminfo": "' . $sysDesc . '",' . "\n" .
-  '"cacheValidity" : 1440 },';
-  $output = "{\n". $supportInfo . "\n" . $aclhead;
-
+  '"cache-validity" : 168 },';
+  $devput = "{\n". $supportInfo . "\n";
 
   $mudname="mud-" . rand(10000,99999) . "-";
+  $v4in = $mudname . "v4to";
+  $v4out = $mudname . "v4fr";
+  $v6in  = $mudname . "v6to";
+  $v6out = $mudname . "v6fr";
 
+  $pre4in='';
+  $pre4out='';
+  $pre6in='';
+  $pre6out='';
+  $output='';
+  
+
+  
   if ( $choice == "ipv4" || $choice == "both" ) {
-  $ipv4inbound = '[ { "acl-name" : "' . $mudname . "v4in" . '",' . "\n" .
-    '"acl-type" : "ipv4-acl",' . "\n" .
-    '"ietf-mud:packet-direction" : "to-device",' .
-    "\n" . '"access-list-entries" : {' . '"ace" : [';
-  $ipv4outbound = ' { "acl-name" : "' . $mudname . "v4out" . '",' . "\n" .
-     '"acl-type" : "ipv4-acl",' . "\n" .
-     '"ietf-mud:packet-direction" : "from-device",' .
-     "\n" . '"access-list-entries" : {'  . '"ace" : [';
-  $ipv4inbound= $ipv4inbound . $inbound . " ]}},\n";
-  $ipv4outbound= $ipv4outbound . $outbound . " ]}}\n";
-  $output = $output . $ipv4inbound . $ipv4outbound;
+      $pre4in = '{ "acl-name" : "' . $v4in . '", ' . "\n" .
+          '"acl-type" : "ietf-access-control-list:ipv4-acl" }' . "\n";
+      $pre4out =  '{ "acl-name" : "' . $v4out . '", ' . "\n" .
+          '"acl-type" : "ietf-access-control-list:ipv4-acl" }' . "\n";
+      $ipv4inbound = '[ { "acl-name" : "' . $v4in . '",' . "\n" .
+          '"acl-type" : "ipv4-acl",' .
+          "\n" . '"access-list-entries" : {' . '"ace" : [';
+      $ipv4outbound = ' { "acl-name" : "' . $v4out . '",' . "\n" .
+          '"acl-type" : "ipv4-acl",'  .
+          "\n" . '"access-list-entries" : {'  . '"ace" : [';
+      $ipv4inbound= $ipv4inbound . $inbound . " ]}},\n";
+      $ipv4outbound= $ipv4outbound . $outbound . " ]}}\n";
+      $output = $output . $ipv4inbound . $ipv4outbound;
   
     }
 
   if ( $choice == "ipv6" || $choice == "both" ) {
-    $ipv6inbound = '[ { "acl-name" : "' . $mudname . "v6in" . '",' . "\n" .
-       '"acl-type" : "ipv6-acl",' . "\n" .
-       '"ietf-mud:packet-direction" : "to-device",' .
-       "\n" . '"access-list-entries" : {' . '"ace" : [';
-    $ipv6outbound = ' { "acl-name" : "' . $mudname . "v6out" . '",' . "\n" .
+      $pre6in = '{ "acl-name" : "' . $v6in . '",' . "\n" .
+          '"acl-type" : "ietf-access-control-list:ipv6-acl" }' . "\n";
+      $pre6out =  '{ "acl-name" : "' . $v6out . '",' . "\n" .
+          '"acl-type" : "ietf-access-control-list:ipv6-acl" }' . "\n";
+      if ( $choice == "ipv6" ) {
+          $ipv6inbound = "[ ";
+      } else {
+          $ipv6inbound = "";
+      }
+      $ipv6inbound = $ipv6inbound . '{ "acl-name" : "' . $v6in . '",' . "\n" .
       '"acl-type" : "ipv6-acl",' . "\n" .
-      '"ietf-mud:packet-direction" : "from-device",' .
+      '"access-list-entries" : {' . '"ace" : [';
+      $ipv6outbound = ' { "acl-name" : "' . $v6out . '",' . "\n" .
+      '"acl-type" : "ipv6-acl",' .
       "\n" . '"access-list-entries" : {' . '"ace" : [';
-    $ipv6inbound= $ipv6inbound . $inbound . " ]}},\n";
-    $ipv6outbound= $ipv6outbound . $outbound . "]}}\n";
-
-    if ( $choice == 'both' ) {
-      $output = $output . ",";
-    }
-    $output = $output . $ipv6inbound . $ipv6outbound;
+      $ipv6inbound= $ipv6inbound . str_replace("ipv4","ipv6",$inbound) . " ]}},\n";
+      $ipv6outbound= $ipv6outbound . str_replace("ipv4","ipv6",$outbound) . "]}}\n";
+    
+      if ( $choice == 'both' ) {
+          $output = $output . ",";
+      }
+      $output = $output . $ipv6inbound . $ipv6outbound;
   }
   
-  $output = $output . "]}}";
+
+  $devput = $devput . $actxt1 . $pre4out;
+
+  $comma="";
+  
+  if ( $choice == 'both' ) {
+      $comma=", ";
+  }
+  if ( $choice == 'ipv6' || $choice == "both" ) {
+
+      $devput = $devput . $comma . $pre6out;
+  }
+      
+  $devput = $devput . $actxt1a . $pre4in;
+  
+  if ( $choice == 'ipv6' || $choice == "both" ) {
+      $devput = $devput . $comma . $pre6in;
+  }
+  
+  $devput = $devput . $actxt2;
+  
+  $output = $devput . $aclhead . $output . "]}}";
   $output= prettyPrint($output);
 
   session_unset();

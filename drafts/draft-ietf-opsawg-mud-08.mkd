@@ -1,7 +1,7 @@
 ---
 title: Manufacturer Usage Description Specification
 abbrev: Manufacturer Usage Descriptions
-docname: draft-ietf-opsawg-mud-07
+docname: draft-ietf-opsawg-mud-08
 category: std
 
 ipr: trust200902
@@ -156,11 +156,11 @@ for their own purposes.
 
 What MUD doesn't do
 -------------------
-General computing systems will benefit very little from MUD, as their
-manufacturers cannot envision a specific communication pattern to
-describe.  In addition, even those devices that have a single or small
-number of uses might have very broad communication patterns.  MUD is
-not for them either.
+MUD is not intended to address network authorization of general
+computing, as their manufacturers cannot envision a specific
+communication pattern to describe.  In addition, even those devices
+that have a single or small number of uses might have very broad
+communication patterns.  MUD on its own is not for them either.
 
 No matter how good a MUD-enabled network is, it will never replace the
 need for manufacturers to patch vulnerabilities.  It may, however,
@@ -206,7 +206,7 @@ Finding A Policy: The MUD URL
 -----------------------------
 
 Our work begins, therefore, with the device emitting a Universal
-Resource Locator (URL) {{RFC3986}}.  This URL may serves both to
+Resource Locator (URL) {{RFC3986}}.  This URL serves both to
 classify the device type and to provide a means to locate a policy
 file.
 
@@ -271,7 +271,7 @@ is used as a serialization for compactness and readability, relative
 to XML.
 
 While the policy examples given here focus on access control, this is
-not intended to be the sole focus, and by structuring the model
+not intended to be the sole focus.  By structuring the model
 described in this document with clear extension points, and by
 leveraging YANG-based models, we provide the opportunity for new
 policies to be introduced as required.
@@ -331,7 +331,7 @@ MUD file server:
 MUD controller:
 : the system that requests and receives the MUD file from the MUD
 server.  After it has processed a MUD file it may direct changes to
-relevant network elements. 
+relevant network elements.
 
 MUD URL:
 : a URL that can be used by the MUD controller to receive the MUD file.
@@ -397,6 +397,20 @@ legacy cases where Things cannot emit a URL, if the switch is able to
 determine the appropriate URI, it may proxy it, the trivial cases
 being a map between some registered device or port and a URL.
 
+The role of the MUD controller in this environment is to do the
+following:
+
+ * receive MUD URLs,
+ * retrieve MUD files,
+ * translate abstractions in the MUD files to specific device
+   configuration, 
+ * maintain and update any required mappings of the abstractions, and
+ * update network elements with appropriate configuration.
+
+A MUD controller may be a component of a AAA or network management
+system. Communication within those systems and from those systems to
+network elements is beyond the scope of this memo.
+
 Order of operations
 -------------------
 As mentioned above, MUD contains architectural building blocks, and so
@@ -431,16 +445,23 @@ following documents:
  * {{I-D.ietf-netmod-acl-model}}
  * {{RFC6991}} 
 
+The ACL model makes use of features for different forms of ACLs.  For
+purposes of MUD, any feature not related to addresses MAY be included.
+Any feature related to addresses MUST NOT be included.  The reason for
+these statements is so that the broadest number of implementations
+will understand the the MUD file without need for negotiation.
+Furthermore, it is important to rely on appropriate abstractions
+stated in this memo.  It is the job of the MUD controller to translate
+those abstractions to appropriate configuration for each network
+element.
+
 Publishers of MUD files MUST NOT include other elements except as
 described in {{extensions}}, and MUST only contain information
 relevant to the device being described.  Devices parsing MUD files
 MUST cease processing if they find other elements.
 
-<<<<<<< HEAD
-This module is structured into four parts:
 =======
-This module is structured into three parts:
->>>>>>> 65993f0e9f5c2f7fbecf691a46d9374307e1891e
+This module is structured into four parts:
 
  * The first container, metainfo, holds information that is relevant
 to retrieval and validity of the MUD file itself.
@@ -451,7 +472,6 @@ to retrieval and validity of the MUD file itself.
  to-device-policy containers serve as extension points for subsequent
  augmentation.
 
-<<<<<<< HEAD
  * The third container augments the matching container of the ACL
 model to add several elements that are relevant to the MUD URL, or
 other otherwise abstracted for use within a local environment.
@@ -460,12 +480,6 @@ other otherwise abstracted for use within a local environment.
  model to add the ability to match on the direction of initiation of a
  TCP connection.
 
-=======
- * The final container augments the matching container of the ACL
-model to add several elements that are relevant to the MUD URL, or
-other otherwise abstracted for use within a local environment.
-
->>>>>>> 65993f0e9f5c2f7fbecf691a46d9374307e1891e
 A simplified graphical representation of the data models is used in
 this document.  The meaning of the symbols in these diagrams is
 defined in {{I-D.ietf-netmod-rfc6087bis}}.
@@ -560,13 +574,18 @@ file must be explicit in describing the communication pattern of a
 device, and that includes indicating what is to be permitted or denied
 in either direction of communication.  This element takes a single
 value of either "to-device" or "from-device", based on a typedef
-"direction".
+"direction".  This is applied specifically for TCP, and may be
+implemented either via stateful or stateless approaches (e.g,. TCP
+flags)
 
 
 manufacturer
 ------------
 This element consists of a hostname that would be matched against the
-authority component of another device's MUD URL.
+authority component of another device's MUD URL.  In its simplest form
+"manufacturer" and "same-manufacturer" may be implemented as
+access-lists. In more complex forms, additional network capabilities
+may be used.
 
 same-manufacturer
 ----------------
@@ -576,11 +595,10 @@ matches that of the authority found in this device's MUD URL.
 
 model
 -----
-This string matches the one and only segment following the
-authority component of the MUD URL.  It refers to a model that is unique
-within the context of the authority.  It may also include product
-version information.  Thus how this field is constructed is entirely a
-local matter for the manufacturer.
+This string matches the entire MUD URL, thus covering the model that
+is unique within the context of the authority.  It may also include
+product version information.  Thus how this field is constructed is
+entirely a local matter for the manufacturer.
 
 local-networks
 -------------
@@ -608,19 +626,19 @@ that is beyond the scope of this work.
 my-controller
 -------------
 This null-valued element establishes a class of controllers that are
-intended to control the device associated with the MUD file being
-referenced.
+intended to control the device associated with a given MUD-URL.
 
 
 direction-initiated
 -------------------
 When applied this matches packets when the flow was initiated in the
-corresponding direction.  {{RFC6092}} specifies IPv6 guidance
-best practices.  While that document is scoped specifically to IPv6,
-its contents are applicable for IPv4 as well.  When this flag is set,
-and the system has no reason to believe a flow has been initiated it
-MUST drop the packet.  This match SHOULD be applied with specific
-transport parameters, such as protocol.
+corresponding direction.  {{RFC6092}} specifies IPv6 guidance best
+practices.  While that document is scoped specifically to IPv6, its
+contents are applicable for IPv4 as well.  When this flag is set, and
+the system has no reason to believe a flow has been initiated it MUST
+drop the packet.  This element may be implemented in its simplest
+form by looking at naked SYN bits, but may also be implemented through
+more stateful mechanisms.
 
 Processing of the MUD file
 ==========================
@@ -815,7 +833,7 @@ module ietf-mud {
   }
  }
 
- grouping ACCESS_LISTS {
+ grouping access_lists {
    description "A grouping for access lists in the context of device
                 policy.";
    container access-lists {
@@ -854,7 +872,7 @@ module ietf-mud {
                   point, but may be rendered by the controller to any
                   relevant enorcement points in the network or
                   elsewhere.";
-     uses ACCESS_LISTS;
+     uses access_lists;
    }
    
    container to-device-policy {
@@ -864,7 +882,7 @@ module ietf-mud {
                   point, but may be rendered by the controller to any
                   relevant enorcement points in the network or
                   elsewhere.";
-     uses ACCESS_LISTS;
+     uses access_lists;
    }
    
  }
@@ -876,7 +894,7 @@ module ietf-mud {
 
    container mud-acl {
      if-feature mud-acl;
-     must "../../../../acl-type = 'ietf-mud:mud-acl'";
+     must "../../../../acl:acl-type = 'ietf-mud:mud-acl'";
      
      description
        "TODO; improve. MUD-specific matches.";
@@ -912,7 +930,7 @@ module ietf-mud {
      
      leaf my-controller {
        type empty;
-       description "This element indicates that the network should manage
+       description "The network should manage
                   a class of devices related to this MUD-URL that are
                   intended to control this device.";
      }
@@ -1063,68 +1081,107 @@ MUD File Example
 This example contains two access lists that are intended to provide
 outbound access to a cloud service on TCP port 443.
 
-TODO: MAY NEED REVISED!
-
 ~~~~~~~
 {
-   "ietf-mud:metainfo": {
-      "last-update": "2016-05-18T20:00:50Z",
-      "cache-validity": 168
-      },
-   "ietf-access-control-list:access-lists":  {
-     "acl": [ {
-      "acl-name": "inbound-stuff",
-      "acl-type" : "ipv4-acl",
-      "ietf-mud:packet-direction" : "to-device",
-      "access-list-entries": {
-         "ace": [
-            {
-               "rule-name": "access-cloud",
-               "matches": {
-                 "ietf-acldns:src-dnsname":
-                     "lighting-system.example.com",
-                  "protocol" : 6,
-                  "source-port-range" : {
-                     "lower-port" : 443,
-                     "upper-port" : 443
-                     }
-                  },
-               "actions" : {
-                 "permit" : [null]
-                 }
-              }
-            ]
-           }
-         },
-         {
-      "acl-name": "outbound-stuff",
-      "acl-type" : "ipv4-acl",
-      "ietf-mud:packet-direction" : "from-device",
-      "access-list-entries": {
-         "ace": [
-            {
-               "rule-name": "access-cloud",
-               "matches": {
-                  "ietf-acldns:dst-dnsname":
-                       "lighting-system.example.com",
-                   "protocol" : 6,
-                   "destination-port-range" : {
-                     "lower-port" : 443,
-                     "upper-port" : 443
-                    }
-                },
-               "actions" : {
-                   "permit" : [null]
-                 }
-              }
-            ]
-           }
-         }
+  "ietf-mud:metainfo": {
+    "lastUpdate": "2017-08-06T18:55:07+02:00",
+    "systeminfo": "https://example.com/productinfo/LightingSystem3000",
+    "cacheValidity": 168
+  },
+  "ietf-mud:device": {
+    "from-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "acl-name": "mud-66805-v6out",
+            "acl-type": "ietf-access-control-list:ipv6-acl"
+          }
         ]
+      }
+    },
+    "to-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "acl-name": "mud-66805-v6in",
+            "acl-type": "ietf-access-control-list:ipv6-acl"
+          }
+        ]
+      }
     }
+  },
+  "ietf-access-control-list:access-lists": {
+    "acl": [
+      {
+        "acl-name": "mud-66805-v6in",
+        "acl-type": "ipv6-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "cl0-in",
+              "matches": {
+                "ipv6-acl": {
+                "ietf-acldns:src-dnsname": "lighting-system.example.com"
+                },
+                "source-port-range": {
+                  "lower-port": 443,
+                  "upper-port": 443
+                },
+                "tcp-acl": {
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "acl-name": "mud-66805-v6out",
+        "acl-type": "ipv6-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "cl0-out",
+              "matches": {
+                "ipv6-acl": {
+                "ietf-acldns:dst-dnsname": "lighting-system.example.com"
+                },
+                "destination-port-range": {
+                  "lower-port": 443,
+                  "upper-port": 443
+                },
+                "tcp-acl": {
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
 }
 
 ~~~~~~~
+
+In this example, two policies are declared, one from the device and
+the other to the device.  Each policy names an access list that
+applies to the device, and one that applies from.  Within each access
+list, access is permitted to packets flowing to or from the device
+that can be mapped to the domain name of lighting-system.example.com.
+For each access list, the enforcement point should expect that the
+thing initiated the connection.
+
 
 
 The MUD URL DHCP Option {#dhcpopt}
@@ -1421,15 +1478,15 @@ two-tier extensibility framework is employed, as follows:
 
  2. At a finer grain, only extensions that would not incur additional
  risk to the device are permitted.  Specifically, augmenting of the
- metainfo container is permitted with the understanding that
- such additions may be ignored.  In addition, augmentation of the ACL
- model is permitted so long as it remains safe for a given ACE to be
- ignored by the MUD Controller or the network elements it configures.
- Most specifically, is is not permitted to include as an augmentation
- that modifies "deny" behavior without bumping the version.
+ metainfo container is permitted with the understanding that such
+ additions may be ignored.  In addition, augmentation of the ACL model
+ is permitted so long as it remains safe for a given ACE to be ignored
+ by the MUD Controller or the network elements it configures.  Most
+ specifically, one MUST NOT augment behavior of the acl "deny" action.
  Furthermore, implementations that are not able to parse a component
  of the ACE array MUST ignore the entire array entry (e.g., not the
- entire array) and MAY ignore the entire MUD file.
+ entire array) and MAY ignore the entire MUD file or otherwise prompt
+ the administrator.
  
 
 Deployment Considerations {#depcon}
@@ -1672,14 +1729,15 @@ The following entries should be added to the "urn:ietf:params:mud" name space:
 Acknowledgments
 ===============
 
-The authors would like to thank Einar Nilsen-Nygaard, Bernie Volz, Tom
-Gindin, Brian Weis, Sandeep Kumar, Thorsten Dahm, John Bashinski,
-Steve Rich, Jim Bieda, and Dan Wing for their valuable advice and
-reviews.  Russ Housley entirely rewrote {{mudx509}} to be a complete
-module.  Adrian Farrel provided the basis for privacy considerations
-text.  Kent Watson provided a thorough review of the archictecture and
-the YANG model.  The remaining errors in this work are entirely the
-responsibility of the author.
+The authors would like to thank Einar Nilsen-Nygaard, who
+singlehandedly updated the model to match the updated ACL model,
+Bernie Volz, Tom Gindin, Brian Weis, Sandeep Kumar, Thorsten Dahm,
+John Bashinski, Steve Rich, Jim Bieda, and Dan Wing for their valuable
+advice and reviews.  Russ Housley entirely rewrote {{mudx509}} to be a
+complete module.  Adrian Farrel provided the basis for privacy
+considerations text.  Kent Watson provided a thorough review of the
+archictecture and the YANG model.  The remaining errors in this work
+are entirely the responsibility of the author.
 
 --- back
 
@@ -1687,6 +1745,19 @@ Changes from Earlier Versions
 =============================
 
 RFC Editor to remove this section prior to publication.
+
+Draft -06 to -07:
+
+ * Examples updated.
+ * Additional clarification for direction-initiated.
+ * Additional implementation guidance given.
+
+
+Draft -06 to -07:
+
+ * Update models to match new ACL model
+ * extract directionality from the ACL, introducing a new device container.
+
 
 Draft -05 to -06:
 
@@ -1746,25 +1817,55 @@ defaults when they are overriden.
 A complete MUD entry is included below.
 
 ~~~~~~~~~~
-
 {
   "ietf-mud:metainfo": {
-    "last-update": "2016-09-27T15:10:24+02:00",
-    "cache-validity": 168
+    "lastUpdate": "2017-08-06T19:12:24+02:00",
+    "systeminfo": "https://www.ietf.org/mudcontrollerdefaults",
+    "cacheValidity": 168
   },
-  "acl:access-lists": {
-    "access-list": [
+  "ietf-mud:device": {
+    "from-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "acl-name": "mud-39988-v4out",
+            "acl-type": "ietf-access-control-list:ipv4-acl"
+          },
+          {
+            "acl-name": "mud-39988-v6out",
+            "acl-type": "ietf-access-control-list:ipv6-acl"
+          }
+        ]
+      }
+    },
+    "to-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "acl-name": "mud-39988-v4in",
+            "acl-type": "ietf-access-control-list:ipv4-acl"
+          },
+          {
+            "acl-name": "mud-39988-v6in",
+            "acl-type": "ietf-access-control-list:ipv6-acl"
+          }
+        ]
+      }
+    }
+  },
+  "ietf-access-control-list:access-lists": {
+    "acl": [
       {
-        "acl-name": "mud-53134-v4in",
+        "acl-name": "mud-39988-v4in",
         "acl-type": "ipv4-acl",
-        "ietf-mud:packet-direction": "to-device",
         "access-list-entries": {
           "ace": [
             {
-              "rule-name": "entout0-in",
+              "rule-name": "ent0-in",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 17,
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
                 "source-port-range": {
                   "lower-port": 53,
                   "upper-port": 53
@@ -1777,13 +1878,17 @@ A complete MUD entry is included below.
               }
             },
             {
-              "rule-name": "entout1-in",
+              "rule-name": "ent1-in",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 6,
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
                 "source-port-range": {
                   "lower-port": 53,
                   "upper-port": 53
+                },
+                "tcp-acl": {
+                  "ietf-mud:direction-initiated": "from-device"
                 }
               },
               "actions": {
@@ -1793,10 +1898,11 @@ A complete MUD entry is included below.
               }
             },
             {
-              "rule-name": "entout2-in",
+              "rule-name": "ent2-in",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
-                "protocol": 17,
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:ntp"
+                },
                 "source-port-range": {
                   "lower-port": 123,
                   "upper-port": 123
@@ -1812,16 +1918,78 @@ A complete MUD entry is included below.
         }
       },
       {
-        "acl-name": "mud-53134-v4out",
+        "acl-name": "mud-39988-v4out",
         "acl-type": "ipv4-acl",
-        "ietf-mud:packet-direction": "from-device",
         "access-list-entries": {
           "ace": [
             {
-              "rule-name": "entout0-in",
+              "rule-name": "ent0-out",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 17,
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
+                "destination-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "ent1-out",
+              "matches": {
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
+                "destination-port-range": {
+                  "lower-port": 53,
+                  "upper-port": 53
+                },
+                "tcp-acl": {
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            },
+            {
+              "rule-name": "ent2-out",
+              "matches": {
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:ntp"
+                },
+                "destination-port-range": {
+                  "lower-port": 123,
+                  "upper-port": 123
+                }
+              },
+              "actions": {
+                "permit": [
+                  null
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "acl-name": "mud-39988-v6in",
+        "acl-type": "ipv6-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "ent0-in",
+              "matches": {
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
                 "source-port-range": {
                   "lower-port": 53,
                   "upper-port": 53
@@ -1834,13 +2002,17 @@ A complete MUD entry is included below.
               }
             },
             {
-              "rule-name": "entout1-in",
+              "rule-name": "ent1-in",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 6,
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
                 "source-port-range": {
                   "lower-port": 53,
                   "upper-port": 53
+                },
+                "tcp-acl": {
+                  "ietf-mud:direction-initiated": "from-device"
                 }
               },
               "actions": {
@@ -1850,10 +2022,11 @@ A complete MUD entry is included below.
               }
             },
             {
-              "rule-name": "entout2-in",
+              "rule-name": "ent2-in",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
-                "protocol": 17,
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:ntp"
+                },
                 "source-port-range": {
                   "lower-port": 123,
                   "upper-port": 123
@@ -1869,17 +2042,17 @@ A complete MUD entry is included below.
         }
       },
       {
-        "acl-name": "mud-53134-v6in",
+        "acl-name": "mud-39988-v6out",
         "acl-type": "ipv6-acl",
-        "ietf-mud:packet-direction": "to-device",
         "access-list-entries": {
           "ace": [
             {
-              "rule-name": "entout0-in",
+              "rule-name": "ent0-out",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 17,
-                "source-port-range": {
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
+                "destination-port-range": {
                   "lower-port": 53,
                   "upper-port": 53
                 }
@@ -1891,13 +2064,17 @@ A complete MUD entry is included below.
               }
             },
             {
-              "rule-name": "entout1-in",
+              "rule-name": "ent1-out",
               "matches": {
-                "ietf-mud:controller": "urn:params:mud:dns",
-                "protocol": 6,
-                "source-port-range": {
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:dns"
+                },
+                "destination-port-range": {
                   "lower-port": 53,
                   "upper-port": 53
+                },
+                "tcp-acl": {
+                  "ietf-mud:direction-initiated": "from-device"
                 }
               },
               "actions": {
@@ -1907,68 +2084,12 @@ A complete MUD entry is included below.
               }
             },
             {
-              "rule-name": "entout2-in",
+              "rule-name": "ent2-out",
               "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
-                "protocol": 17,
-                "source-port-range": {
-                  "lower-port": 123,
-                  "upper-port": 123
-                }
-              },
-              "actions": {
-                "permit": [
-                  null
-                ]
-              }
-            }
-          ]
-        }
-      },
-      {
-        "acl-name": "mud-53134-v6out",
-        "acl-type": "ipv6-acl",
-        "ietf-mud:packet-direction": "from-device",
-        "access-list-entries": {
-          "ace": [
-            {
-              "rule-name": "entout0-in",
-              "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 17,
-                "source-port-range": {
-                  "lower-port": 53,
-                  "upper-port": 53
-                }
-              },
-              "actions": {
-                "permit": [
-                  null
-                ]
-              }
-            },
-            {
-              "rule-name": "entout1-in",
-              "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:dns",
-                "protocol": 6,
-                "source-port-range": {
-                  "lower-port": 53,
-                  "upper-port": 53
-                }
-              },
-              "actions": {
-                "permit": [
-                  null
-                ]
-              }
-            },
-            {
-              "rule-name": "entout2-in",
-              "matches": {
-                "ietf-mud:controller": "urn:ietf:params:mud:ntp",
-                "protocol": 17,
-                "source-port-range": {
+                "ietf-mud:mud-acl"{
+                  "controller": "urn:ietf:params:mud:ntp"
+                },
+                "destination-port-range": {
                   "lower-port": 123,
                   "upper-port": 123
                 }

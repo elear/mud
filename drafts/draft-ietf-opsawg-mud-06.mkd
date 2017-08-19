@@ -29,6 +29,7 @@ author:
  -
     ins: D. Romascanu
     name: Dan Romascanu
+    phone: +972 54 5555347
     email: dromasca@gmail.com
 
 normative:
@@ -290,7 +291,7 @@ Manufacturer:
 : A device made by a particular manufacturer, as identified by the authority
   component of its MUD-URL
 
-my-manufacturer:
+same-manufacturer:
 : Devices that have the same authority component of their MUD-URL.
 
 Controller:
@@ -929,7 +930,7 @@ outbound access to a cloud service on TCP port 443.
      "acl": [ {
       "acl-name": "inbound-stuff",
       "acl-type" : "ipv4-acl",
-      "ietf-mud:direction" : "to-device",
+      "ietf-mud:packet-direction" : "to-device",
       "access-list-entries": {
          "ace": [
             {
@@ -953,7 +954,7 @@ outbound access to a cloud service on TCP port 443.
          {
       "acl-name": "outbound-stuff",
       "acl-type" : "ipv4-acl",
-      "ietf-mud:direction" : "from-device",
+      "ietf-mud:packet-direction" : "from-device",
       "access-list-entries": {
          "ace": [
             {
@@ -1299,6 +1300,14 @@ policy enforcement may not be available at the closest hop.  At that
 point, the risk of so-called east-west infection is increased to the
 number of devices that are able to communicate without protection.
 
+A caution about some of the classes: admission of a device into the
+"manufacturer" and "same-manufacturer" class may have impact on access
+of other devices.  Put another way, the admission may grow the
+access-list on switches connected to other devices, depending on how
+access is managed.  Therefore, care should be given on managing that
+access-list growth.  Alternative methods such as additional
+segmentation can be used to keep that growth within reason.
+
 Security Considerations {#secon}
 =================================
 Based on how a MUD-URL is emitted, a device may be able to lie about
@@ -1379,10 +1388,36 @@ DHCPv6-Shield {{RFC7610}}.
 Please note that the security considerations mentioned in Section 4.7
 of {{I-D.ietf-netmod-rfc6087bis}} are not applicable in this case
 because the YANG serialization is not intended to be accessed via
-NETCONF.
+NETCONF.  However, for those who try to instantiate this model in a
+device via NETCONF, all objects in each model in this draft exhibit
+similar security characteristics as {{I-D.ietf-netmod-acl-model}}.
+The basic purpose of MUD is to configure access, and so by its very
+nature can be disruptive if used by unauthorized parties.
+
 
 IANA Considerations
 ===================
+
+YANG Module Registrations
+-------------------------
+The following YANG modules are requested to be registred in the "IANA
+Module Names" registry:
+
+The ietf-mud module:
+
+- Name: ietf-mud
+- XML Namespace: urn:ietf:params:xml:ns:yang:ietf-mud
+- Prefix: ief-mud
+- Reference: This memo
+
+The ietf-acldns module:
+
+- Name: ietf-acldns
+- XML Namespace: urn:ietf:params:xml:ns:yang:ietf-acldns
+- Prefix: ietf-acldns
+- Reference: This memo
+
+
 
 DHCPv4 and DHCPv6 Options
 -------------------------
@@ -1509,6 +1544,7 @@ Changes from Earlier Versions
 RFC Editor to remove this section prior to publication.
 
 Draft -05 to -06:
+
  * Make clear that this is a component architecture (Polk and Watson)
  * Add order of operations (Watson)
  * Add extensions leaf-list (Pritikin)
@@ -1571,8 +1607,8 @@ A complete MUD entry is included below.
     "last-update": "2016-09-27T15:10:24+02:00",
     "cache-validity": 168
   },
-  "ietf-acl:access-lists": {
-    "ietf-acl:access-list": [
+  "acl:access-lists": {
+    "access-list": [
       {
         "acl-name": "mud-53134-v4in",
         "acl-type": "ipv4-acl",

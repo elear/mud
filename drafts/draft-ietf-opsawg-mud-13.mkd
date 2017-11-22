@@ -250,16 +250,24 @@ how MUD URLs may be learned.
 
 Processing of the MUD URL
 -------------------------
-MUD URLs always use the HTTPS schema.  MUD controllers that are able
-to do so SHOULD resolve MUD-URLs, following the normal rules of
-{{RFC3986}} and retrieve signature files via HTTP over TLS
-{{RFC2818}},{{RFC7540}}.  Requests for MUD URLs should be made with an
-"Accept" header containing "application/mud+json".  Normal HTTP
-semantics should be observed.
 
-If a MUD controller is not connected to the Internet, other means may
+MUD URLs MUST use the HTTPS scheme {{!RFC7230}}. 
+
+MUD controllers that are able to do so SHOULD retrieve MUD URLs and
+signature files as per {{!RFC7230}}, using the GET method {{!RFC7231}}.
+They MUST validate the certificate using the rules in {{!RFC2618}},
+Section 3.1.
+
+Requests for MUD URLs SHOULD include an "Accept" header ({{!RFC7231}},
+Section 5.3.2) containing "application/mud+json", an "Accept-Language"
+header ({{!RFC7231}}, Section 5.3.5), and a "User-Agent" header
+({{!RFC7231}}, Section 5.5.3).
+
+MUD controllers SHOULD automatically process 3xx response status codes. 
+
+If a MUD controller is not able to fetch a MUD URL, other means MAY
 be used to import MUD files and associated signature files.  So long
-as the signature of the file can be validated, the file may be used.
+as the signature of the file can be validated, the file can be used.
 In such environments, controllers SHOULD warn administrators when
 cache-validity expiry is approaching so that they may check for new
 files.

@@ -74,6 +74,7 @@ informative:
    RFC7488:
    RFC7252:
    ISO.8601.1988:
+   I-D.ietf-netmod-rfc6087bis:
    IEEE8021AR:
       title: Secure Device Identity
       author:
@@ -120,9 +121,9 @@ including laptops, smart phones, and tablets.
 
 {{RFC7452}} discusses design patterns for, and poses questions about,
 smart objects.  Let us then posit a group of objects that are
-specifically NOT general purpose computers.  These devices, which this
+specifically not general purpose computers.  These devices, which this
 memo refers to as Things, have a specific purpose.  By definition,
-therefore, all other uses are NOT intended.  The combination of these
+therefore, all other uses are not intended.  The combination of these
 two statements can be restated as a manufacturer usage description
 (MUD) that can be applied at various points within a network.
 
@@ -152,8 +153,7 @@ manufacturer.
 
 MUD consists of three architectural building blocks:
 
- * A classifier that a device emits that can be used to locate a
-  description;
+ * A URL that is can be used to locate a description;
  * The description itself, including how it is interpreted, and;
  * A means for local network management systems to retrieve the description.
 
@@ -284,16 +284,24 @@ how MUD URLs may be learned.
 
 Processing of the MUD URL
 -------------------------
-MUD URLs always use the HTTPS schema.  MUD controllers that are able
-to do so SHOULD resolve MUD-URLs, following the normal rules of
-{{RFC3986}} and retrieve signature files via HTTP over TLS
-{{RFC2818}},{{RFC7540}}.  Requests for MUD URLs should be made with an
-"Accept" header containing "application/mud+json".  Normal HTTP
-semantics should be observed.
 
-If a MUD controller is not connected to the Internet, other means may
+MUD URLs MUST use the HTTPS scheme {{!RFC7230}}. 
+
+MUD controllers that are able to do so SHOULD retrieve MUD URLs and
+signature files as per {{!RFC7230}}, using the GET method {{!RFC7231}}.
+They MUST validate the certificate using the rules in {{!RFC2618}},
+Section 3.1.
+
+Requests for MUD URLs SHOULD include an "Accept" header ({{!RFC7231}},
+Section 5.3.2) containing "application/mud+json", an "Accept-Language"
+header ({{!RFC7231}}, Section 5.3.5), and a "User-Agent" header
+({{!RFC7231}}, Section 5.5.3).
+
+MUD controllers SHOULD automatically process 3xx response status codes. 
+
+If a MUD controller is not able to fetch a MUD URL, other means MAY
 be used to import MUD files and associated signature files.  So long
-as the signature of the file can be validated, the file may be used.
+as the signature of the file can be validated, the file can be used.
 In such environments, controllers SHOULD warn administrators when
 cache-validity expiry is approaching so that they may check for new
 files.
@@ -494,14 +502,14 @@ local significance.  The addressing of one side of an access list is
 implicit, based on whether it is applied as to-device-policy or
 from-device-policy.
 
-With the exceptions of "acl-name", "acl-type", "rule-name", and TCP
+With the exceptions of "name", "acl-type", "rule-name", and TCP
 and UDP source and destination port information, publishers of MUD
 files SHOULD limit the use of ACL model leaf nodes expressed to those
 found in this specification.  Absent any extensions, MUD files are
 assumed to implement only the following ACL model features:
 
- * any-acl, mud-acl, icmp-acl, ipv6-acl, tcp-acl, any-acl,
-   udp-acl, ipv4-acl, and ipv6-acl
+ * match-on-ipv4, match-on-ipv6, match-on-tcp,
+   match-on-udp, match-on-icmp
 
 Furthermore, only "accept" or "drop" actions SHOULD be included.
 A MUD controller MAY choose to interpret "reject" as "drop".  A MUD
@@ -543,6 +551,7 @@ this document.  The meaning of the symbols in these diagrams is
 explained in {{I-D.ietf-netmod-yang-tree-diagrams}}.
 
 ~~~~~~~~~~~~~~~~~
+
 module: ietf-mud
     +--rw mud!
        +--rw mud-url               inet:uri
@@ -553,25 +562,22 @@ module: ietf-mud
        +--rw extensions*           string
        +--rw from-device-policy
        |  +--rw access-lists
-       |     +--rw access-list* [acl-name acl-type]
-       |        +--rw acl-name    -> /acl:access-lists/acl/acl-name
-       |        +--rw acl-type    identityref
+       |     +--rw access-list* [name]
+       |        +--rw name    -> /acl:access-lists/acl/name
        +--rw to-device-policy
           +--rw access-lists
-             +--rw access-list* [acl-name acl-type]
-                +--rw acl-name    -> /acl:access-lists/acl/acl-name
-                +--rw acl-type    identityref
-  augment /acl:access-lists/acl:acl/acl:aces/
-   acl:ace/acl:matches:
-    +--rw mud-acl
+             +--rw access-list* [name]
+                +--rw name    -> /acl:access-lists/acl/name
+  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches:
+    +--rw mud
        +--rw manufacturer?        inet:host
        +--rw same-manufacturer?   empty
        +--rw model?               inet:uri
        +--rw local-networks?      empty
        +--rw controller?          inet:uri
        +--rw my-controller?       empty
-  augment /acl:access-lists/acl:acl/acl:aces/
-   acl:ace/acl:matches/acl:tcp-acl:
+  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/
+      acl:matches/acl:l4/acl:tcp:
     +--rw direction-initiated?   direction
 
 ~~~~~~~~~~~~~~~~~
@@ -583,6 +589,12 @@ Note that in this section, when we use the term "match" we are
 referring to the ACL model "matches" node.
 
 The following nodes are defined.
+
+mud-version
+-----------
+This node specifies the integer version of the MUD specification.  This memo
+specifies version 1.
+
 
 to-device-policy and from-device-policy containers
 --------------------------------------------------
@@ -620,7 +632,7 @@ is-supported
 ------------
 This boolean is an indication from the manufacturer to the network
 administrator as to whether or not the Thing is supported.  In this
-context a Thing is said to NOT be supported if the manufacturer intends
+context a Thing is said to not be supported if the manufacturer intends
 never to issue an update to the Thing or never update the
 MUD file.  A MUD controller MAY still periodically check for updates.
 
@@ -663,7 +675,7 @@ This null-valued node is an equivalent for when the manufacturer
 element is used to indicate the authority that is found in another
 Thing's MUD URL matches that of the authority found in this Thing's
 MUD URL.  For example, if the Thing's MUD URL were
-https://b1.example.com/.well-known/mud/v1/ThingV1, then all devices
+https://b1.example.com/.well-known/mud/ThingV1, then all devices
 that had MUD URL with an authority section of b1.example.com would
 match.
 
@@ -753,21 +765,13 @@ lines).  The URL appears as follows:
 
 ~~~~~~~~~~
 
-   mud-url   = "https://" authority  "/.well-known/mud/" mud-rev
+   mud-url   = "https://" authority  "/.well-known/mud/" 
                "/" modelinfo ( "?" extras )
                ; authority is from RFC3986
-   mud-rev   = "v1"
    modelinfo = segment  ; from RFC3986
    extras    = query    ; from RFC3986
    
 ~~~~~~~~~~
-
-mud-rev signifies the version of the manufacturer usage description
-file.  This memo specifies "v1" of that file.  Later versions may
-permit additional schemas or modify the format.  In order to provide
-for the broadest compatibility for the various transmission
-mechanisms, the length of the URL for v1 MUST NOT exceed 255 octets.
-
 
 Taken together with the mud-url, "modelinfo" represents a Thing model
 as the manufacturer wishes to represent it.  It could be a brand name
@@ -789,7 +793,7 @@ The MUD YANG Model
 ==================
 
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-mud@2017-10-07.yang"
+<CODE BEGINS>file "ietf-mud@2018-01-20.yang"
 module ietf-mud {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud";
@@ -816,18 +820,18 @@ module ietf-mud {
      rdroms@gmail.com
      Author: Dan Romascanu
      dromasca@gmail.com
-     
+
     ";
   description
     "This YANG module defines a component that augments the
      IETF description of an access list.  This specific module
      focuses on additional filters that include local, model,
      and same-manufacturer.
-     
+
      This module is intended to be serialized via JSON and stored
      as a file, as described in RFC XXXX [RFC Editor to fill in with
      this document #].
-     
+
      Copyright (c) 2016,2017 IETF Trust and the persons
      identified as the document authors.  All rights reserved.
      Redistribution and use in source and binary forms, with or
@@ -839,7 +843,7 @@ module ietf-mud {
      This version of this YANG module is part of RFC XXXX; see
      the RFC itself for full legal notices.";
 
-  revision 2017-10-07 {
+  revision 2018-01-20 {
     description
       "Initial proposed standard.";
     reference
@@ -876,6 +880,15 @@ module ietf-mud {
     description
       "Information about when support end(ed), and
        when to refresh";
+
+    leaf mud-version {
+      type uint8;
+      mandatory true;
+      description "This is the version of the MUD
+         specification.  This memo specifies version 1.";
+     }
+	 
+      
     leaf mud-url {
       type inet:uri;
       mandatory true;
@@ -960,36 +973,26 @@ module ietf-mud {
         "The access lists that should be applied to traffic
            to or from the device.";
       list access-list {
-        key "acl-name acl-type";
+        key "name";
         description
           "Each entry on this list refers to an ACL that
              should be present in the overall access list
              data model. Each ACL is identified by name and
              type.";
-        leaf acl-name {
+        leaf name {
           type leafref {
-            path "/acl:access-lists/acl:acl/acl:acl-name";
+            path "/acl:access-lists/acl:acl/acl:name";
           }
           description
             "The name of the ACL for this entry.";
         }
-        leaf acl-type {
-          type identityref {
-            base acl:acl-base;
-          }
-          description
-            "The type of the ACL for this entry.  The name is
-             scoped ONLY to the MUD file, and may not be unique
-             in any other circumstance.";
-        }
       }
     }
   }
-
   augment "/acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches" {
     description
       "adding abstractions to avoid need of IP addresses";
-    container mud-acl {
+    container mud {
       description
         "MUD-specific matches.";
       leaf manufacturer {
@@ -1039,7 +1042,7 @@ module ietf-mud {
     }
   }
   augment "/acl:access-lists/acl:acl/acl:aces/" +
-     "acl:ace/acl:matches/acl:tcp-acl" {
+     "acl:ace/acl:matches/acl:l4/acl:tcp" {
     description
       "Adding domain names to matching";
     leaf direction-initiated {
@@ -1071,12 +1074,12 @@ The structure of the change is as follows:
 ~~~~~~~~~~~~~~~~~
 
 module: ietf-acldns
-  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/
-    acl:matches/acl:ipv4-acl:
+  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
+    /acl:l3/acl:ipv4:
     +--rw src-dnsname?   inet:host
     +--rw dst-dnsname?   inet:host
-  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/
-    acl:matches/acl:ipv6-acl:
+  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
+    /acl:l3/acl:ipv6:
     +--rw src-dnsname?   inet:host
     +--rw dst-dnsname?   inet:host
 
@@ -1112,7 +1115,7 @@ a dst-dnsname associated with to-device-policy.
 The ietf-acldns Model
 --------------------------
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-acldns@2017-10-07.yang"
+<CODE BEGINS>file "ietf-acldns@2018-01-20.yang"
 module ietf-acldns {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-acldns";
@@ -1145,7 +1148,7 @@ module ietf-acldns {
      IETF description of an access list to allow dns names
      as matching criteria.";
 
-  revision "2017-10-07" {
+  revision "2018-01-20" {
     description "Base version of dnsname extension of ACL model";
     reference "RFC XXXX: Manufacturer Usage Description
                Specification";
@@ -1165,14 +1168,14 @@ module ietf-acldns {
   }
   
   augment "/acl:access-lists/acl:acl/acl:aces/acl:ace/" +
-     "acl:matches/acl:ipv4-acl" {
+     "acl:matches/acl:l3/acl:ipv4" {
     description "Adding domain names to matching";
     uses dns-matches;
   }
   
   augment "/acl:access-lists/acl:acl/" +
      "acl:aces/acl:ace/" +
-     "acl:matches/acl:ipv6-acl" {
+     "acl:matches/acl:l3/acl:ipv6" {
     description "Adding domain names to matching";
     uses dns-matches;
   }
@@ -1189,22 +1192,19 @@ outbound access to a cloud service on TCP port 443.
 ~~~~~~~
 
 
-
 {
   "ietf-mud:mud": {
-    "mud-url":
-  "https://bms.example.com/.well-known/mud/v1/lightbulb2000",
-    "last-update": "2017-10-07T12:16:24+02:00",
+    "mud-version": 1,
+    "mud-url": "https://bms.example.com/.well-known/mud/lightbulb2000",
+    "last-update": "2018-01-23T13:33:52+01:00",
     "cache-validity": 48,
     "is-supported": true,
-    "systeminfo":
-  "https://bms.example.com/descriptions/lightbulb2000",
+    "systeminfo": "The BMS Example Lightbulb",
     "from-device-policy": {
       "access-lists": {
         "access-list": [
           {
-            "acl-name": "mud-14377-v6fr",
-            "acl-type": "ietf-access-control-list:ipv6-acl"
+            "name": "mud-45782-v6fr"
           }
         ]
       }
@@ -1213,8 +1213,7 @@ outbound access to a cloud service on TCP port 443.
       "access-lists": {
         "access-list": [
           {
-            "acl-name": "mud-14377-v6to",
-            "acl-type": "ietf-access-control-list:ipv6-acl"
+            "name": "mud-45782-v6to"
           }
         ]
       }
@@ -1223,23 +1222,22 @@ outbound access to a cloud service on TCP port 443.
   "ietf-access-control-list:access-lists": {
     "acl": [
       {
-        "acl-name": "mud-14377-v6to",
-        "acl-type": "ipv6-acl",
+        "name": "mud-45782-v6to",
+        "acl-type": "ipv6-acl-type",
         "access-list-entries": {
           "ace": [
             {
               "rule-name": "cl0-todev",
               "matches": {
                 "ipv6-acl": {
-                  "ietf-acldns:src-dnsname":
-  "service.bms.example.com",
+                  "ietf-acldns:src-dnsname": "service.bms.example.com",
                   "protocol": 6,
-                  "source-port-range": {
-                    "lower-port": 443,
-                    "upper-port": 443
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 443
                   }
                 },
-                "tcp-acl": {
+                "tcp": {
                   "ietf-mud:direction-initiated": "from-device"
                 }
               },
@@ -1251,23 +1249,22 @@ outbound access to a cloud service on TCP port 443.
         }
       },
       {
-        "acl-name": "mud-14377-v6fr",
-        "acl-type": "ipv6-acl",
+        "name": "mud-45782-v6fr",
+        "acl-type": "ipv6-acl-type",
         "access-list-entries": {
           "ace": [
             {
               "rule-name": "cl0-frdev",
               "matches": {
                 "ipv6-acl": {
-                  "ietf-acldns:dst-dnsname": 
-                     "service.bms.example.com",
+                  "ietf-acldns:dst-dnsname": "service.bms.example.com",
                   "protocol": 6,
-                  "destination-port-range": {
-                    "lower-port": 443,
-                    "upper-port": 443
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 443
                   }
                 },
-                "tcp-acl": {
+                "tcp": {
                   "ietf-mud:direction-initiated": "from-device"
                 }
               },
@@ -1549,8 +1546,8 @@ Verifying a MUD file signature
 Prior to retrieving a MUD file the MUD controller SHOULD retrieve the
 MUD signature file using the MUD URL with a suffix of ".p7s".  For
 example, if the MUD URL is
-"https://example.com/.well-known/v1/modela", the MUD signature URL
-will be "https://example.com/.well-known/v1/modela.p7s".
+"https://example.com/.well-known/modela", the MUD signature URL
+will be "https://example.com/.well-known/modela.p7s".
 
 Upon retrieving a MUD file, a MUD controller MUST validate the
 signature of the file before continuing with further processing.  A
@@ -2022,11 +2019,11 @@ for both versions of IP).
 
 ~~~~~~~~~~
 
-  "ietf-access-control-list:access-lists": {
+"ietf-access-control-list:access-lists": {
     "acl": [
       {
-        "acl-name": "mud-v4-default-to-device",
-        "acl-type": "ipv4-acl",
+        "name": "mud-63142-v4to",
+        "acl-type": "ipv4-acl-type",
         "aces": {
           "ace": [
             {
@@ -2035,11 +2032,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv4-acl": {
+                "ipv4": {
                   "protocol": 17,
-                  "source-port-range": {
-                    "lower-port": 53,
-                    "upper-port": 53
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 53
                   }
                 }
               },
@@ -2053,11 +2050,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv4-acl": {
+                "ipv4": {
                   "protocol": 17,
-                  "source-port-range": {
-                    "lower-port": 123,
-                    "upper-port": 123
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 123
                   }
                 }
               },
@@ -2069,8 +2066,8 @@ for both versions of IP).
         }
       },
       {
-        "acl-name": "mud-v4-default-from-device",
-        "acl-type": "ipv4-acl",
+        "name": "mud-63142-v4fr",
+        "acl-type": "ipv4-acl-type",
         "aces": {
           "ace": [
             {
@@ -2079,11 +2076,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv4-acl": {
+                "ipv4": {
                   "protocol": 17,
-                  "destination-port-range": {
-                    "lower-port": 53,
-                    "upper-port": 53
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 53
                   }
                 }
               },
@@ -2097,11 +2094,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv4-acl": {
+                "ipv4": {
                   "protocol": 17,
-                  "destination-port-range": {
-                    "lower-port": 123,
-                    "upper-port": 123
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 123
                   }
                 }
               },
@@ -2113,8 +2110,8 @@ for both versions of IP).
         }
       },
       {
-        "acl-name": "mud-v6-default-to-device",
-        "acl-type": "ipv6-acl",
+        "name": "mud-63142-v6to",
+        "acl-type": "ipv6-acl-type",
         "access-list-entries": {
           "ace": [
             {
@@ -2123,11 +2120,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv6-acl": {
+                "ipv6": {
                   "protocol": 17,
-                  "source-port-range": {
-                    "lower-port": 53,
-                    "upper-port": 53
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 53
                   }
                 }
               },
@@ -2141,11 +2138,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv6-acl": {
+                "ipv6": {
                   "protocol": 17,
-                  "source-port-range": {
-                    "lower-port": 123,
-                    "upper-port": 123
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 123
                   }
                 }
               },
@@ -2157,8 +2154,8 @@ for both versions of IP).
         }
       },
       {
-        "acl-name": "mud-v6-default-from-device",
-        "acl-type": "ipv6-acl",
+        "name": "mud-63142-v6fr",
+        "acl-type": "ipv6-acl-type",
         "access-list-entries": {
           "ace": [
             {
@@ -2167,11 +2164,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv6-acl": {
+                "ipv6": {
                   "protocol": 17,
-                  "destination-port-range": {
-                    "lower-port": 53,
-                    "upper-port": 53
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 53
                   }
                 }
               },
@@ -2185,11 +2182,11 @@ for both versions of IP).
                 "ietf-mud:mud-acl": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv6-acl": {
+                "ipv6": {
                   "protocol": 17,
-                  "destination-port-range": {
-                    "lower-port": 123,
-                    "upper-port": 123
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 123
                   }
                 }
               },
@@ -2235,7 +2232,7 @@ module: ietf-mud-detext-example
 The model is defined as follows:
 
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-mud-detext-example@2016-09-07.yang"
+<CODE BEGINS>file "ietf-mud-detext-example@2018-01-20.yang"
 module ietf-mud-detext-example {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud-detext-example";
@@ -2262,7 +2259,7 @@ module ietf-mud-detext-example {
     "Sample extension to a MUD module to indicate a need
      for DETNET support.";
 
-  revision 2017-09-05 {
+  revision 2018-01-20 {
     description
       "Initial revision.";
     reference
@@ -2291,12 +2288,15 @@ expressed:
 
 ~~~~~~~~~~
 {
+
+{
   "ietf-mud:mud": {
-    "mud-url": "https://bms.example.com/.well-known/mud/v1/lightbulb",
-    "last-update": "2017-09-20T15:49:18+02:00",
+    "mud-version": 1,
+    "mud-url": "https://bms.example.com/.well-known/mud/lightbulb2000",
+    "last-update": "2018-01-23T13:33:52+01:00",
     "cache-validity": 48,
     "is-supported": true,
-    "systeminfo": "https://bms.example.com/descriptions/lightbulb",
+    "systeminfo": "The BMS Example Lightbulb",
     "extensions": [
         "ietf-mud-detext-example"
      ],
@@ -2305,8 +2305,7 @@ expressed:
       "access-lists": {
         "access-list": [
           {
-            "acl-name": "mud-54684-v6fr",
-            "acl-type": "ietf-access-control-list:ipv6-acl"
+            "name": "mud-45782-v6fr"
           }
         ]
       }
@@ -2315,8 +2314,7 @@ expressed:
       "access-lists": {
         "access-list": [
           {
-            "acl-name": "mud-54684-v6to",
-            "acl-type": "ietf-access-control-list:ipv6-acl"
+            "name": "mud-45782-v6to"
           }
         ]
       }
@@ -2325,8 +2323,8 @@ expressed:
   "ietf-access-control-list:access-lists": {
     "acl": [
       {
-        "acl-name": "mud-54684-v6to",
-        "acl-type": "ipv6-acl",
+        "name": "mud-45782-v6to",
+        "acl-type": "ipv6-acl-type",
         "access-list-entries": {
           "ace": [
             {
@@ -2335,12 +2333,12 @@ expressed:
                 "ipv6-acl": {
                   "ietf-acldns:src-dnsname": "service.bms.example.com",
                   "protocol": 6,
-                  "source-port-range": {
-                    "lower-port": 443,
-                    "upper-port": 443
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 443
                   }
                 },
-                "tcp-acl": {
+                "tcp": {
                   "ietf-mud:direction-initiated": "from-device"
                 }
               },
@@ -2352,8 +2350,8 @@ expressed:
         }
       },
       {
-        "acl-name": "mud-54684-v6fr",
-        "acl-type": "ipv6-acl",
+        "name": "mud-45782-v6fr",
+        "acl-type": "ipv6-acl-type",
         "access-list-entries": {
           "ace": [
             {
@@ -2362,12 +2360,12 @@ expressed:
                 "ipv6-acl": {
                   "ietf-acldns:dst-dnsname": "service.bms.example.com",
                   "protocol": 6,
-                  "destination-port-range": {
-                    "lower-port": 443,
-                    "upper-port": 443
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 443
                   }
                 },
-                "tcp-acl": {
+                "tcp": {
                   "ietf-mud:direction-initiated": "from-device"
                 }
               },

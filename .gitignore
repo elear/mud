@@ -1,4 +1,7 @@
 .DS_store
 *~
 .refcache
-
+draft*html
+drafts/*#draft*#
+draft*mud*xml
+draft*txt

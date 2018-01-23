@@ -554,6 +554,7 @@ explained in {{I-D.ietf-netmod-yang-tree-diagrams}}.
 
 module: ietf-mud
     +--rw mud!
+       +--rw mud-version           uint8
        +--rw mud-url               inet:uri
        +--rw last-update           yang:date-and-time
        +--rw cache-validity?       uint8
@@ -576,9 +577,10 @@ module: ietf-mud
        +--rw local-networks?      empty
        +--rw controller?          inet:uri
        +--rw my-controller?       empty
-  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/
-      acl:matches/acl:l4/acl:tcp:
+  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
+     /acl:l4/acl:tcp:
     +--rw direction-initiated?   direction
+
 
 ~~~~~~~~~~~~~~~~~
 
@@ -1075,11 +1077,11 @@ The structure of the change is as follows:
 
 module: ietf-acldns
   augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
-    /acl:l3/acl:ipv4:
+     /acl:l3/acl:ipv4:
     +--rw src-dnsname?   inet:host
     +--rw dst-dnsname?   inet:host
   augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
-    /acl:l3/acl:ipv6:
+     /acl:l3/acl:ipv6:
     +--rw src-dnsname?   inet:host
     +--rw dst-dnsname?   inet:host
 

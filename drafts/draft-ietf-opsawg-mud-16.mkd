@@ -788,12 +788,12 @@ What does a MUD URL look like? {#mudurl}
 MUD URLs are required to use the HTTPS scheme, in order to establish the
 MUD file server's identity and assure integrity of the MUD file.
 
-Any "https://" URL can be a MUD URL. For example:
+Any "https://" URL without a query component can be a MUD URL. For example:
 
 ~~~
   https://things.example.org/product_abc123/v5
   https://www.example.net/mudfiles/temperature_sensor/
-  https://example.com/lightbulbs/colour?version=1
+  https://example.com/lightbulbs/colour/v1
 ~~~
 
 The MUD URL identifies a Thing with a specificity according to the
@@ -806,23 +806,16 @@ as compared to other things, the MUD URL should change. For example, if a
 new model of light bulb is released that requires access to different network
 services, it would have a separate MUD URL from those that do not.
 
+The query string of the MUD URL is reserved for additional information from the
+MUD controller to the MUD file server; for example, its network endpoint
+assessment (NEA) posture about the Thing. As a result, MUD URLs MUST NOT
+contain queries when sent to the controller. Such query parameters MUST be
+defined in documents updating this specification. MUD file servers MUST ignore
+query parameters that they do not understand.
+
 Note that if the MUD URL contains a fragment identifier (e.g., "#foo"), that
 information will not be sent to the MUD file server in the HTTP request.
 However, it will still be considered a separate MUD URL by the controller.
-
-MUD controllers might wish to provide additional information to the MUD file
-server; for example, its network endpoint assessment (NEA) posture about the
-Thing. This information can be communicated in a variety of fashions:
-
-* By adding HTTP request header fields.
-* By appending query parameters to the MUD URL in the application/x-www-form-urlencode format specified in {{HTML5}}.
-
-Note that conveying this information in the MUD URL query string assumes a
-common, but non-exclusive, format for that URL component, and might collide
-with other formats.
-
-Specification of the semantics for such additional information is left to
-future specifications.
 
 
 The MUD YANG Model

@@ -810,8 +810,9 @@ The query string of the MUD URL is reserved for additional information from the
 MUD controller to the MUD file server; for example, its network endpoint
 assessment (NEA) posture about the Thing. As a result, MUD URLs MUST NOT
 contain queries when sent to the controller. Such query parameters MUST be
-defined in documents updating this specification. MUD file servers MUST ignore
-query parameters that they do not understand.
+defined in documents updating this specification. MUD file servers MUST ignore query parameters that they do not understand.
+
+The format for this additional information inserted into queries by the MUD controller is application/x-www-form-urlencode as specified in {{HTML5}}.
 
 Note that if the MUD URL contains a fragment identifier (e.g., "#foo"), that
 information will not be sent to the MUD file server in the HTTP request.

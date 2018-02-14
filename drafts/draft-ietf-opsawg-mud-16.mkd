@@ -76,12 +76,6 @@ informative:
    RFC7223:
    RFC7252:
    ISO.8601.1988:
-   HTML5:
-      target: https://html.spec.whatwg.org/
-      title: HTML5
-	  author:
-	    organization: WHATWG
-	  date: 2018
    I-D.ietf-netmod-rfc6087bis:
    IEEE8021AR:
       title: Secure Device Identity
@@ -806,13 +800,9 @@ as compared to other things, the MUD URL should change. For example, if a
 new model of light bulb is released that requires access to different network
 services, it would have a separate MUD URL from those that do not.
 
-The query string of the MUD URL is reserved for additional information from the
-MUD controller to the MUD file server; for example, its network endpoint
-assessment (NEA) posture about the Thing. As a result, MUD URLs MUST NOT
-contain queries when sent to the controller. Such query parameters MUST be
-defined in documents updating this specification. MUD file servers MUST ignore query parameters that they do not understand.
-
-The format for this additional information inserted into queries by the MUD controller is application/x-www-form-urlencode as specified in {{HTML5}}.
+The query string of the MUD URL is reserved for potential future use; MUD URLs
+MUST NOT contain queries when sent to the controller. MUD file servers MUST
+ignore query parameters that they do not understand.
 
 Note that if the MUD URL contains a fragment identifier (e.g., "#foo"), that
 information will not be sent to the MUD file server in the HTTP request.

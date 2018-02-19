@@ -795,7 +795,7 @@ The MUD YANG Model
 ==================
 
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-mud@2018-01-20.yang"
+<CODE BEGINS>file "ietf-mud@2018-01-24.yang"
 module ietf-mud {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud";
@@ -845,7 +845,7 @@ module ietf-mud {
      This version of this YANG module is part of RFC XXXX; see
      the RFC itself for full legal notices.";
 
-  revision 2018-01-20 {
+  revision 2018-01-24 {
     description
       "Initial proposed standard.";
     reference
@@ -1117,7 +1117,7 @@ a dst-dnsname associated with to-device-policy.
 The ietf-acldns Model
 --------------------------
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-acldns@2018-01-20.yang"
+<CODE BEGINS>file "ietf-acldns@2018-01-24.yang"
 module ietf-acldns {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-acldns";
@@ -1150,7 +1150,7 @@ module ietf-acldns {
      IETF description of an access list to allow dns names
      as matching criteria.";
 
-  revision "2018-01-20" {
+  revision "2018-01-24" {
     description "Base version of dnsname extension of ACL model";
     reference "RFC XXXX: Manufacturer Usage Description
                Specification";
@@ -1895,6 +1895,18 @@ Changes from Earlier Versions
 
 RFC Editor to remove this section prior to publication.
 
+Draft -13 to -14:
+
+ * Final WGLC comments and review comments
+ * Move version from MUD-URL to Model
+ * Have MUD-URL in model
+ * Update based on update to draft-ietf-netmod-acl-model
+ * Point to tree diagram draft instead of 6087bis.
+
+Draft -12 to -13:
+
+ * Additional WGLC comments
+
 Draft -10 to -12:
 
 These are based on WGLC comments:
@@ -2234,7 +2246,7 @@ module: ietf-mud-detext-example
 The model is defined as follows:
 
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-mud-detext-example@2018-01-20.yang"
+<CODE BEGINS>file "ietf-mud-detext-example@2018-01-24.yang"
 module ietf-mud-detext-example {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud-detext-example";
@@ -2261,7 +2273,7 @@ module ietf-mud-detext-example {
     "Sample extension to a MUD module to indicate a need
      for DETNET support.";
 
-  revision 2018-01-20 {
+  revision 2018-01-24 {
     description
       "Initial revision.";
     reference

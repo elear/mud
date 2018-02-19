@@ -5,13 +5,13 @@
 Network Working Group                                            E. Lear
 Internet-Draft                                             Cisco Systems
 Intended status: Standards Track                                R. Droms
-Expires: July 28, 2018
+Expires: August 9, 2018
                                                             D. Romascanu
-                                                        January 24, 2018
+                                                       February 05, 2018
 
 
               Manufacturer Usage Description Specification
-                        draft-ietf-opsawg-mud-14
+                        draft-ietf-opsawg-mud-15
 
 Abstract
 
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 28, 2018.
+   This Internet-Draft will expire on August 9, 2018.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 1]
+Lear, et al.             Expires August 9, 2018                 [Page 1]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    publication of this document.  Please review these documents
@@ -78,67 +78,68 @@ Table of Contents
      1.8.  The Manufacturer Usage Description Architecture . . . . .   9
      1.9.  Order of operations . . . . . . . . . . . . . . . . . . .  11
    2.  The MUD Model and Semantic Meaning  . . . . . . . . . . . . .  11
-     2.1.  The IETF-MUD YANG Module  . . . . . . . . . . . . . . . .  12
+     2.1.  The IETF-MUD YANG Module  . . . . . . . . . . . . . . . .  13
    3.  Data Node Definitions . . . . . . . . . . . . . . . . . . . .  14
      3.1.  mud-version . . . . . . . . . . . . . . . . . . . . . . .  14
-     3.2.  to-device-policy and from-device-policy containers  . . .  14
-     3.3.  last-update . . . . . . . . . . . . . . . . . . . . . . .  14
-     3.4.  cache-validity  . . . . . . . . . . . . . . . . . . . . .  14
-     3.5.  is-supported  . . . . . . . . . . . . . . . . . . . . . .  14
+     3.2.  to-device-policy and from-device-policy containers  . . .  15
+     3.3.  last-update . . . . . . . . . . . . . . . . . . . . . . .  15
+     3.4.  cache-validity  . . . . . . . . . . . . . . . . . . . . .  15
+     3.5.  is-supported  . . . . . . . . . . . . . . . . . . . . . .  15
      3.6.  systeminfo  . . . . . . . . . . . . . . . . . . . . . . .  15
-     3.7.  extensions  . . . . . . . . . . . . . . . . . . . . . . .  15
-     3.8.  manufacturer  . . . . . . . . . . . . . . . . . . . . . .  15
-     3.9.  same-manufacturer . . . . . . . . . . . . . . . . . . . .  15
-     3.10. model . . . . . . . . . . . . . . . . . . . . . . . . . .  15
-     3.11. local-networks  . . . . . . . . . . . . . . . . . . . . .  16
-     3.12. controller  . . . . . . . . . . . . . . . . . . . . . . .  16
-     3.13. my-controller . . . . . . . . . . . . . . . . . . . . . .  16
-     3.14. direction-initiated . . . . . . . . . . . . . . . . . . .  16
-   4.  Processing of the MUD file  . . . . . . . . . . . . . . . . .  17
-   5.  What does a MUD URL look like?  . . . . . . . . . . . . . . .  17
-   6.  The MUD YANG Model  . . . . . . . . . . . . . . . . . . . . .  18
-   7.  The Domain Name Extension to the ACL Model  . . . . . . . . .  23
-     7.1.  src-dnsname . . . . . . . . . . . . . . . . . . . . . . .  24
-     7.2.  destination-dnsname . . . . . . . . . . . . . . . . . . .  24
-     7.3.  The ietf-acldns Model . . . . . . . . . . . . . . . . . .  24
-   8.  MUD File Example  . . . . . . . . . . . . . . . . . . . . . .  26
-   9.  The MUD URL DHCP Option . . . . . . . . . . . . . . . . . . .  28
-     9.1.  Client Behavior . . . . . . . . . . . . . . . . . . . . .  29
-     9.2.  Server Behavior . . . . . . . . . . . . . . . . . . . . .  29
-     9.3.  Relay Requirements  . . . . . . . . . . . . . . . . . . .  30
+     3.7.  mfg-name, hardware-rev, software-rev, model-name
+           firmware-rev  . . . . . . . . . . . . . . . . . . . . . .  16
+     3.8.  extensions  . . . . . . . . . . . . . . . . . . . . . . .  16
+     3.9.  manufacturer  . . . . . . . . . . . . . . . . . . . . . .  16
+     3.10. same-manufacturer . . . . . . . . . . . . . . . . . . . .  16
+     3.11. model . . . . . . . . . . . . . . . . . . . . . . . . . .  16
+     3.12. local-networks  . . . . . . . . . . . . . . . . . . . . .  17
+     3.13. controller  . . . . . . . . . . . . . . . . . . . . . . .  17
+     3.14. my-controller . . . . . . . . . . . . . . . . . . . . . .  17
+     3.15. direction-initiated . . . . . . . . . . . . . . . . . . .  17
+   4.  Processing of the MUD file  . . . . . . . . . . . . . . . . .  18
+   5.  What does a MUD URL look like?  . . . . . . . . . . . . . . .  18
+   6.  The Domain Name Extension to the ACL Model  . . . . . . . . .  25
+     6.1.  src-dnsname . . . . . . . . . . . . . . . . . . . . . . .  26
+     6.2.  dst-dnsname . . . . . . . . . . . . . . . . . . . . . . .  26
+     6.3.  The ietf-acldns Model . . . . . . . . . . . . . . . . . .  26
+   7.  MUD File Example  . . . . . . . . . . . . . . . . . . . . . .  27
+   8.  The MUD URL DHCP Option . . . . . . . . . . . . . . . . . . .  30
+     8.1.  Client Behavior . . . . . . . . . . . . . . . . . . . . .  31
+     8.2.  Server Behavior . . . . . . . . . . . . . . . . . . . . .  31
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 2]
+Lear, et al.             Expires August 9, 2018                 [Page 2]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
-   10. The Manufacturer Usage Description (MUD) URL X.509 Extension   30
-   11. The Manufacturer Usage Description LLDP extension . . . . . .  31
-   12. Creating and Processing of Signed MUD Files . . . . . . . . .  33
-     12.1.  Creating a MUD file signature  . . . . . . . . . . . . .  33
-     12.2.  Verifying a MUD file signature . . . . . . . . . . . . .  33
-   13. Extensibility . . . . . . . . . . . . . . . . . . . . . . . .  34
-   14. Deployment Considerations . . . . . . . . . . . . . . . . . .  34
-   15. Security Considerations . . . . . . . . . . . . . . . . . . .  35
-   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  37
-     16.1.  YANG Module Registrations  . . . . . . . . . . . . . . .  37
-     16.2.  DHCPv4 and DHCPv6 Options  . . . . . . . . . . . . . . .  38
-     16.3.  PKIX Extensions  . . . . . . . . . . . . . . . . . . . .  38
-     16.4.  Well Known URI Suffix  . . . . . . . . . . . . . . . . .  38
-     16.5.  MIME Media-type Registration for MUD files . . . . . . .  38
-     16.6.  LLDP IANA TLV Subtype Registry . . . . . . . . . . . . .  39
-     16.7.  The MUD Well Known Universal Resource Name (URNs)  . . .  40
-     16.8.  Extensions Registry  . . . . . . . . . . . . . . . . . .  40
-   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  40
-   18. References  . . . . . . . . . . . . . . . . . . . . . . . . .  41
-     18.1.  Normative References . . . . . . . . . . . . . . . . . .  41
-     18.2.  Informative References . . . . . . . . . . . . . . . . .  43
-   Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  45
-   Appendix B.  Default MUD nodes  . . . . . . . . . . . . . . . . .  48
-   Appendix C.  A Sample Extension: DETNET-indicator . . . . . . . .  52
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  55
+     8.3.  Relay Requirements  . . . . . . . . . . . . . . . . . . .  32
+   9.  The Manufacturer Usage Description (MUD) URL X.509 Extension   32
+   10. The Manufacturer Usage Description LLDP extension . . . . . .  33
+   11. Creating and Processing of Signed MUD Files . . . . . . . . .  35
+     11.1.  Creating a MUD file signature  . . . . . . . . . . . . .  35
+     11.2.  Verifying a MUD file signature . . . . . . . . . . . . .  35
+   12. Extensibility . . . . . . . . . . . . . . . . . . . . . . . .  36
+   13. Deployment Considerations . . . . . . . . . . . . . . . . . .  36
+   14. Security Considerations . . . . . . . . . . . . . . . . . . .  37
+   15. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  39
+     15.1.  YANG Module Registrations  . . . . . . . . . . . . . . .  39
+     15.2.  DHCPv4 and DHCPv6 Options  . . . . . . . . . . . . . . .  40
+     15.3.  PKIX Extensions  . . . . . . . . . . . . . . . . . . . .  40
+     15.4.  Well Known URI Suffix  . . . . . . . . . . . . . . . . .  40
+     15.5.  MIME Media-type Registration for MUD files . . . . . . .  40
+     15.6.  LLDP IANA TLV Subtype Registry . . . . . . . . . . . . .  41
+     15.7.  The MUD Well Known Universal Resource Name (URNs)  . . .  42
+     15.8.  Extensions Registry  . . . . . . . . . . . . . . . . . .  42
+   16. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  42
+   17. References  . . . . . . . . . . . . . . . . . . . . . . . . .  43
+     17.1.  Normative References . . . . . . . . . . . . . . . . . .  43
+     17.2.  Informative References . . . . . . . . . . . . . . . . .  45
+   Appendix A.  Changes from Earlier Versions  . . . . . . . . . . .  47
+   Appendix B.  Default MUD nodes  . . . . . . . . . . . . . . . . .  50
+   Appendix C.  A Sample Extension: DETNET-indicator . . . . . . . .  55
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  59
 
 1.  Introduction
 
@@ -161,15 +162,15 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    We use the notion of "manufacturer" loosely in this context to refer
    to the entity or organization that will state how a device is
-   intended to be used.  For example, in the context of a lightbulb,
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 3]
+Lear, et al.             Expires August 9, 2018                 [Page 3]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
+   intended to be used.  For example, in the context of a lightbulb,
    this might indeed be the lightbulb manufacturer.  In the context of a
    smarter device that has a built in Linux stack, it might be an
    integrator of that device.  The key points are that the device itself
@@ -220,10 +221,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-
-Lear, et al.              Expires July 28, 2018                 [Page 4]
+Lear, et al.             Expires August 9, 2018                 [Page 4]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    Although MUD can provide network administrators with some additional
@@ -277,9 +277,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 5]
+Lear, et al.             Expires August 9, 2018                 [Page 5]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -333,9 +333,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 6]
+Lear, et al.             Expires August 9, 2018                 [Page 6]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    yet can be identified through some means, such as a serial number or
@@ -389,9 +389,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 7]
+Lear, et al.             Expires August 9, 2018                 [Page 7]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    o  Allow access to and from controllers via Constrained Application
@@ -445,9 +445,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 8]
+Lear, et al.             Expires August 9, 2018                 [Page 8]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    specifies.  The abstractions below map to zero or more hosts, as
@@ -501,9 +501,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                 [Page 9]
+Lear, et al.             Expires August 9, 2018                 [Page 9]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
     .......................................
@@ -557,9 +557,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 10]
+Lear, et al.             Expires August 9, 2018                [Page 10]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    o  translate abstractions in the MUD files to specific network
@@ -613,9 +613,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 11]
+Lear, et al.             Expires August 9, 2018                [Page 11]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    o  ietf-access-control-list [I-D.ietf-netmod-acl-model]
@@ -635,24 +635,44 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    list is implicit, based on whether it is applied as to-device-policy
    or from-device-policy.
 
-   With the exceptions of "name", "acl-type", "rule-name", and TCP and
-   UDP source and destination port information, publishers of MUD files
-   SHOULD limit the use of ACL model leaf nodes expressed to those found
-   in this specification.  Absent any extensions, MUD files are assumed
-   to implement only the following ACL model features:
+   With the exceptions of "name" of the ACL, "type", "name" of the ACE,
+   and TCP and UDP source and destination port information, publishers
+   of MUD files SHOULD limit the use of ACL model leaf nodes expressed
+   to those found in this specification.  Absent any extensions, MUD
+   files are assumed to implement only the following ACL model features:
 
    o  match-on-ipv4, match-on-ipv6, match-on-tcp, match-on-udp, match-
       on-icmp
 
    Furthermore, only "accept" or "drop" actions SHOULD be included.  A
    MUD controller MAY choose to interpret "reject" as "drop".  A MUD
-   controller SHOULD ignore all other actions.
+   controller SHOULD ignore all other actions.  This is because
+   manufacturers do not have sufficient context within a local
+   deployment to know whether reject is appropriate.  That is a decision
+   that should be left to a network administrator.
+
+   Given that MUD does not deal with interfaces, the support of the
+   "ietf-interfaces" module [RFC7223] is not required.  Specifically,
+   the support of interface-related features and branches (e.g.,
+   interface-attachment and interface-stats) of the ACL YANG module is
+   not required.
 
    In fact, MUD controllers MAY ignore any particular component of a
    description or MAY ignore the description in its entirety, and SHOULD
    carefully inspect all MUD descriptions.  Publishers of MUD files MUST
-   NOT include other nodes except as described in Section 3.7.  See that
+   NOT include other nodes except as described in Section 3.8.  See that
    section for more information.
+
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 12]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
 
 2.1.  The IETF-MUD YANG Module
 
@@ -665,14 +685,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    o  The second component augments the matching container of the ACL
       model to add several nodes that are relevant to the MUD URL, or
       otherwise abstracted for use within a local environment.
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 12]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    o  The third component augments the tcp-acl container of the ACL
       model to add the ability to match on the direction of initiation
@@ -691,6 +703,33 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    this document.  The meaning of the symbols in these diagrams is
    explained in [I-D.ietf-netmod-yang-tree-diagrams].
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 13]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    module: ietf-mud
        +--rw mud!
           +--rw mud-version           uint8
@@ -699,6 +738,10 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
           +--rw cache-validity?       uint8
           +--rw is-supported          boolean
           +--rw systeminfo?           inet:uri
+          +--rw mfg-name?             string
+          +--rw model-name?           string
+          +--rw firmware-rev?         string
+          +--rw software-rev?         string
           +--rw extensions*           string
           +--rw from-device-policy
           |  +--rw access-lists
@@ -716,18 +759,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
           +--rw local-networks?      empty
           +--rw controller?          inet:uri
           +--rw my-controller?       empty
-     augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
-        /acl:l4/acl:tcp:
+     augment /acl:access-lists/acl:acl/acl:aces/acl:ace
+        /acl:matches/acl:l4/acl:tcp:
        +--rw direction-initiated?   direction
-
-
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 13]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 3.  Data Node Definitions
@@ -741,6 +775,16 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    This node specifies the integer version of the MUD specification.
    This memo specifies version 1.
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 14]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
 
 3.2.  to-device-policy and from-device-policy containers
 
@@ -768,7 +812,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    period SHOULD be no shorter than any period determined through HTTP
    caching directives (e.g., "cache-control" or "Expires").  N.B.,
    expiring of this timer does not require the MUD controller to discard
-   the MUD file, nor terminate access to a Thing.  See Section 15 for
+   the MUD file, nor terminate access to a Thing.  See Section 14 for
    more information.
 
 3.5.  is-supported
@@ -778,13 +822,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    context a Thing is said to not be supported if the manufacturer
    intends never to issue an update to the Thing or never update the MUD
    file.  A MUD controller MAY still periodically check for updates.
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 14]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
 3.6.  systeminfo
 
@@ -796,7 +833,24 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    space (that is- what the administrator actually sees), but it MAY
    contain links to other documents (presumably product documentation).
 
-3.7.  extensions
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 15]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+3.7.  mfg-name, hardware-rev, software-rev, model-name firmware-rev
+
+   These optional fields are filled in as specified by
+   [I-D.ietf-netmod-entity].  Note that firmware-rev and software-rev
+   MUST NOT be populated in a MUD file if the device can be upgraded but
+   the MUD-URL cannot be.  This would be the case, for instance, with
+   MUR-URLs that are contained in 802.1AR certificates.
+
+3.8.  extensions
 
    This optional leaf-list names MUD extensions that are used in the MUD
    file.  Note that NO MUD extensions may be used in a MUD file without
@@ -807,7 +861,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    the previous paragraph, or they might reference other work.  An
    extension example can be found in Appendix C.
 
-3.8.  manufacturer
+3.9.  manufacturer
 
    This node consists of a hostname that would be matched against the
    authority component of another Thing's MUD URL.  In its simplest form
@@ -818,41 +872,40 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    URL that contained flobbity.example.com in its authority section
    would match.
 
-3.9.  same-manufacturer
+3.10.  same-manufacturer
 
    This null-valued node is an equivalent for when the manufacturer
    element is used to indicate the authority that is found in another
    Thing's MUD URL matches that of the authority found in this Thing's
    MUD URL.  For example, if the Thing's MUD URL were
-   https://b1.example.com/.well-known/mud/ThingV1, then all devices that
-   had MUD URL with an authority section of b1.example.com would match.
+   https://b1.example.com/ThingV1, then all devices that had MUD URL
+   with an authority section of b1.example.com would match.
 
-3.10.  model
+3.11.  model
 
    This string matches the entire MUD URL, thus covering the model that
    is unique within the context of the authority.  It may contain not
    only model information, but versioning information as well, and any
    other information that the manufacturer wishes to add.  The intended
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 15]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
    use is for devices of this precise class to match, to permit or deny
    communication between one another.
 
-3.11.  local-networks
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 16]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+3.12.  local-networks
 
    This null-valued node expands to include local networks.  Its default
    expansion is that packets must not traverse toward a default route
    that is received from the router.  However, administrators may expand
    the expression as is appropriate in their deployments.
 
-3.12.  controller
+3.13.  controller
 
    This URI specifies a value that a controller will register with the
    MUD controller.  The node then is expanded to the set of hosts that
@@ -874,32 +927,33 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    However, MUD controllers MUST NOT resolve and retrieve such files,
    and it is RECOMMENDED that there be no such file at this time, as
    their form and function may be defined at a point in the future.  For
-   now, URLs should serve simply as class names and be populated by the
-   local deployment administrator.
+   now, URLs should serve simply as class names and may be populated by
+   the local deployment administrator.
 
-3.13.  my-controller
+3.14.  my-controller
 
    This null-valued node signals to the MUD controller to use whatever
    mapping it has for this MUD URL to a particular group of hosts.  This
    may require prompting the administrator for class members.  Future
    work should seek to automate membership management.
 
-3.14.  direction-initiated
+3.15.  direction-initiated
 
    When applied this matches packets when the flow was initiated in the
    corresponding direction.  [RFC6092] specifies IPv6 guidance best
    practices.  While that document is scoped specifically to IPv6, its
    contents are applicable for IPv4 as well.  When this flag is set, and
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 16]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
    the system has no reason to believe a flow has been initiated it MUST
    drop the packet.  This node may be implemented in its simplest form
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 17]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    by looking at naked SYN bits, but may also be implemented through
    more stateful mechanisms.
 
@@ -914,23 +968,21 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
       Thing.
 
    An explicit description of the defaults can be found in Appendix B.
+   These are applied AFTER all other explicit rules.  Thus, a default
+   behavior can be changed with a "drop" action.
 
 5.  What does a MUD URL look like?
 
-   To begin with, MUD takes full advantage of both the https: scheme and
-   the use of .well-known.  HTTPS is important in this case because a
-   man in the middle attack could otherwise harm the operation of a
-   class of Things.  .well-known is used because we wish to add
-   additional structure to the URL, and want to leave open for future
-   versions both the means by which the URL is processed and the format
-   of the MUD file retrieved (there have already been some discussions
-   along these lines).  The URL appears as follows:
+   To begin with, MUD takes full advantage of both the https: scheme.
+   HTTPS is important in this case because a man in the middle attack
+   could otherwise harm the operation of a class of Things.
 
-      mud-url   = "https://" authority  "/.well-known/mud/"
-                  "/" modelinfo ( "?" extras )
+   The URL appears as follows:
+
+      mud-url   = "https://" authority "/" modelinfo ( "?" extras )
                   ; authority is from RFC3986
       modelinfo = segment  ; from RFC3986
-      extras    = query    ; from RFC3986
+      extras    = query    ; from RFC3986 and RFC6570
 
 
    Taken together with the mud-url, "modelinfo" represents a Thing model
@@ -944,20 +996,26 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    updates will require some administrative review.
 
    "extras" is intended for use by the MUD controller to provide
-   additional information such as posture about the Thing to the MUD
-   file server.  This field MUST NOT be configured on the Thing itself
+   additional information such as network endpoint assessment (NEA)
+   posture about the Thing to the MUD file server.  This field is not
+   intended to be configured on the Thing itself by a manufacturer -
+   that is what "modelinfo" is for.  The variables used in this field
+   are to be specified in future work through the use of [RFC6570]
+   templates.  It is strongly suggested that for simplicity the
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 17]
+Lear, et al.             Expires August 9, 2018                [Page 18]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
-   by a manufacturer - that is what "modelinfo" is for.  It is left as
-   future work to define the full semantics of this field.
+   templates be limited to level 1, but this may be decided in future
+   documents, based on their requirements.  N.B., a MUD controller MUST
+   ignore queries it does not understand and return a MUD file as if the
+   query components were not present.
 
-6.  The MUD YANG Model
+   The MUD YANG Model ==================
 
    <CODE BEGINS>file "ietf-mud@2018-01-24.yang"
    module ietf-mud {
@@ -1000,16 +1058,16 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
         Copyright (c) 2016,2017 IETF Trust and the persons
         identified as the document authors.  All rights reserved.
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 19]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
         Redistribution and use in source and binary forms, with or
         without modification, is permitted pursuant to, and subject
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 18]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
         to the license terms contained in, the Simplified BSD
         License set forth in Section 4.c of the IETF Trust's Legal
         Provisions Relating to IETF Documents
@@ -1056,16 +1114,16 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
           when to refresh";
 
        leaf mud-version {
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 20]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
          type uint8;
          mandatory true;
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 19]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
          description "This is the version of the MUD
             specification.  This memo specifies version 1.";
         }
@@ -1112,17 +1170,46 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
             should be a brief localized description.  The
             reference text should be no more than octets.
             systeminfo may be displayed to the user to
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 21]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
             determine whether to allow the Thing on the
             network.";
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 20]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
        }
+
+       leaf mfg-name {
+            type string;
+            description "Manufacturer name, as described in
+               the ietf-hardware yang module.";
+       }
+
+       leaf model-name {
+            type string;
+            description "Model name, as described in the
+            ietf-hardware yang module.";
+       }
+
+       leaf firmware-rev {
+            type string;
+            description "firmware-rev, as described in the
+            ietf-hardware yang module.  Note this field MUST
+            NOT be included when the device can be updated
+            but the MUD-URL cannot.";
+       }
+
+       leaf software-rev {
+            type string;
+            description "software-rev, as described in the
+            ietf-hardware yang module.  Note this field MUST
+            NOT be included when the device can be updated
+            but the MUD-URL cannot.";
+       }
+
        leaf-list extensions {
          type string {
             length "1..40";
@@ -1139,6 +1226,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
             necessarily intended to be enforced at a single
             point, but may be rendered by the controller to any
             relevant enorcement points in the network or
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 22]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
             elsewhere.";
          uses access-lists;
        }
@@ -1170,14 +1265,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
                 data model. Each ACL is identified by name and
                 type.";
            leaf name {
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 21]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
              type leafref {
                path "/acl:access-lists/acl:acl/acl:name";
              }
@@ -1195,6 +1282,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
            "MUD-specific matches.";
          leaf manufacturer {
            type inet:host;
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 23]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
            description
              "A domain that is intended to match the authority
               section of the MUD URL. This node is used to specify
@@ -1226,14 +1321,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
            type inet:uri;
            description
              "This node names a class that has associated with it
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 22]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
               zero or more IP addresses to match against.  These
               may be scoped to a manufacturer or via a standard
               URN.";
@@ -1250,7 +1337,15 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
      augment "/acl:access-lists/acl:acl/acl:aces/" +
         "acl:ace/acl:matches/acl:l4/acl:tcp" {
        description
-         "Adding domain names to matching";
+         "add directionality element";
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 24]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
        leaf direction-initiated {
          type direction;
          description
@@ -1264,7 +1359,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    <CODE ENDS>
 
 
-7.  The Domain Name Extension to the ACL Model
+6.  The Domain Name Extension to the ACL Model
 
    This module specifies an extension to IETF-ACL model such that domain
    names may be referenced by augmenting the "matches" node.  Different
@@ -1274,21 +1369,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    name should be authorized (or not) within an access list.
 
    The structure of the change is as follows:
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 23]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    module: ietf-acldns
      augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:matches
@@ -1310,14 +1390,26 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    The following node are defined.
 
-7.1.  src-dnsname
+
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 25]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+6.1.  src-dnsname
 
    The argument corresponds to a domain name of a source as specified by
    inet:host.  A number of means may be used to resolve hosts.  What is
    important is that such resolutions be consistent with ACLs required
    by Things to properly operate.
 
-7.2.  destination-dnsname
+6.2.  dst-dnsname
 
    The argument corresponds to a domain name of a destination as
    specified by inet:host See the previous section relating to
@@ -1328,7 +1420,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    a src-dnsname in an ACL associated with from-device-policy or a dst-
    dnsname associated with to-device-policy.
 
-7.3.  The ietf-acldns Model
+6.3.  The ietf-acldns Model
 
    <CODE BEGINS>file "ietf-acldns@2018-01-24.yang"
    module ietf-acldns {
@@ -1338,14 +1430,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
      import ietf-access-control-list {
        prefix "acl";
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 24]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
      }
 
      import ietf-inet-types {
@@ -1365,6 +1449,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
           Author: Dan Romascanu
           dromasca@gmail.com
        ";
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 26]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
 
      description
        "This YANG module defines a component that augments the
@@ -1394,14 +1486,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
         "acl:matches/acl:l3/acl:ipv4" {
        description "Adding domain names to matching";
        uses dns-matches;
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 25]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
      }
 
      augment "/acl:access-lists/acl:acl/" +
@@ -1414,125 +1498,141 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    <CODE ENDS>
 
 
-8.  MUD File Example
+7.  MUD File Example
 
    This example contains two access lists that are intended to provide
    outbound access to a cloud service on TCP port 443.
 
-
- {
-   "ietf-mud:mud": {
-     "mud-version": 1,
-     "mud-url": "https://bms.example.com/.well-known/mud/lightbulb2000",
-     "last-update": "2018-01-23T13:33:52+01:00",
-     "cache-validity": 48,
-     "is-supported": true,
-     "systeminfo": "The BMS Example Lightbulb",
-     "from-device-policy": {
-       "access-lists": {
-         "access-list": [
-           {
-             "name": "mud-45782-v6fr"
-           }
-         ]
-       }
-     },
-     "to-device-policy": {
-       "access-lists": {
-         "access-list": [
-           {
-             "name": "mud-45782-v6to"
-           }
-         ]
-       }
-     }
-   },
-   "ietf-access-control-list:access-lists": {
-     "acl": [
-       {
+   {
+     "ietf-mud:mud": {
+       "mud-version": 1,
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 26]
+Lear, et al.             Expires August 9, 2018                [Page 27]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
-         "name": "mud-45782-v6to",
-         "acl-type": "ipv6-acl-type",
-         "access-list-entries": {
-           "ace": [
+       "mud-url": "https://bms.example.com/lightbulb2000",
+       "last-update": "2018-01-24T16:08:58+01:00",
+       "cache-validity": 48,
+       "is-supported": true,
+       "systeminfo": "The BMS Example Lightbulb",
+       "from-device-policy": {
+         "access-lists": {
+           "access-list": [
              {
-               "rule-name": "cl0-todev",
-               "matches": {
-                 "ipv6-acl": {
-                   "ietf-acldns:src-dnsname": "service.bms.example.com",
-                   "protocol": 6,
-                   "source-port-range-or-operator": {
-                     "operator": "eq",
-                     "port": 443
-                   }
-                 },
-                 "tcp": {
-                   "ietf-mud:direction-initiated": "from-device"
-                 }
-               },
-               "actions": {
-                 "forwarding": "accept"
-               }
+               "name": "mud-61898-v6fr"
              }
            ]
          }
        },
-       {
-         "name": "mud-45782-v6fr",
-         "acl-type": "ipv6-acl-type",
-         "access-list-entries": {
-           "ace": [
+       "to-device-policy": {
+         "access-lists": {
+           "access-list": [
              {
-               "rule-name": "cl0-frdev",
-               "matches": {
-                 "ipv6-acl": {
-                   "ietf-acldns:dst-dnsname": "service.bms.example.com",
-                   "protocol": 6,
-                   "destination-port-range-or-operator": {
-                     "operator": "eq",
-                     "port": 443
-                   }
-                 },
-                 "tcp": {
-                   "ietf-mud:direction-initiated": "from-device"
-                 }
-               },
-               "actions": {
-                 "forwarding": "accept"
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 27]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
-               }
+               "name": "mud-61898-v6to"
              }
            ]
          }
        }
-     ]
+     },
+     "ietf-access-control-list:access-lists": {
+       "acl": [
+         {
+           "name": "mud-61898-v6to",
+           "type": "ipv6-acl-type",
+           "aces": {
+             "ace": [
+               {
+                 "name": "cl0-todev",
+                 "matches": {
+                   "l3": {
+                     "ipv6": {
+                "ietf-acldns:src-dnsname": "service.bms.example.com",
+                       "protocol": 6
+                     }
+                   },
+                   "l4": {
+                     "tcp": {
+                       "ietf-mud:direction-initiated": "from-device",
+                       "source-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 443
+                       }
+                     }
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 28]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+                   }
+                 },
+                 "actions": {
+                   "forwarding": "accept"
+                 }
+               }
+             ]
+           }
+         },
+         {
+           "name": "mud-61898-v6fr",
+           "type": "ipv6-acl-type",
+           "aces": {
+             "ace": [
+               {
+                 "name": "cl0-frdev",
+                 "matches": {
+                   "l3": {
+                     "ipv6": {
+                   "ietf-acldns:dst-dnsname": "service.bms.example.com",
+                       "protocol": 6
+                     }
+                   },
+                   "l4": {
+                     "tcp": {
+                       "ietf-mud:direction-initiated": "from-device",
+                       "destination-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 443
+                       }
+                     }
+                   }
+                 },
+                 "actions": {
+                   "forwarding": "accept"
+                 }
+               }
+             ]
+           }
+         }
+       ]
+     }
    }
- }
+
 
 
    In this example, two policies are declared, one from the Thing and
    the other to the Thing.  Each policy names an access list that
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 29]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    applies to the Thing, and one that applies from.  Within each access
    list, access is permitted to packets flowing to or from the Thing
    that can be mapped to the domain name of "service.bms.example.com".
    For each access list, the enforcement point should expect that the
    Thing initiated the connection.
 
-9.  The MUD URL DHCP Option
+8.  The MUD URL DHCP Option
 
    The IPv4 MUD URL client option has the following format:
 
@@ -1561,15 +1661,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    option-length contains the length of the URL in octets.
 
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 28]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
    The intent of this option is to provide both a new Thing classifier
    to the network as well as some recommended configuration to the
    routers that implement policy.  However, it is entirely the purview
@@ -1579,7 +1670,19 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    structured way such that the policy can be easily found with existing
    toolsets.
 
-9.1.  Client Behavior
+
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 30]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+8.1.  Client Behavior
 
    A DHCPv4 client MAY emit a DHCPv4 option and a DHCPv6 client MAY emit
    DHCPv6 option.  These options are singletons, as specified in
@@ -1598,7 +1701,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    the usage description.  Neither of these situations should be
    considered in any way exceptional.
 
-9.2.  Server Behavior
+8.2.  Server Behavior
 
    A DHCP server may ignore these options or take action based on
    receipt of these options.  If a server successfully parses the option
@@ -1618,24 +1721,28 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    Those servers will retrieve the file, process it, create and install
    the necessary configuration on the relevant network element.  Servers
    SHOULD monitor the gateway for state changes on a given interface.  A
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 29]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
    DHCP server that does not provide MUD functionality and has forwarded
    a MUD URL to a MUD controller MUST notify the MUD controller of any
    corresponding change to the DHCP state of the client (such as
    expiration or explicit release of a network address lease).
 
-9.3.  Relay Requirements
+
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 31]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+8.3.  Relay Requirements
 
    There are no additional requirements for relays.
 
-10.  The Manufacturer Usage Description (MUD) URL X.509 Extension
+9.  The Manufacturer Usage Description (MUD) URL X.509 Extension
 
    This section defines an X.509 non-critical certificate extension that
    contains a single Uniform Resource Locator (URL) that points to an
@@ -1677,9 +1784,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 30]
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 32]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    <CODE BEGINS>
@@ -1722,7 +1834,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    It is RECOMMENDED that MUD controller implementations maintain a
    table that maps a Thing to its MUD URL based on IDevIDs.
 
-11.  The Manufacturer Usage Description LLDP extension
+10.  The Manufacturer Usage Description LLDP extension
 
    The IEEE802.1AB Link Layer Discovery Protocol (LLDP) is a one hop
    vendor-neutral link layer protocol used by end hosts network Things
@@ -1733,9 +1845,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 31]
+Lear, et al.             Expires August 9, 2018                [Page 33]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    as documented in [RFC7042].  The MUD LLDP extension uses a subtype
@@ -1789,15 +1901,15 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 32]
+Lear, et al.             Expires August 9, 2018                [Page 34]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    usage description by resolving the URL in accordance with normal HTTP
    semantics.
 
-12.  Creating and Processing of Signed MUD Files
+11.  Creating and Processing of Signed MUD Files
 
    Because MUD files contain information that may be used to configure
    network access lists, they are sensitive.  To insure that they have
@@ -1805,7 +1917,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    use of DER-encoded Cryptographic Message Syntax (CMS) [RFC5652] for
    this purpose.
 
-12.1.  Creating a MUD file signature
+11.1.  Creating a MUD file signature
 
    A MUD file MUST be signed using CMS as an opaque binary object.  In
    order to make successful verification more likely, intermediate
@@ -1821,13 +1933,12 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    Note: A MUD file may need to be re-signed if the signature expires.
 
-12.2.  Verifying a MUD file signature
+11.2.  Verifying a MUD file signature
 
    Prior to retrieving a MUD file the MUD controller SHOULD retrieve the
    MUD signature file using the MUD URL with a suffix of ".p7s".  For
-   example, if the MUD URL is "https://example.com/.well-known/modela",
-   the MUD signature URL will be "https://example.com/.well-known/
-   modela.p7s".
+   example, if the MUD URL is "https://example.com/modela", the MUD
+   signature URL will be "https://example.com/modela.p7s".
 
    Upon retrieving a MUD file, a MUD controller MUST validate the
    signature of the file before continuing with further processing.  A
@@ -1842,15 +1953,15 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    file resides.  While it is likely that the manufacturer will be the
    signer of the file, this is not strictly necessary, and may not be
    desirable.  For one thing, in some environments, integrators may
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 33]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
    install their own certificates.  For another, what is more important
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 35]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    is the accountability of the recommendation, and not the
    cryptographic relationship between the device and the file.
 
@@ -1860,7 +1971,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    Note the additional step of verifying the common trust root.
 
-13.  Extensibility
+12.  Extensibility
 
    One of our design goals is to see that MUD files are able to be
    understood by as broad a cross-section of systems as is possible.
@@ -1885,7 +1996,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
        exception to be resolved by an administrator, so as to avoid any
        policy inconsistencies.
 
-14.  Deployment Considerations
+13.  Deployment Considerations
 
    Because MUD consists of a number of architectural building blocks, it
    is possible to assemble different deployment scenarios.  One key
@@ -1901,9 +2012,10 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 34]
+
+Lear, et al.             Expires August 9, 2018                [Page 36]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    A caution about some of the classes: admission of a Thing into the
@@ -1922,7 +2034,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    MUD policy in its entirety, but simply taken into account the MUD URL
    as a classifier to be used as part of a local policy decision.
 
-15.  Security Considerations
+14.  Security Considerations
 
    Based on how a MUD URL is emitted, a Thing may be able to lie about
    what it is, thus gaining additional network access.  There are
@@ -1957,9 +2069,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 35]
+Lear, et al.             Expires August 9, 2018                [Page 37]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    relatively small, to start with.  The number of ACEs used by any
@@ -2013,9 +2125,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 36]
+Lear, et al.             Expires August 9, 2018                [Page 38]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
    carry personal identifying information, and then apply appropriate
@@ -2035,9 +2147,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    configure access, and so by its very nature can be disruptive if used
    by unauthorized parties.
 
-16.  IANA Considerations
+15.  IANA Considerations
 
-16.1.  YANG Module Registrations
+15.1.  YANG Module Registrations
 
    The following YANG modules are requested to be registred in the "IANA
    Module Names" registry:
@@ -2069,19 +2181,19 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 37]
+Lear, et al.             Expires August 9, 2018                [Page 39]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
-16.2.  DHCPv4 and DHCPv6 Options
+15.2.  DHCPv4 and DHCPv6 Options
 
    The IANA has allocated option 161 in the Dynamic Host Configuration
    Protocol (DHCP) and Bootstrap Protocol (BOOTP) Parameters registry
    for the MUD DHCPv4 option, and option 112 for DHCPv6, as described in
-   Section 9.
+   Section 8.
 
-16.3.  PKIX Extensions
+15.3.  PKIX Extensions
 
    IANA is kindly requested to make the following assignments for:
 
@@ -2091,16 +2203,16 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    o id-pe-mud-url object identifier from the "SMI Security for PKIX
    Certificate Extension" registry (1.3.6.1.5.5.7.1).
 
-   The use of these values is specified in Section 10.
+   The use of these values is specified in Section 9.
 
-16.4.  Well Known URI Suffix
+15.4.  Well Known URI Suffix
 
    The IANA has allocated the URL suffix of "mud" as follows:
 
    o URI Suffix: "mud" o Specification documents: this document o
    Related information: n/a
 
-16.5.  MIME Media-type Registration for MUD files
+15.5.  MIME Media-type Registration for MUD files
 
    The following media-type is defined for transfer of MUD file:
 
@@ -2125,9 +2237,9 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 38]
+Lear, et al.             Expires August 9, 2018                [Page 40]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
     o Type name: application
@@ -2161,7 +2273,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
     o Provisional registration? (standards tree only): No.
 
 
-16.6.  LLDP IANA TLV Subtype Registry
+15.6.  LLDP IANA TLV Subtype Registry
 
    IANA is requested to create a new registry for IANA Link Layer
    Discovery Protocol (LLDP) TLV subtype values.  The recommended policy
@@ -2181,12 +2293,12 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 39]
+Lear, et al.             Expires August 9, 2018                [Page 41]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
-16.7.  The MUD Well Known Universal Resource Name (URNs)
+15.7.  The MUD Well Known Universal Resource Name (URNs)
 
    The following parameter registry is requested to be added in
    accordance with [RFC3553]
@@ -2204,7 +2316,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    [RFC1123].  "urn:ietf:params:mud:ntp" refers to the service specified
    by [RFC5905].
 
-16.8.  Extensions Registry
+15.8.  Extensions Registry
 
    The IANA is requested to establish a registry of extensions as
    follows:
@@ -2218,14 +2330,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    As is usual, the IANA issues early allocations based in accordance
    with [RFC7120].
 
-17.  Acknowledgments
+16.  Acknowledgments
 
    The authors would like to thank Einar Nilsen-Nygaard, who
    singlehandedly updated the model to match the updated ACL model,
    Bernie Volz, Tom Gindin, Brian Weis, Sandeep Kumar, Thorsten Dahm,
    John Bashinski, Steve Rich, Jim Bieda, Dan Wing, Joe Clarke, Henk
    Birkholz, Adam Montville, and Robert Sparks for their valuable advice
-   and reviews.  Russ Housley entirely rewrote Section 10 to be a
+   and reviews.  Russ Housley entirely rewrote Section 9 to be a
    complete module.  Adrian Farrel provided the basis for privacy
    considerations text.  Kent Watsen provided a thorough review of the
    architecture and the YANG model.  The remaining errors in this work
@@ -2237,20 +2349,25 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-Lear, et al.              Expires July 28, 2018                [Page 40]
+Lear, et al.             Expires August 9, 2018                [Page 42]
 
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
 
 
-18.  References
+17.  References
 
-18.1.  Normative References
+17.1.  Normative References
 
    [I-D.ietf-netmod-acl-model]
               Jethanandani, M., Huang, L., Agarwal, S., and D. Blair,
               "Network Access Control List (ACL) YANG Data Model",
-              draft-ietf-netmod-acl-model-15 (work in progress), January
-              2018.
+              draft-ietf-netmod-acl-model-16 (work in progress),
+              February 2018.
+
+   [I-D.ietf-netmod-entity]
+              Bierman, A., Bjorklund, M., Dong, J., and D. Romascanu, "A
+              YANG Data Model for Hardware Management", draft-ietf-
+              netmod-entity-08 (work in progress), January 2018.
 
    [I-D.ietf-netmod-yang-tree-diagrams]
               Bjorklund, M. and L. Berger, "YANG Tree Diagrams", draft-
@@ -2285,18 +2402,18 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               DOI 10.17487/RFC2818, May 2000,
               <https://www.rfc-editor.org/info/rfc2818>.
 
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 43]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    [RFC3315]  Droms, R., Ed., Bound, J., Volz, B., Lemon, T., Perkins,
               C., and M. Carney, "Dynamic Host Configuration Protocol
               for IPv6 (DHCPv6)", RFC 3315, DOI 10.17487/RFC3315, July
               2003, <https://www.rfc-editor.org/info/rfc3315>.
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 41]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    [RFC3748]  Aboba, B., Blunk, L., Vollbrecht, J., Carlson, J., and H.
               Levkowetz, Ed., "Extensible Authentication Protocol
@@ -2334,6 +2451,21 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               RFC 6335, DOI 10.17487/RFC6335, August 2011,
               <https://www.rfc-editor.org/info/rfc6335>.
 
+   [RFC6570]  Gregorio, J., Fielding, R., Hadley, M., Nottingham, M.,
+              and D. Orchard, "URI Template", RFC 6570,
+              DOI 10.17487/RFC6570, March 2012,
+              <https://www.rfc-editor.org/info/rfc6570>.
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 44]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    [RFC6991]  Schoenwaelder, J., Ed., "Common YANG Data Types",
               RFC 6991, DOI 10.17487/RFC6991, July 2013,
               <https://www.rfc-editor.org/info/rfc6991>.
@@ -2346,13 +2478,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               S. Krishnan, "Guidelines for Creating New DHCPv6 Options",
               BCP 187, RFC 7227, DOI 10.17487/RFC7227, May 2014,
               <https://www.rfc-editor.org/info/rfc7227>.
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 42]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Message Syntax and Routing",
@@ -2377,7 +2502,7 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               RFC 7951, DOI 10.17487/RFC7951, August 2016,
               <https://www.rfc-editor.org/info/rfc7951>.
 
-18.2.  Informative References
+17.2.  Informative References
 
    [FW95]     Chapman, D. and E. Zwicky, "Building Internet Firewalls",
               January 1995.
@@ -2386,6 +2511,16 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               Bierman, A., "Guidelines for Authors and Reviewers of YANG
               Data Model Documents", draft-ietf-netmod-rfc6087bis-16
               (work in progress), January 2018.
+
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 45]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
 
    [IEEE8021AR]
               Institute for Electrical and Electronics Engineers,
@@ -2401,14 +2536,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               Technology and the Internet", BCP 200, RFC 1984,
               DOI 10.17487/RFC1984, August 1996,
               <https://www.rfc-editor.org/info/rfc1984>.
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 43]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    [RFC3339]  Klyne, G. and C. Newman, "Date and Time on the Internet:
               Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
@@ -2441,6 +2568,20 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               1", RFC 7170, DOI 10.17487/RFC7170, May 2014,
               <https://www.rfc-editor.org/info/rfc7170>.
 
+
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 46]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+   [RFC7223]  Bjorklund, M., "A YANG Data Model for Interface
+              Management", RFC 7223, DOI 10.17487/RFC7223, May 2014,
+              <https://www.rfc-editor.org/info/rfc7223>.
+
    [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
               Application Protocol (CoAP)", RFC 7252,
               DOI 10.17487/RFC7252, June 2014,
@@ -2455,16 +2596,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
               Reddy, "Port Control Protocol (PCP) Server Selection",
               RFC 7488, DOI 10.17487/RFC7488, March 2015,
               <https://www.rfc-editor.org/info/rfc7488>.
-
-
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 44]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
 Appendix A.  Changes from Earlier Versions
 
@@ -2496,6 +2627,13 @@ Appendix A.  Changes from Earlier Versions
 
    o  Additional explanatory text around systeminfo.
 
+
+
+Lear, et al.             Expires August 9, 2018                [Page 47]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    o  Change ordering in examples.
 
    o  Make it VERY VERY VERY VERY clear that these are recommendations,
@@ -2514,13 +2652,6 @@ Appendix A.  Changes from Earlier Versions
    o  Example corrections
 
    o  Typo
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 45]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    o  Fix two lists.
 
@@ -2551,6 +2682,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    o  consistency changes.
 
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 48]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    o  improved YANG descriptions.
 
    o  Remove extra revisions.
@@ -2569,14 +2708,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    Draft -06 to -07:
 
    o  Examples updated.
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 46]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    o  Additional clarification for direction-initiated.
 
@@ -2607,6 +2738,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    o  Terminology clarification (Weis)
 
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 49]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    o  Advice on how to handle LDevIDs (Watson)
 
    o  Add deployment considerations (Watson)
@@ -2626,14 +2765,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
    Draft -01 to -02: * Update IANA considerations * Accept Russ Housley
    rewrite of X.509 text * Include privacy considerations text * Redo
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 47]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
    the URL limit.  Still 255 bytes, but now stated in the URL
    definition.  * Change URI registration to be under urn:ietf:params
 
@@ -2655,56 +2786,78 @@ Appendix B.  Default MUD nodes
    further decide to optimize to simply not include the defaults when
    they are overriden.
 
-   Four of "acl" liste entries that implement default MUD nodes is
-   listed below.  Two are for IPv4 and two are for IPv6 (one in each
-   direction for both versions of IP).
+   Four "acl" list entries that implement default MUD nodes are listed
+   below.  Two are for IPv4 and two are for IPv6 (one in each direction
+   for both versions of IP).  Note that neither access-list name nor ace
+   name need be retained or used in any way by local implementations,
+   but are simply there for completeness' sake.
 
-   "ietf-access-control-list:access-lists": {
+     "ietf-access-control-list:access-lists": {
        "acl": [
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 50]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
          {
-           "name": "mud-63142-v4to",
-           "acl-type": "ipv4-acl-type",
+           "name": "mud-76295-v4to",
+           "type": "ipv4-acl-type",
            "aces": {
              "ace": [
                {
-                 "rule-name": "ent0-todev",
+                 "name": "ent0-todev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:dns"
                    },
-                   "ipv4": {
-                     "protocol": 17,
-                     "source-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 53
+                   "l3": {
+                     "ipv4": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "source-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 53
+                       }
                      }
                    }
                  },
                  "actions": {
                    "forwarding": "accept"
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 48]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
                  }
                },
                {
-                 "rule-name": "ent1-todev",
+                 "name": "ent1-todev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:ntp"
                    },
-                   "ipv4": {
-                     "protocol": 17,
-                     "source-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 123
+                   "l3": {
+                     "ipv4": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "source-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 123
+                       }
                      }
                    }
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 51]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
                  },
                  "actions": {
                    "forwarding": "accept"
@@ -2714,21 +2867,27 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
            }
          },
          {
-           "name": "mud-63142-v4fr",
-           "acl-type": "ipv4-acl-type",
+           "name": "mud-76295-v4fr",
+           "type": "ipv4-acl-type",
            "aces": {
              "ace": [
                {
-                 "rule-name": "ent0-frdev",
+                 "name": "ent0-frdev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:dns"
                    },
-                   "ipv4": {
-                     "protocol": 17,
-                     "destination-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 53
+                   "l3": {
+                     "ipv4": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "destination-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 53
+                       }
                      }
                    }
                  },
@@ -2737,24 +2896,30 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
                  }
                },
                {
-                 "rule-name": "ent1-frdev",
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 49]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
+                 "name": "ent1-frdev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:ntp"
                    },
-                   "ipv4": {
-                     "protocol": 17,
-                     "destination-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 123
+                   "l3": {
+                     "ipv4": {
+                       "protocol": 17
+                     }
+                   },
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 52]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+                   "l4": {
+                     "udp": {
+                       "destination-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 123
+                       }
                      }
                    }
                  },
@@ -2766,21 +2931,27 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
            }
          },
          {
-           "name": "mud-63142-v6to",
-           "acl-type": "ipv6-acl-type",
-           "access-list-entries": {
+           "name": "mud-76295-v6to",
+           "type": "ipv6-acl-type",
+           "aces": {
              "ace": [
                {
-                 "rule-name": "ent0-todev",
+                 "name": "ent0-todev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:dns"
                    },
-                   "ipv6": {
-                     "protocol": 17,
-                     "source-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 53
+                   "l3": {
+                     "ipv6": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "source-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 53
+                       }
                      }
                    }
                  },
@@ -2789,24 +2960,30 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
                  }
                },
                {
-                 "rule-name": "ent1-todev",
+                 "name": "ent1-todev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 53]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:ntp"
                    },
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 50]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
-                   "ipv6": {
-                     "protocol": 17,
-                     "source-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 123
+                   "l3": {
+                     "ipv6": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "source-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 123
+                       }
                      }
                    }
                  },
@@ -2818,47 +2995,59 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
            }
          },
          {
-           "name": "mud-63142-v6fr",
-           "acl-type": "ipv6-acl-type",
-           "access-list-entries": {
+           "name": "mud-76295-v6fr",
+           "type": "ipv6-acl-type",
+           "aces": {
              "ace": [
                {
-                 "rule-name": "ent0-frdev",
+                 "name": "ent0-frdev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:dns"
                    },
-                   "ipv6": {
-                     "protocol": 17,
-                     "destination-port-range-or-operator": {
-                       "operator": "eq",
-                       "port": 53
+                   "l3": {
+                     "ipv6": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "destination-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 53
+                       }
                      }
                    }
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 54]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
                  },
                  "actions": {
                    "forwarding": "accept"
                  }
                },
                {
-                 "rule-name": "ent1-frdev",
+                 "name": "ent1-frdev",
                  "matches": {
-                   "ietf-mud:mud-acl": {
+                   "ietf-mud:mud": {
                      "controller": "urn:ietf:params:mud:ntp"
                    },
-                   "ipv6": {
-                     "protocol": 17,
-                     "destination-port-range-or-operator": {
-                       "operator": "eq",
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 51]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
-                       "port": 123
+                   "l3": {
+                     "ipv6": {
+                       "protocol": 17
+                     }
+                   },
+                   "l4": {
+                     "udp": {
+                       "destination-port-range-or-operator": {
+                         "operator": "eq",
+                         "port": 123
+                       }
                      }
                    }
                  },
@@ -2884,6 +3073,15 @@ Appendix C.  A Sample Extension: DETNET-indicator
  Standard: this document (but do not register the example)
 
 
+
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 55]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
    This extension augments the MUD model to include a single node, using
    the following sample module that has the following tree structure:
 
@@ -2906,14 +3104,6 @@ Appendix C.  A Sample Extension: DETNET-indicator
 
      organization
        "IETF OPSAWG (Ops Area) Working Group";
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 52]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
      contact
        "WG Web: http://tools.ietf.org/wg/opsawg/
         WG List: opsawg@ietf.org
@@ -2940,6 +3130,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
      augment "/ietf-mud:mud" {
        description
          "This adds a simple extension for a manufacturer
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 56]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
            to indicate whether DETNET is required by a
           device.";
        leaf is-detnet-required {
@@ -2956,20 +3154,10 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    expressed:
 
  {
-
- {
    "ietf-mud:mud": {
      "mud-version": 1,
-     "mud-url": "https://bms.example.com/.well-known/mud/lightbulb2000",
+     "mud-url": "https://bms.example.com/lightbulb2000",
      "last-update": "2018-01-23T13:33:52+01:00",
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 53]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
      "cache-validity": 48,
      "is-supported": true,
      "systeminfo": "The BMS Example Lightbulb",
@@ -2998,10 +3186,18 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
    },
    "ietf-access-control-list:access-lists": {
      "acl": [
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 57]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
        {
          "name": "mud-45782-v6to",
-         "acl-type": "ipv6-acl-type",
-         "access-list-entries": {
+         "type": "ipv6-acl-type",
+         "aces": {
            "ace": [
              {
                "rule-name": "cl0-todev",
@@ -3018,14 +3214,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
                    "ietf-mud:direction-initiated": "from-device"
                  }
                },
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 54]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
-
                "actions": {
                  "forwarding": "accept"
                }
@@ -3036,13 +3224,13 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
        {
          "name": "mud-45782-v6fr",
          "acl-type": "ipv6-acl-type",
-         "access-list-entries": {
+         "aces": {
            "ace": [
              {
                "rule-name": "cl0-frdev",
                "matches": {
                  "ipv6-acl": {
-                   "ietf-acldns:dst-dnsname": "service.bms.example.com",
+                "ietf-acldns:dst-dnsname": "service.bms.example.com",
                    "protocol": 6,
                    "destination-port-range-or-operator": {
                      "operator": "eq",
@@ -3054,6 +3242,14 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
                  }
                },
                "actions": {
+
+
+
+Lear, et al.             Expires August 9, 2018                [Page 58]
+
+Internet-Draft       Manufacturer Usage Descriptions       February 2018
+
+
                  "forwarding": "accept"
                }
              }
@@ -3066,21 +3262,6 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 Authors' Addresses
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 55]
-
-Internet-Draft       Manufacturer Usage Descriptions        January 2018
-
 
    Eliot Lear
    Cisco Systems
@@ -3120,17 +3301,4 @@ Internet-Draft       Manufacturer Usage Descriptions        January 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lear, et al.              Expires July 28, 2018                [Page 56]
+Lear, et al.             Expires August 9, 2018                [Page 59]

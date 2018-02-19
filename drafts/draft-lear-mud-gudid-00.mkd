@@ -1,0 +1,216 @@
+---
+title: MUD Extension to include FDA GUDID pointer
+abbrev: MUD GUDID
+docname: draft-lear-mud-gudid-00.mkd
+category: std
+
+ipr: trust200902
+keyword: Internet-Draft
+
+stand_alone: yes
+pi: [toc, sortrefs, symrefs]
+
+author:
+ -
+    ins: E. Lear
+    name: Eliot Lear
+    org: Cisco Systems
+    street: Richtistrasse 7
+    code: CH-8304
+    city: Wallisellen
+    country: Switzerland
+    phone: +41 44 878 9200
+    email: lear@cisco.com
+
+normative:
+   I-D.ietf-opsawg-mud:
+   RFC2119:
+
+informative:
+
+
+--- abstract
+
+In the United States, medical devices are required to be registered
+in the FDA database.  This database can be queried for information
+pertaining to the device.
+
+A Sample Extension: DETNET-indicator {#extexample}
+==================================================
+
+In this sample extension we augment the core MUD model to indicate
+whether the device implements DETNET.  If a device later attempts to
+make use of DETNET, an notification or exception might be generated.
+Note that this example is intended only for illustrative purposes.
+
+~~~~~~~~~~
+
+Extension Name: "Example-Extension" (to be used in the extensions list)
+Standard: this document (but do not register the example)
+
+~~~~~~~~~~
+
+This extension augments the MUD model to include a single node,
+using the following sample module that has the following tree
+structure:
+
+~~~~~~~~~~
+
+module: ietf-mud-detext-example
+  augment /ietf-mud:mud:
+    +--rw is-detnet-required?   boolean
+
+~~~~~~~~~~
+
+The model is defined as follows:
+
+~~~~~~~~~~
+<CODE BEGINS>file "ietf-mud-detext-example@2018-01-20.yang"
+module ietf-mud-detext-example {
+  yang-version 1.1;
+  namespace "urn:ietf:params:xml:ns:yang:ietf-mud-detext-example";
+  prefix ietf-mud-detext-example;
+
+  import ietf-mud {
+    prefix ietf-mud;
+  }
+
+  organization
+    "IETF OPSAWG (Ops Area) Working Group";
+  contact
+    "WG Web: http://tools.ietf.org/wg/opsawg/
+     WG List: opsawg@ietf.org
+     Author: Eliot Lear
+     lear@cisco.com
+     Author: Ralph Droms
+     rdroms@gmail.com
+     Author: Dan Romascanu
+     dromasca@gmail.com
+     
+    ";
+  description
+    "Sample extension to a MUD module to indicate a need
+     for DETNET support.";
+
+  revision 2018-01-20 {
+    description
+      "Initial revision.";
+    reference
+      "RFC XXXX: Manufacturer Usage Description
+       Specification";
+  }
+
+  augment "/ietf-mud:mud" {
+    description
+      "This adds a simple extension for a manufacturer
+        to indicate whether DETNET is required by a
+       device.";
+    leaf is-detnet-required {
+      type boolean;
+      description
+        "This value will equal true if a device requires
+         detnet to properly function";
+    }
+  }
+}
+<CODE ENDS>
+~~~~~~~~~~
+
+Using the previous example, we now show how the extension would be
+expressed:
+
+~~~~~~~~~~
+{
+
+{
+  "ietf-mud:mud": {
+    "mud-version": 1,
+    "mud-url": "https://bms.example.com/.well-known/mud/lightbulb2000",
+    "last-update": "2018-01-23T13:33:52+01:00",
+    "cache-validity": 48,
+    "is-supported": true,
+    "systeminfo": "The BMS Example Lightbulb",
+    "extensions": [
+        "ietf-mud-detext-example"
+     ],
+    "ietf-mud-detext-example:is-detnet-required": "false",
+    "from-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "name": "mud-45782-v6fr"
+          }
+        ]
+      }
+    },
+    "to-device-policy": {
+      "access-lists": {
+        "access-list": [
+          {
+            "name": "mud-45782-v6to"
+          }
+        ]
+      }
+    }
+  },
+  "ietf-access-control-list:access-lists": {
+    "acl": [
+      {
+        "name": "mud-45782-v6to",
+        "acl-type": "ipv6-acl-type",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "cl0-todev",
+              "matches": {
+                "ipv6-acl": {
+                  "ietf-acldns:src-dnsname": "service.bms.example.com",
+                  "protocol": 6,
+                  "source-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 443
+                  }
+                },
+                "tcp": {
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "forwarding": "accept"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "mud-45782-v6fr",
+        "acl-type": "ipv6-acl-type",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "cl0-frdev",
+              "matches": {
+                "ipv6-acl": {
+                  "ietf-acldns:dst-dnsname": "service.bms.example.com",
+                  "protocol": 6,
+                  "destination-port-range-or-operator": {
+                    "operator": "eq",
+                    "port": 443
+                  }
+                },
+                "tcp": {
+                  "ietf-mud:direction-initiated": "from-device"
+                }
+              },
+              "actions": {
+                "forwarding": "accept"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+~~~~~~~~~~

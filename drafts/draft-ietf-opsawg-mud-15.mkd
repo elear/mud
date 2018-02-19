@@ -1,7 +1,7 @@
 ---
 title: Manufacturer Usage Description Specification
 abbrev: Manufacturer Usage Descriptions
-docname: draft-ietf-opsawg-mud-16
+docname: draft-ietf-opsawg-mud-15
 category: std
 
 ipr: trust200902
@@ -53,6 +53,7 @@ normative:
    RFC5280:
    RFC5652:
    RFC6335:
+   RFC6570:
    RFC7951:
    IEEE8021AB:
       title: IEEE Standard for Local and  Metropolitan Area Networks--
@@ -653,12 +654,14 @@ never to issue an update to the Thing or never update the
 MUD file.  A MUD controller MAY still periodically check for updates.
 
 systeminfo
----------- 
-This is a textual UTF-8 description of the Thing
-to be connected.  The intent is for administrators to be able to see a
-localized name associated with the Thing.  It SHOULD NOT exceed 60
-characters worth of display space (that is- what the administrator
-actually sees).
+----------
+This is a URL that points to a description of the Thing to be connected.
+The intent is for administrators to be able to see a localized name
+associated with the Thing.  The referenced URL SHOULD be a
+localized display string, and MAY be in either HTML or a raw UTF-8
+text file.  It SHOULD NOT exceed 60 characters worth of display space
+(that is- what the administrator actually sees), but it MAY contain
+links to other documents (presumably product documentation).
 
 mfg-name, hardware-rev, software-rev, model-name firmware-rev
 -------------------------------------------------------------
@@ -777,7 +780,7 @@ behavior can be changed with a "drop" action.
 What does a MUD URL look like? {#mudurl}
 ==============================
 
-To begin with, MUD takes full advantage of the https: scheme.
+To begin with, MUD takes full advantage of both the https: scheme.
 HTTPS is important in this case because a man in the middle attack
 could otherwise harm the operation of a class of Things.
 
@@ -785,9 +788,10 @@ The URL appears as follows:
 
 ~~~~~~~~~~
 
-   mud-url   = "https://" authority "/" modelinfo
+   mud-url   = "https://" authority "/" modelinfo ( "?" extras )
                ; authority is from RFC3986
-   modelinfo = path ; from RFC3986
+   modelinfo = segment  ; from RFC3986
+   extras    = query    ; from RFC3986 and RFC6570
    
 ~~~~~~~~~~
 
@@ -1247,8 +1251,8 @@ outbound access to a cloud service on TCP port 443.
 {
   "ietf-mud:mud": {
     "mud-version": 1,
-    "mud-url": "https://lighting.example.com/lightbulb2000",
-    "last-update": "2018-02-08T14:39:15+01:00",
+    "mud-url": "https://bms.example.com/lightbulb2000",
+    "last-update": "2018-01-24T16:08:58+01:00",
     "cache-validity": 48,
     "is-supported": true,
     "systeminfo": "The BMS Example Lightbulb",
@@ -1256,7 +1260,7 @@ outbound access to a cloud service on TCP port 443.
       "access-lists": {
         "access-list": [
           {
-            "name": "mud-94934-v6fr"
+            "name": "mud-61898-v6fr"
           }
         ]
       }
@@ -1265,7 +1269,7 @@ outbound access to a cloud service on TCP port 443.
       "access-lists": {
         "access-list": [
           {
-            "name": "mud-94934-v6to"
+            "name": "mud-61898-v6to"
           }
         ]
       }
@@ -1274,22 +1278,26 @@ outbound access to a cloud service on TCP port 443.
   "ietf-access-control-list:access-lists": {
     "acl": [
       {
-        "name": "mud-94934-v6to",
+        "name": "mud-61898-v6to",
         "type": "ipv6-acl-type",
         "aces": {
           "ace": [
             {
               "name": "cl0-todev",
               "matches": {
-                "ipv6": {
-                  "ietf-acldns:src-dnsname": "service.bms.example.com",
-                  "protocol": 6
+                "l3": {
+                  "ipv6": {
+             "ietf-acldns:src-dnsname": "service.bms.example.com",
+                    "protocol": 6
+                  }
                 },
-                "tcp": {
-                  "ietf-mud:direction-initiated": "from-device",
-                  "source-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 443
+                "l4": {
+                  "tcp": {
+                    "ietf-mud:direction-initiated": "from-device",
+                    "source-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 443
+                    }
                   }
                 }
               },
@@ -1301,22 +1309,26 @@ outbound access to a cloud service on TCP port 443.
         }
       },
       {
-        "name": "mud-94934-v6fr",
+        "name": "mud-61898-v6fr",
         "type": "ipv6-acl-type",
         "aces": {
           "ace": [
             {
               "name": "cl0-frdev",
               "matches": {
-                "ipv6": {
-                  "ietf-acldns:dst-dnsname": "service.bms.example.com",
-                  "protocol": 6
+                "l3": {
+                  "ipv6": {
+                "ietf-acldns:dst-dnsname": "service.bms.example.com",
+                    "protocol": 6
+                  }
                 },
-                "tcp": {
-                  "ietf-mud:direction-initiated": "from-device",
-                  "destination-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 443
+                "l4": {
+                  "tcp": {
+                    "ietf-mud:direction-initiated": "from-device",
+                    "destination-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 443
+                    }
                   }
                 }
               },
@@ -1330,6 +1342,7 @@ outbound access to a cloud service on TCP port 443.
     ]
   }
 }
+
 
 ~~~~~~~
 
@@ -2084,10 +2097,11 @@ name need be retained or used in any way by local implementations, but
 are simply there for completeness' sake.
 
 ~~~~~~~~~~
- "ietf-access-control-list:access-lists": {
+
+  "ietf-access-control-list:access-lists": {
     "acl": [
       {
-        "name": "mud-59776-v4to",
+        "name": "mud-76295-v4to",
         "type": "ipv4-acl-type",
         "aces": {
           "ace": [
@@ -2097,13 +2111,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv4": {
-                  "protocol": 17
+                "l3": {
+                  "ipv4": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "source-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 53
+                "l4": {
+                  "udp": {
+                    "source-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 53
+                    }
                   }
                 }
               },
@@ -2117,13 +2135,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv4": {
-                  "protocol": 17
+                "l3": {
+                  "ipv4": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "source-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 123
+                "l4": {
+                  "udp": {
+                    "source-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 123
+                    }
                   }
                 }
               },
@@ -2135,7 +2157,7 @@ are simply there for completeness' sake.
         }
       },
       {
-        "name": "mud-59776-v4fr",
+        "name": "mud-76295-v4fr",
         "type": "ipv4-acl-type",
         "aces": {
           "ace": [
@@ -2145,13 +2167,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv4": {
-                  "protocol": 17
+                "l3": {
+                  "ipv4": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "destination-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 53
+                "l4": {
+                  "udp": {
+                    "destination-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 53
+                    }
                   }
                 }
               },
@@ -2165,13 +2191,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv4": {
-                  "protocol": 17
+                "l3": {
+                  "ipv4": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "destination-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 123
+                "l4": {
+                  "udp": {
+                    "destination-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 123
+                    }
                   }
                 }
               },
@@ -2183,7 +2213,7 @@ are simply there for completeness' sake.
         }
       },
       {
-        "name": "mud-59776-v6to",
+        "name": "mud-76295-v6to",
         "type": "ipv6-acl-type",
         "aces": {
           "ace": [
@@ -2193,13 +2223,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv6": {
-                  "protocol": 17
+                "l3": {
+                  "ipv6": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "source-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 53
+                "l4": {
+                  "udp": {
+                    "source-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 53
+                    }
                   }
                 }
               },
@@ -2213,13 +2247,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv6": {
-                  "protocol": 17
+                "l3": {
+                  "ipv6": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "source-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 123
+                "l4": {
+                  "udp": {
+                    "source-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 123
+                    }
                   }
                 }
               },
@@ -2231,7 +2269,7 @@ are simply there for completeness' sake.
         }
       },
       {
-        "name": "mud-59776-v6fr",
+        "name": "mud-76295-v6fr",
         "type": "ipv6-acl-type",
         "aces": {
           "ace": [
@@ -2241,13 +2279,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:dns"
                 },
-                "ipv6": {
-                  "protocol": 17
+                "l3": {
+                  "ipv6": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "destination-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 53
+                "l4": {
+                  "udp": {
+                    "destination-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 53
+                    }
                   }
                 }
               },
@@ -2261,13 +2303,17 @@ are simply there for completeness' sake.
                 "ietf-mud:mud": {
                   "controller": "urn:ietf:params:mud:ntp"
                 },
-                "ipv6": {
-                  "protocol": 17
+                "l3": {
+                  "ipv6": {
+                    "protocol": 17
+                  }
                 },
-                "udp": {
-                  "destination-port-range-or-operator": {
-                    "operator": "eq",
-                    "port": 123
+                "l4": {
+                  "udp": {
+                    "destination-port-range-or-operator": {
+                      "operator": "eq",
+                      "port": 123
+                    }
                   }
                 }
               },
@@ -2368,12 +2414,11 @@ Using the previous example, we now show how the extension would be
 expressed:
 
 ~~~~~~~~~~
-
 {
   "ietf-mud:mud": {
     "mud-version": 1,
-    "mud-url": "https://lighting.example.com/lightbulb2000",
-    "last-update": "2018-02-08T14:39:15+01:00",
+    "mud-url": "https://bms.example.com/lightbulb2000",
+    "last-update": "2018-01-23T13:33:52+01:00",
     "cache-validity": 48,
     "is-supported": true,
     "systeminfo": "The BMS Example Lightbulb",
@@ -2385,7 +2430,7 @@ expressed:
       "access-lists": {
         "access-list": [
           {
-            "name": "mud-94934-v6fr"
+            "name": "mud-45782-v6fr"
           }
         ]
       }
@@ -2394,7 +2439,7 @@ expressed:
       "access-lists": {
         "access-list": [
           {
-            "name": "mud-94934-v6to"
+            "name": "mud-45782-v6to"
           }
         ]
       }
@@ -2403,23 +2448,23 @@ expressed:
   "ietf-access-control-list:access-lists": {
     "acl": [
       {
-        "name": "mud-94934-v6to",
+        "name": "mud-45782-v6to",
         "type": "ipv6-acl-type",
         "aces": {
           "ace": [
             {
-              "name": "cl0-todev",
+              "rule-name": "cl0-todev",
               "matches": {
-                "ipv6": {
+                "ipv6-acl": {
                   "ietf-acldns:src-dnsname": "service.bms.example.com",
-                  "protocol": 6
-                },
-                "tcp": {
-                  "ietf-mud:direction-initiated": "from-device",
+                  "protocol": 6,
                   "source-port-range-or-operator": {
                     "operator": "eq",
                     "port": 443
                   }
+                },
+                "tcp": {
+                  "ietf-mud:direction-initiated": "from-device"
                 }
               },
               "actions": {
@@ -2430,23 +2475,23 @@ expressed:
         }
       },
       {
-        "name": "mud-94934-v6fr",
-        "type": "ipv6-acl-type",
+        "name": "mud-45782-v6fr",
+        "acl-type": "ipv6-acl-type",
         "aces": {
           "ace": [
             {
-              "name": "cl0-frdev",
+              "rule-name": "cl0-frdev",
               "matches": {
-                "ipv6": {
-                  "ietf-acldns:dst-dnsname": "service.bms.example.com",
-                  "protocol": 6
-                },
-                "tcp": {
-                  "ietf-mud:direction-initiated": "from-device",
+                "ipv6-acl": {
+               "ietf-acldns:dst-dnsname": "service.bms.example.com",
+                  "protocol": 6,
                   "destination-port-range-or-operator": {
                     "operator": "eq",
                     "port": 443
                   }
+                },
+                "tcp": {
+                  "ietf-mud:direction-initiated": "from-device"
                 }
               },
               "actions": {

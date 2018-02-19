@@ -47,7 +47,7 @@ module ietf-mud {
      This version of this YANG module is part of RFC XXXX; see
      the RFC itself for full legal notices.";
 
-  revision 2018-01-20 {
+  revision 2018-01-24 {
     description
       "Initial proposed standard.";
     reference
@@ -91,7 +91,6 @@ module ietf-mud {
       description "This is the version of the MUD
          specification.  This memo specifies version 1.";
      }
-
     leaf mud-url {
       type inet:uri;
       mandatory true;
@@ -136,6 +135,35 @@ module ietf-mud {
          determine whether to allow the Thing on the
          network.";
     }
+
+    leaf mfg-name {
+         type string;
+         description "Manufacturer name, as described in
+            the ietf-hardware yang module.";
+    }
+
+    leaf model-name {
+         type string;
+         description "Model name, as described in the
+         ietf-hardware yang module.";
+    }
+
+    leaf firmware-rev {
+         type string;
+         description "firmware-rev, as described in the
+         ietf-hardware yang module.  Note this field MUST
+         NOT be included when the device can be updated
+         but the MUD-URL cannot.";
+    }
+
+    leaf software-rev {
+         type string;
+         description "software-rev, as described in the
+         ietf-hardware yang module.  Note this field MUST
+         NOT be included when the device can be updated
+         but the MUD-URL cannot.";
+    }
+
     leaf-list extensions {
       type string {
          length "1..40";

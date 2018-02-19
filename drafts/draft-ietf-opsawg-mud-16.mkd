@@ -53,7 +53,6 @@ normative:
    RFC5280:
    RFC5652:
    RFC6335:
-   RFC6570:
    RFC7951:
    IEEE8021AB:
       title: IEEE Standard for Local and  Metropolitan Area Networks--
@@ -259,6 +258,8 @@ Resource Locator (URL) {{RFC3986}}.  This URL serves both to
 classify the device type and to provide a means to locate a policy
 file.
 
+MUD URLs MUST use the HTTPS scheme {{!RFC7230}}.
+
 In this memo three means are defined to emit the MUD URL, as follows:
 
  * A DHCP option{{RFC2131}},{{RFC3315}} that the DHCP client uses to inform
@@ -287,8 +288,6 @@ how MUD URLs may be learned.
 
 Processing of the MUD URL
 -------------------------
-
-MUD URLs MUST use the HTTPS scheme {{!RFC7230}}. 
 
 MUD controllers that are able to do so SHOULD retrieve MUD URLs and
 signature files as per {{!RFC7230}}, using the GET method {{!RFC7231}}.
@@ -436,7 +435,7 @@ configuration in the switch can be removed.  Similarly, from time to
 time the description may be refreshed, based on new capabilities or
 communication patterns or vulnerabilities.
 
-The web site is typically run by or on behalf of the manufacturer.
+The web server is typically run by or on behalf of the manufacturer.
 Its domain name is that of the authority found in the MUD URL.  For
 legacy cases where Things cannot emit a URL, if the switch is able to
 determine the appropriate URL, it may proxy it, the trivial cases
@@ -780,42 +779,35 @@ behavior can be changed with a "drop" action.
 What does a MUD URL look like? {#mudurl}
 ==============================
 
-To begin with, MUD takes full advantage of the https: scheme.
-HTTPS is important in this case because a man in the middle attack
-could otherwise harm the operation of a class of Things.
+MUD URLs are required to use the HTTPS scheme, in order to establish the
+MUD file server's identity and assure integrity of the MUD file.
 
-The URL appears as follows:
+Any "https://" URL without a query component can be a MUD URL. For example:
 
-~~~~~~~~~~
+~~~
+  https://things.example.org/product_abc123/v5
+  https://www.example.net/mudfiles/temperature_sensor/
+  https://example.com/lightbulbs/colour/v1
+~~~
 
-   mud-url   = "https://" authority "/" modelinfo ( "?" extras )
-               ; authority is from RFC3986
-   modelinfo = path ; from RFC3986
-   extras    = query    ; from RFC3986 and RFC6570
-   
-~~~~~~~~~~
+The MUD URL identifies a Thing with a specificity according to the
+manufacturer's wishes. It could include a brand name, model number, or
+something more specific. It also could provide a means to indicate what version
+the product is.
 
-Taken together with the mud-url, "modelinfo" represents a Thing model
-as the manufacturer wishes to represent it.  It could be a brand name
-or something more specific.  It also may provide a means to indicate
-what version the product is.  Specifically if it has been updated in
-the field, this is the place where evidence of that update would
-appear.  The field should be changed when the intended communication
-patterns of a Thing change.  While from a controller standpoint, only
-comparison and matching operations are safe, it is envisioned that
-updates will require some administrative review.
+Specifically, if the intended communication patterns of a Thing change,
+as compared to other things, the MUD URL should change. For example, if a
+new model of light bulb is released that requires access to different network
+services, it would have a separate MUD URL from those that do not.
 
-"extras" is intended for use by the MUD controller to provide
-additional information such as network endpoint assessment (NEA)
-posture about the Thing to the MUD file server.  This field is not
-intended to be configured on the Thing itself by a manufacturer - that
-is what "modelinfo" is for.  The variables used in this field are to
-be specified in future work through the use of {{RFC6570}} templates.
-N.B., a MUD controller MUST ignore queries it does not understand and
-return a MUD file as if the query components were not present.  It is
-strongly suggested that for simplicity the templates be limited to
-level 1, but this may be decided in future documents, based on their
-requirements.
+The query string of the MUD URL is reserved for potential future use; MUD URLs
+MUST NOT contain queries when sent to the controller. MUD file servers MUST
+ignore query parameters that they do not understand.
+
+Note that if the MUD URL contains a fragment identifier (e.g., "#foo"), that
+information will not be sent to the MUD file server in the HTTP request.
+However, it will still be considered a separate MUD URL by the controller.
+
 
 The MUD YANG Model
 ==================
@@ -1828,15 +1820,6 @@ IANA is kindly requested to make the   following assignments for:
    Certificate Extension" registry (1.3.6.1.5.5.7.1).
 
 The use of these values is specified in {{mudx509}}.
-
-Well Known URI Suffix
----------------------
-
-The IANA has allocated the URL suffix of "mud" as follows:
-
- o URI Suffix: "mud"
- o Specification documents: this document
- o Related information: n/a
 
 
 MIME Media-type Registration for MUD files

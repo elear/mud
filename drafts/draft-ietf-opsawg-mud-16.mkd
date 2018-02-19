@@ -788,12 +788,6 @@ Any "https://" URL without a query component can be a MUD URL. For example:
   https://example.com/lightbulbs/colour/v1
 ~~~
 
-<<<<<<< HEAD
-   mud-url   = "https://" authority "/" modelinfo
-               ; authority is from RFC3986
-   modelinfo = path ; from RFC3986
-   
-~~~~~~~~~~
 =======
 The MUD URL identifies a Thing with a specificity according to the
 manufacturer's wishes. It could include a brand name, model number, or
@@ -812,8 +806,6 @@ ignore query parameters that they do not understand.
 Note that if the MUD URL contains a fragment identifier (e.g., "#foo"), that
 information will not be sent to the MUD file server in the HTTP request.
 However, it will still be considered a separate MUD URL by the controller.
->>>>>>> e418b4fbf775cb21bbcb6c7947bea10b1bcb67fd
-
 
 The MUD YANG Model
 ==================

@@ -562,12 +562,12 @@ this document.  The meaning of the symbols in these diagrams is
 explained in {{I-D.ietf-netmod-yang-tree-diagrams}}.
 
 ~~~~~~~~~~~~~~~~~
-
 module: ietf-mud
     +--rw mud!
        +--rw mud-version           uint8
        +--rw mud-url               inet:uri
        +--rw last-update           yang:date-and-time
+       +--rw mud-signature?        inet:uri
        +--rw cache-validity?       uint8
        +--rw is-supported          boolean
        +--rw systeminfo?           inet:uri
@@ -592,8 +592,8 @@ module: ietf-mud
        +--rw local-networks?      empty
        +--rw controller?          inet:uri
        +--rw my-controller?       empty
-  augment /acl:access-lists/acl:acl/acl:aces/acl:ace
-     /acl:matches/acl:l4/acl:tcp:
+  augment /acl:access-lists/acl:acl/acl:aces/acl:ace/acl:
+     matches/acl:l4/acl:tcp:
     +--rw direction-initiated?   direction
 
 ~~~~~~~~~~~~~~~~~
@@ -811,7 +811,7 @@ The MUD YANG Model
 ==================
 
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-mud@2018-01-24.yang"
+<CODE BEGINS>file "ietf-mud@2018-02-20.yang"
 module ietf-mud {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud";
@@ -861,7 +861,7 @@ module ietf-mud {
      This version of this YANG module is part of RFC XXXX; see
      the RFC itself for full legal notices.";
 
-  revision 2018-01-24 {
+  revision 2018-02-20 {
     description
       "Initial proposed standard.";
     reference
@@ -922,6 +922,13 @@ module ietf-mud {
          was generated.  MUD Controllers SHOULD NOT check
          for updates between this time plus cache validity";
     }
+
+    leaf mud-signature {
+      type inet:uri;
+      description "A URI that resolves to a signature as
+        described in this specification.";
+    }
+
     leaf cache-validity {
       type uint8 {
         range "1..168";
@@ -1162,7 +1169,7 @@ a dst-dnsname associated with to-device-policy.
 The ietf-acldns Model
 --------------------------
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-acldns@2018-01-24.yang"
+<CODE BEGINS>file "ietf-acldns@2018-02-20.yang"
 module ietf-acldns {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-acldns";
@@ -1195,7 +1202,7 @@ module ietf-acldns {
      IETF description of an access list to allow dns names
      as matching criteria.";
 
-  revision "2018-01-24" {
+  revision "2018-02-20" {
     description "Base version of dnsname extension of ACL model";
     reference "RFC XXXX: Manufacturer Usage Description
                Specification";
@@ -1572,8 +1579,8 @@ Creating a MUD file signature
 -----------------------------
 A MUD file MUST be signed using CMS as an opaque binary object.  In
 order to make successful verification more likely, intermediate
-certificates SHOULD be included.  The signature is stored at the same
-location as the MUD URL but with the suffix of ".p7s".  Signatures are
+certificates SHOULD be included.  The signature is stored at the
+location specified in the MUD file.  Signatures are
 transferred using content-type "application/pkcs7-signature".
 
 For example:
@@ -1590,10 +1597,8 @@ Verifying a MUD file signature
 ------------------------------
 
 Prior to retrieving a MUD file the MUD controller SHOULD retrieve the
-MUD signature file using the MUD URL with a suffix of ".p7s".  For
-example, if the MUD URL is
-"https://example.com/modela", the MUD signature URL
-will be "https://example.com/modela.p7s".
+MUD signature file by retrieving the value of "mud-signature" and
+validating the signature across the MUD file.
 
 Upon retrieving a MUD file, a MUD controller MUST validate the
 signature of the file before continuing with further processing.  A
@@ -1929,6 +1934,13 @@ Changes from Earlier Versions
 =============================
 
 RFC Editor to remove this section prior to publication.
+
+Draft -16
+
+ * add mud-signature element based on review comments
+ * redo mud-url
+ * make clear that systeminfo uses UTF8
+
 
 Draft -13 to -14:
 
@@ -2298,7 +2310,7 @@ module: ietf-mud-detext-example
 The model is defined as follows:
 
 ~~~~~~~~~~
-<CODE BEGINS>file "ietf-mud-detext-example@2018-01-24.yang"
+<CODE BEGINS>file "ietf-mud-detext-example@2018-02-20.yang"
 module ietf-mud-detext-example {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud-detext-example";
@@ -2325,7 +2337,7 @@ module ietf-mud-detext-example {
     "Sample extension to a MUD module to indicate a need
      for DETNET support.";
 
-  revision 2018-01-24 {
+  revision 2018-02-20 {
     description
       "Initial revision.";
     reference

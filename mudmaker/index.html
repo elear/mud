@@ -16,10 +16,15 @@
       list communications on this page that you have designed your product to
       have.  For more information, see <a href="https://datatracker.ietf.org/doc/draft-ietf-opsawg-mud/">draft-ietf-opsawg-mud</a>.</p>
     <form method="POST" action="makemud2.php">
-      <p>&nbsp;Please enter a URL that points to a short description
-      for this device:</p>
-      <input name="sysDescr" maxlength="120" size="40" required="yes" type="url">
-      <p>&nbsp;How will this device communicate on the network?</p>
+      <p>Please enter host and model the intended MUD-URL for this
+      device: <span 
+title="This is the URL that the device will emit to the network.">
+<img src="Circle-question-yellow.png"/></span></p>
+      https://<input name="mudhost" maxlength="50" size="40" required="yes">
+      / (model name here->)<input name="mudfilename" maxlength="50" size="20" required="yes">
+      <p>Please enter a short description for this device:</p>
+      <input name="sysDescr" maxlength="120" size="40" required="yes" type="text">
+      <p>How will this device communicate on the network?</p>
       <table border="1">
         <tbody>
           <tr>
@@ -29,7 +34,12 @@
           </tr>
           <tr>
             <td>Internet communication<br><br><small>Access to cloud services
-            and other specific Internet hosts.</small></td>
+            and other specific Internet
+            hosts.&nbsp;</small>
+	      <span 
+title="Check this box to indicate specific Internet hostnames the device should talk to.">
+		<img src="Circle-question-yellow.png"/></span>
+	    </td>
             <td style="width: 40.2px;"><input id="clbox" name="clbox"
        type="checkbox"
        onclick="javascript:yesnoCheck('bydevice','cl', 0);"></td>
@@ -37,6 +47,9 @@
 	  <tr>
 	    <td>Access to controllers specific to this device (no need
 	    to name a class).
+	      <span 
+		 title="Controllers are specified by the local administrator.">
+		<img src="Circle-question-yellow.png"/></span>
 	    </td>
           <td style="height: 38.4px;"><input name="myctlbox" id="myctlbox"
           type="checkbox"
@@ -46,12 +59,20 @@
           <tr>
             <td>Controller access<br><br><small>Access
             to <b>classes</b> of devices that are known to be
-            controllers</small></td>
+            controllers</small>
+             <span
+                title="You will be prompted below for a controller class.">
+                <img src="Circle-question-yellow.png"/></span>
+</td>
             <td><input id="entbox" name="entbox" type="checkbox" onclick="javascript:yesnoCheck('bydevice','ent',0);"></td>
           </tr>
           <tr>
             <td>Local communication<br><br><small>Access to/from <b>any</b>
-            local host for specific services (like COAP or HTTP)</small></td>
+            local host for specific services (like COAP or HTTP)</small>
+             <span
+                title="Access to all LOCAL hosts (enterprise administrator gets to decide what' local' means).">
+                <img src="Circle-question-yellow.png"/></span>
+</td>
             <td style="height: 38.4px;"><input name="locbox" id="locbox"
             type="checkbox"
             onclick="javascript:yesnoCheck('bydevice','loc',0);">
@@ -59,11 +80,20 @@
           </tr>
 	  <tr>
 	    <td>Specific types of devices<br><br><small>Access
-	    to <b>classes</b> of devices that are identified by their MUD URL</small></td>
+	    to <b>classes</b> of devices that are identified by their
+	    MUD URL</small>
+             <span
+                title="These are the domain names in MUD URLs you specify.">
+                <img src="Circle-question-yellow.png"/></span>
+	    </td>
             <td><input id="manbox" name="manbox" type="checkbox" onclick="javascript:yesnoCheck('bydevice','man',0);"></td>
           </tr>
 	  <tr>
-	    <td>Access to devices to/from the same manufacturer</td>
+	    <td>Access to devices to/from the same manufacturer
+             <span
+                title="All devices that emit a MUD URL with the same domain name as this one (what you listed above).">
+                <img src="Circle-question-yellow.png"/></span>
+	    </td>
 	    <td style="height: 38.4px;"><input name="mymanbox" id="mymanbox"
             type="checkbox"
             onclick="javascript:yesnoCheck('bydevice','myman',0);">
@@ -79,7 +109,7 @@
 	  <option value="both">Both</option>
 	</select>
       </p>
-      <p>
+<!--      <p>
       Specify bootsrapping URI?&nbsp;
       <span style='white-space:nowrap'>
       <select id="anima" name="anbox" default="No" onchange="javascript:toggleANIMA('anima','anspan');">
@@ -91,6 +121,7 @@
 	<input maxlength="120" size="40" name="masa" type="url" >
 	 </span>
       </span>
+-->
       </p>
      <div id="bydevice" style="display: none">
        <table border='1'>

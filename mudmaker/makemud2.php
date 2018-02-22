@@ -57,9 +57,15 @@ $downloadtext=<<< DOWNLOAD
 </form>
 DOWNLOAD;
   
+$actxt0=<<< ACTXT0
+
+  "ietf-mud:mud" : {
+    "mud-version" : 1,
+ACTXT0;
+        
+
 $actxt1=<<<  ACTXT1
 
-  "ietf-mud:device" : {
     "from-device-policy" : {
         "access-lists" : {
             "access-list" : [
@@ -188,13 +194,19 @@ function errorexit($errstr)  {
   exit;
 }
   
-function mkportrange($rname,$port) {
+function mkportrange($rname,$port, $dirinit) {
     if ( $port == 'any' ) {
         return "";
     }
-    $frag = ', "' . $rname . '"  : ' . 
-    "{\n" . '"lower-port" : ' . $port . ",\n" .
-    ' "upper-port" : ' . $port . "\n }";
+    $frag='';
+    
+    if ( $dirinit == "thing" || $dirinit == "remote" ) {
+        $frag = ',';
+    }
+    
+    $frag = $frag . '"' . $rname . '"  : ' . 
+    "{\n" . '"operator" : "eq" ' . ",\n" .
+    ' "port" : ' . $port . "\n }";
     return $frag;
 }
   
@@ -202,20 +214,24 @@ function mkportrange($rname,$port) {
 function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirinit) {
   
 
-  $ace="   {\n   " . '"rule-name" :' . '"' . $acename . '"' . ",\n" .
+  $openacl='';
+
+  $ace="   {\n   " . '"name" :' . '"' . $acename . '"' . ",\n" .
     '   "matches" : {';
 
-  
+  $clfrag = '';
+  $l4frag = '';
+
   if ( strlen($target) > 120 ) {
     errorexit("string too long: " . $target);
   }
 
   switch ($type) {
     case IS_LOCAL:
-      $ace = $ace . '  "ietf-mud:mud-acl" : { "local-networks" : [ null ] }';
+      $ace = $ace . '  "ietf-mud:mud" : { "local-networks" : [ null ] }';
       break;
     case IS_MY_CONTROLLER:
-      $ace = $ace . '  "ietf-mud:mud-acl" : { "my-controller" : [ null ] }';
+      $ace = $ace . '  "ietf-mud:mud" : { "my-controller" : [ null ] }';
       break;
     case IS_CONTROLLER:
       // uri validator courtesy of...
@@ -224,7 +240,7 @@ function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirin
 	   ! preg_match ("^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:[a-zA-Z0-9()+,\-.:=@;\$_!*'%/?#]+$^", $target)) {
 	errorexit("Not a valid URL: " . $target);
       }
-      $ace = $ace . '      "ietf-mud:mud-acl" { "controller" : "' . $target . '" }';
+      $ace = $ace . '      "ietf-mud:mud": { "controller" : "' . $target . '" }';
       break;
     case IS_CLOUD:
       if ( ! preg_match('/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/',$target)) {
@@ -232,20 +248,21 @@ function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirin
       }
     
       if ( $pdirect == "to-device" ) {
-	$ace = $ace . '"ipv4-acl" : { "ietf-acldns:src-dnsname": "';
+          $clfrag = '"ietf-acldns:src-dnsname": "';
       } else {
-	$ace = $ace . '"ipv4-acl" : { "ietf-acldns:dst-dnsname": "';
+          $clfrag = '"ietf-acldns:dst-dnsname": "';
       }
-      $ace = $ace . $target . '" }'; /* add host to ACE */
+    $clfrag = $clfrag . $target . '"'; /* this becomes an l3 component */
+    
       break;
     case IS_MFG:
         if ( ! preg_match('/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/',$target)) {
             errorexit("Not a domain name: " . $target);
         }
-        $ace = $ace . '      "ietf-mud:manufacturer" : "' . $target . '"';
+        $ace = $ace . '      "ietf-mud:mud" : { "manufacturer" : "' . $target . '" }';
         break;
     case IS_MYMFG:
-        $ace = $ace . '     "ietf-mud:same-manufacturer" : [ null ]';
+        $ace = $ace . '     "ietf-mud:mud" : { "same-manufacturer" : [ null ]}';
         break;
     
   }
@@ -253,45 +270,71 @@ function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirin
     /* in both cases we left off the comma because we don't know if there
      * is another line, so... */
 
-  if ( $proto != 'any' ) {
+  if ( $proto == 'any' ) { /* just close off the cloud bit (if necessary) */
+      if ( $type == IS_CLOUD ) {
+          $l3frag = '"ipv4" : { ' . $clfrag . '}';
+          $ace = $ace . $l3frag;
+
+      }
+  } else { // tcp or udp
+
+      // create an l3frag and add protocol info.
+      $l3frag = '"ipv4" : { ';
+      if ( $type == IS_CLOUD ) {
+          $l3frag = $l3frag . $clfrag . ",";
+          $addcomma='';
+      } else {
+          $l3frag = ',' . $l3frag;
+      }
+      
+      if ( $proto == "tcp" ) {
+          $l3frag = $l3frag . '"protocol" : 6 },'; 
+      } else {
+          $l3frag = $l3frag . '"protocol" : 17 },';
+      }
+      $ace = $ace . $l3frag;
+      $l4frag="";
+      
+      $endfrag = '}';
       if ( $proto == 'tcp' ) {
-          $np = '6';
+          $l4frag = $l4frag . '"tcp" : {';
           if ( $dirinit == 'thing' ) {
-              $initfrag=', "tcp-acl" : { "ietf-mud:direction-initiated" : "from-device" }';
+              $l4frag= $l4frag . '"ietf-mud:direction-initiated" : "from-device"';
           } else {
               if ( $dirinit == "remote" ) {
-              $initfrag=', "tcp-acl" : { "ietf-mud:direction-initiated" : "to-device" }';
+              $l4frag= $l4frag . '"ietf-mud:direction-initiated" : "to-device"';
               }
           }
       } else {
-          if ( $proto == 'udp') {
-              $np = '17';
-          }
-          else {
-              errorexit("Impossible proto error? " . $proto);
-          }
+          $l4frag = $l4frag . '"udp" : {';
       }
-  $protbfrag = ",\n" . ' "protocol" : ' . $np . "\n";
-  $protoefrag='';
-
+      
+      $pfrag='';
+      
   if ( $pdirect == "to-device"  ) {
-      $pfrag= mkportrange("source-port-range",$port);
-      $pfrag= $pfrag . mkportrange("destination-port-range",$lport);
+      
+      $pfrag= mkportrange("source-port-range-or-operator",$port, $dirinit);
+      $pfrag= $pfrag . mkportrange("destination-port-range-or-operator",$lport) ;
   } else {
-      $pfrag=mkportrange("destination-port-range",$port);
-      $pfrag=$pfrag . mkportrange("source-port-range",$lport);
+      $pfrag=mkportrange("destination-port-range-or-operator",$port, $dirinit);
+      $pfrag=$pfrag . mkportrange("source-port-range-or-operator",$lport);
   }
       
-      $ace = $ace . $protbfrag . $pfrag . $initfrag;
+      if ( strlen($pfrag) > 0 || $dirinit == 'thing' ||
+          $dirinit == 'remote' ) {
+          $ace = $ace . $l4frag . $pfrag . $endfrag;
+      }
+      
   
   }
   
-    
+  
+  
 
     /* now close off matches, add action to the ACE and return it. */
     
     $ace = $ace . "\n }, " . '"actions" : {' . "\n " .
-      '"permit" : [null]' . "\n  }\n   }\n";
+      '"forwarding" : "accept"' . "\n  }\n   }\n";
     return($ace);
 }
                
@@ -457,14 +500,14 @@ if ( isset($_POST['locbox'])) {
 if ( isset($_POST['manbox'])) {
   // build local inbound services.
   buildacegroup($_POST['mannames'],$_POST['manproto'],$_POST['manportl'],
-     $manport, $_POST['maninit'], "man",IS_MFG);
+     $_POST['manport'], $_POST['maninit'], "man",IS_MFG);
 }
 
 // my-manufacturer
 if ( isset($_POST['mymanbox'])) {
   // build local inbound services.
   buildacegroup($_POST['mymannames'],$_POST['mymanproto'],$_POST['mymanportl'],
-     $mymanport, $_POST['mymaninit'], "myman",IS_MYMFG);
+     $_POST['mymanport'], $_POST['mymaninit'], "myman",IS_MYMFG);
 
 }
 
@@ -488,10 +531,15 @@ if ( $gotin > 0 || $gotout > 0 ) {
     $masa = '';
   }
   $sysDesc=htmlspecialchars($_POST['sysDescr'],ENT_QUOTES);
+  $mudurl= "https://" . htmlspecialchars($_POST['mudhost'],ENT_QUOTES) .
+  '/' . htmlspecialchars($_POST['mudfilename'],ENT_QUOTES);
+  
+  $supportInfo = $actxt0 . '"mud-url" : "' . $mudurl . '",  "last-update" : "' . $time . '",' . "\n" .
 
-  $supportInfo = '"ietf-mud:metainfo": { "last-update" : "' . $time . '",' . "\n" .
-  $masa . '"systeminfo": "' . $sysDesc . '",' . "\n" .
-  '"cache-validity" : 168 },';
+  '"cache-validity" : 48,' .
+  '"is-supported" : true,' . "\n" .
+  $masa . '"systeminfo": "' . $sysDesc . '",' . "\n";
+  
   $devput = "{\n". $supportInfo . "\n";
 
   $mudname="mud-" . rand(10000,99999) . "-";
@@ -509,16 +557,14 @@ if ( $gotin > 0 || $gotout > 0 ) {
 
   
   if ( $choice == "ipv4" || $choice == "both" ) {
-      $pre4in = '{ "acl-name" : "' . $v4in . '", ' . "\n" .
-          '"acl-type" : "ietf-access-control-list:ipv4-acl" }' . "\n";
-      $pre4out =  '{ "acl-name" : "' . $v4out . '", ' . "\n" .
-          '"acl-type" : "ietf-access-control-list:ipv4-acl" }' . "\n";
-      $ipv4inbound = '[ { "acl-name" : "' . $v4in . '",' . "\n" .
-          '"acl-type" : "ipv4-acl",' .
-          "\n" . '"access-list-entries" : {' . '"ace" : [';
-      $ipv4outbound = ' { "acl-name" : "' . $v4out . '",' . "\n" .
-          '"acl-type" : "ipv4-acl",'  .
-          "\n" . '"access-list-entries" : {'  . '"ace" : [';
+      $pre4in = '{ "name" : "' . $v4in . '" ' . "\n" . ' }' . "\n";
+      $pre4out =  '{ "name" : "' . $v4out . '" ' . "\n" .  ' }' . "\n";
+      $ipv4inbound = '[ { "name" : "' . $v4in . '",' . "\n" .
+          '"type" : "ipv4-acl-type",' .
+          "\n" . '"aces" : {' . '"ace" : [';
+      $ipv4outbound = ' { "name" : "' . $v4out . '",' . "\n" .
+          '"type" : "ipv4-acl-type",'  .
+          "\n" . '"aces" : {'  . '"ace" : [';
       $ipv4inbound= $ipv4inbound . $inbound . " ]}},\n";
       $ipv4outbound= $ipv4outbound . $outbound . " ]}}\n";
       $output = $output . $ipv4inbound . $ipv4outbound;
@@ -526,21 +572,19 @@ if ( $gotin > 0 || $gotout > 0 ) {
     }
 
   if ( $choice == "ipv6" || $choice == "both" ) {
-      $pre6in = '{ "acl-name" : "' . $v6in . '",' . "\n" .
-          '"acl-type" : "ietf-access-control-list:ipv6-acl" }' . "\n";
-      $pre6out =  '{ "acl-name" : "' . $v6out . '",' . "\n" .
-          '"acl-type" : "ietf-access-control-list:ipv6-acl" }' . "\n";
+      $pre6in = '{ "name" : "' . $v6in . '"' . "\n" . '}';
+      $pre6out =  '{ "name" : "' . $v6out . '"' . "\n" . '}';
       if ( $choice == "ipv6" ) {
           $ipv6inbound = "[ ";
       } else {
           $ipv6inbound = "";
       }
-      $ipv6inbound = $ipv6inbound . '{ "acl-name" : "' . $v6in . '",' . "\n" .
-      '"acl-type" : "ipv6-acl",' . "\n" .
-      '"access-list-entries" : {' . '"ace" : [';
-      $ipv6outbound = ' { "acl-name" : "' . $v6out . '",' . "\n" .
-      '"acl-type" : "ipv6-acl",' .
-      "\n" . '"access-list-entries" : {' . '"ace" : [';
+      $ipv6inbound = $ipv6inbound . '{ "name" : "' . $v6in . '",' . "\n" .
+      '"type" : "ipv6-acl-type",' . "\n" .
+      '"aces" : {' . '"ace" : [';
+      $ipv6outbound = ' { "name" : "' . $v6out . '",' . "\n" .
+      '"type" : "ipv6-acl-type",' .
+      "\n" . '"aces" : {' . '"ace" : [';
       $ipv6inbound= $ipv6inbound . str_replace("ipv4","ipv6",$inbound) . " ]}},\n";
       $ipv6outbound= $ipv6outbound . str_replace("ipv4","ipv6",$outbound) . "]}}\n";
     

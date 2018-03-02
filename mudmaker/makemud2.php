@@ -204,7 +204,7 @@ function mkportrange($rname,$port, $dirinit) {
         $frag = ',';
     }
     
-    $frag = $frag . '"' . $rname . '"  : ' . 
+    $frag = $frag . '"' . $rname . '"  :  ' . 
     "{\n" . '"operator" : "eq" ' . ",\n" .
     ' "port" : ' . $port . "\n }";
     return $frag;
@@ -313,11 +313,11 @@ function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirin
       
   if ( $pdirect == "to-device"  ) {
       
-      $pfrag= mkportrange("source-port-range-or-operator",$port, $dirinit);
-      $pfrag= $pfrag . mkportrange("destination-port-range-or-operator",$lport) ;
+      $pfrag= mkportrange("source-port",$port, $dirinit);
+      $pfrag= $pfrag . mkportrange("destination-port",$lport) ;
   } else {
-      $pfrag=mkportrange("destination-port-range-or-operator",$port, $dirinit);
-      $pfrag=$pfrag . mkportrange("source-port-range-or-operator",$lport);
+      $pfrag=mkportrange("destination-port",$port, $dirinit);
+      $pfrag=$pfrag . mkportrange("source-port",$lport);
   }
       
       if ( strlen($pfrag) > 0 || $dirinit == 'thing' ||

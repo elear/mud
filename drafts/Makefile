@@ -1,7 +1,7 @@
 
-DOCS=	draft-ietf-opsawg-mud-16.txt \
-	draft-ietf-opsawg-mud-16.xml \
-	draft-ietf-opsawg-mud-16.html
+DOCS=	draft-ietf-opsawg-mud-18.txt \
+	draft-ietf-opsawg-mud-18.xml \
+	draft-ietf-opsawg-mud-18.html
 
 all: $(DOCS)
 

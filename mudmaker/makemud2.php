@@ -43,8 +43,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use \DateTime;
 
+date_default_timezone_set("GMT");
 $aclhead= <<< ACL_HEAD
-"ietf-access-control-list:access-lists" : {
+"ietf-access-control-list:acls" : {
   "acl" : 
   
 ACL_HEAD;
@@ -76,10 +77,14 @@ $actxt1a=<<< ACTXT1A
             ] 
         }
     },
+
+ACTXT1A;
+
+$actxt1b=<<< ACTXT1B
     "to-device-policy" : {
       "access-lists" : {
             "access-list" : [
-ACTXT1A;
+ACTXT1B;
                 
 
 $actxt2=<<< ACTXT2
@@ -310,16 +315,30 @@ function addace($acename, $pdirect, $target, $proto, $lport, $port, $type,$dirin
       }
       
       $pfrag='';
+      $pex1='';
+      $pex2='';
       
-  if ( $pdirect == "to-device"  ) {
+      if ( $pdirect == "to-device"  ) {
+          $pex1= mkportrange("source-port",$port, $dirinit);
+          $pex2= mkportrange("destination-port",$lport,$dirinit) ;
+      } else {
+          $pex1=mkportrange("destination-port",$port, $dirinit);
+          $pex2=mkportrange("source-port",$lport,$dirinit);
+      }
+
+      if ( $pex1 != '' ) {
+          $pfrag = $pex1;
+      }
+
+      if ( $pex2 != '' ) {
+          if ( $pex1 != '' ) {
+              $pfrag=$pfrag . ",";
+          }
+          $pfrag = $pfrag . $pex2;
+      }
       
-      $pfrag= mkportrange("source-port",$port, $dirinit);
-      $pfrag= $pfrag . mkportrange("destination-port",$lport) ;
-  } else {
-      $pfrag=mkportrange("destination-port",$port, $dirinit);
-      $pfrag=$pfrag . mkportrange("source-port",$lport);
-  }
-      
+          
+
       if ( strlen($pfrag) > 0 || $dirinit == 'thing' ||
           $dirinit == 'remote' ) {
           $ace = $ace . $l4frag . $pfrag . $endfrag;
@@ -429,6 +448,7 @@ $inbound="";
 $outbound="";
     
 $choice=$_POST['ipchoice'];
+$doegress=$_POST['bibox'];
 
 if ( $choice != 'ipv4' && $choice != 'ipv6' && $choice != 'both' ) {
   errorexit("No IP version chosen");
@@ -559,13 +579,19 @@ if ( $gotin > 0 || $gotout > 0 ) {
   if ( $choice == "ipv4" || $choice == "both" ) {
       $pre4in = '{ "name" : "' . $v4in . '" ' . "\n" . ' }' . "\n";
       $pre4out =  '{ "name" : "' . $v4out . '" ' . "\n" .  ' }' . "\n";
-      $ipv4inbound = '[ { "name" : "' . $v4in . '",' . "\n" .
-          '"type" : "ipv4-acl-type",' .
-          "\n" . '"aces" : {' . '"ace" : [';
-      $ipv4outbound = ' { "name" : "' . $v4out . '",' . "\n" .
+      if ( $doegress == 'Yes' ) {
+         $ipv4inbound = '[ { "name" : "' . $v4in . '",' . "\n" .
+             '"type" : "ipv4-acl-type",' .
+             "\n" . '"aces" : {' . '"ace" : [';
+         $ipv4inbound= $ipv4inbound . $inbound . " ]}},\n";
+	 } else {
+	    $ipv4inbound='';
+	    $ipv4outbound = '[';
+	    $pre4in='';
+	    }
+      $ipv4outbound = $ipv4outbound . ' { "name" : "' . $v4out . '",' . "\n" .
           '"type" : "ipv4-acl-type",'  .
           "\n" . '"aces" : {'  . '"ace" : [';
-      $ipv4inbound= $ipv4inbound . $inbound . " ]}},\n";
       $ipv4outbound= $ipv4outbound . $outbound . " ]}}\n";
       $output = $output . $ipv4inbound . $ipv4outbound;
   
@@ -575,23 +601,28 @@ if ( $gotin > 0 || $gotout > 0 ) {
       $pre6in = '{ "name" : "' . $v6in . '"' . "\n" . '}';
       $pre6out =  '{ "name" : "' . $v6out . '"' . "\n" . '}';
       if ( $choice == "ipv6" ) {
-          $ipv6inbound = "[ ";
+          $addsquiggle = "[ ";
       } else {
-          $ipv6inbound = "";
+          $addsquiggle = "";
       }
-      $ipv6inbound = $ipv6inbound . '{ "name" : "' . $v6in . '",' . "\n" .
-      '"type" : "ipv6-acl-type",' . "\n" .
-      '"aces" : {' . '"ace" : [';
+      if ( $doegress == 'Yes' ) {
+         $ipv6inbound = $ipv6inbound . '{ "name" : "' . $v6in . '",' . "\n" .
+         '"type" : "ipv6-acl-type",' . "\n" .
+         '"aces" : {' . '"ace" : [';
+         $ipv6inbound= $ipv6inbound . str_replace("ipv4","ipv6",$inbound) . " ]}},\n";
+	 } else {
+	    $pre6in='';
+	    $ipv6inbound = '';
+	 }
       $ipv6outbound = ' { "name" : "' . $v6out . '",' . "\n" .
       '"type" : "ipv6-acl-type",' .
       "\n" . '"aces" : {' . '"ace" : [';
-      $ipv6inbound= $ipv6inbound . str_replace("ipv4","ipv6",$inbound) . " ]}},\n";
       $ipv6outbound= $ipv6outbound . str_replace("ipv4","ipv6",$outbound) . "]}}\n";
-    
+
       if ( $choice == 'both' ) {
           $output = $output . ",";
       }
-      $output = $output . $ipv6inbound . $ipv6outbound;
+      $output = $output . $addsquiggle . $ipv6inbound . $ipv6outbound;
   }
   
 
@@ -607,7 +638,14 @@ if ( $gotin > 0 || $gotout > 0 ) {
       $devput = $devput . $comma . $pre6out;
   }
       
-  $devput = $devput . $actxt1a . $pre4in;
+  if ( $doegress == 'No' ) {
+     $actxt1b = '';
+     $pre4in = '';
+     $actxt1a ='';
+       $pre6in='';
+  }
+
+  $devput = $devput . $actxt1a . $actxt1b . $pre4in;
   
   if ( $choice == 'ipv6' || $choice == "both" ) {
       $devput = $devput . $comma . $pre6in;

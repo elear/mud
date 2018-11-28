@@ -1,11 +1,11 @@
 // This code adopted from Allen Liu on Random Snippets
 // http://www.randomsnippets.com/2008/02/21/how-to-dynamically-add-form-elements-via-javascript/
  
-var counter = [ 1 , 1 , 1, 1, 1, 1, 1, 1];
+var counter = [ 1 , 1 , 1, 1, 1, 1, 1, 1, 1 , 1 , 1, 1, 1, 1, 1, 1,1 , 1 , 1, 1, 1, 1, 1, 1,1 , 1 , 1, 1, 1, 1, 1, 1,1 , 1 , 1, 1, 1, 1, 1, 1];
 
 var nref = [ 0, 0, 0, 0 ];
 
-var limit = 10;
+var limit = 50;
 
 function removeIt(elemId) {
     var elem=document.getElementById(elemId);

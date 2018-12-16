@@ -2,6 +2,8 @@
 *~
 .refcache
 draft*html
+draft*txt
 drafts/*#draft*#
 draft*mud*xml
-
+drafts/old/*
+drafts/*yang

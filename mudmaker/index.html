@@ -15,15 +15,46 @@
       determine how they should protect your products.&nbsp; You should only
       list communications on this page that you have designed your product to
       have.  For more information, see <a href="https://datatracker.ietf.org/doc/draft-ietf-opsawg-mud/">draft-ietf-opsawg-mud</a>.</p>
+    <p>Some resources you might find interesting (apart from this page):</p>
+    <ul>
+      <li><a href="https://datatracker.ietf.org/doc/draft-ietf-opsawg-mud/">
+	  The MUD specification</a>
+      </li>
+      <li><a href="https://github.com/CiscoDevNet/MUD-Manager">
+	  The Cisco POC MUD Manager</a>
+      </li>
+      <li><a href="https://osmud.org">The OSmud.org MUD Manager</a>
+      </li>
+    </ul>
+    <h3>Some Samples</h3>
+    <table border="2"><tbody>
+    <tr><td>A device that just needs to talk to a single cloud service</td>
+      <td><a href="/cloud-service.json">Cloud Service</td></tr>
+    <tr><td>A device that just needs to talk to its local controllers</td>
+      <td><a href="/my-controller.json">My Controller</td></tr>
+    <tr><td>A device that just needs to talk to devices from the same manufacturer</td>
+      <td><a href="/same-manufacturer.json">Same Manufacturer</td></tr>
+    </tbody></table>
+
+<p>If you use the samples, you will need to modify some of the fields, and
+  of course sign them.</p>
+<h3>Make Your Own!</h3>
+
     <form method="POST" action="makemud2.php">
       <p>Please enter host and model the intended MUD-URL for this
       device: <span 
 title="This is the URL that the device will emit to the network.">
 <img src="Circle-question-yellow.png"/></span></p>
       https://<input name="mudhost" maxlength="50" size="40" required="yes">
-      / (model name here->)<input name="mudfilename" maxlength="50" size="20" required="yes">
+      / (model name here->)<input name="model_name" maxlength="50" size="20" required="yes">
+      <p>Manufacturer Name&nbsp <input name="man_name" maxlength="40" size="40"
+				       required="yes"></p>
+      <p>Please provide a URL to documentation about this device:</p>
+      <input name="doc_url" maxlength="60" size="40" type="url" required="yes">
+
       <p>Please enter a short description for this device:</p>
       <input name="sysDescr" maxlength="120" size="40" required="yes" type="text">
+
       <p>How will this device communicate on the network?</p>
       <table border="1">
         <tbody>
@@ -109,16 +140,17 @@ title="Check this box to indicate specific Internet hostnames the device should 
 	  <option value="both">Both</option>
 	</select>
       </p>
+<!--      Shall I create ACLs in both directions or just away from the device?
      <p>
-      Create both egress and ingress ACLs (may have interoperability issues)?
       <span style='white-space:nowrap'>
       <select id="bidir" name="bibox" default="No">
-	<option value="No">No</option>
-	<option value="Yes">Yes</option>
+	<option value="No">Away from Device</option>
+	<option value="Yes"></option>
 	&nbsp;
       </select>
       </span>
       </p>
+-->
      <div id="bydevice" style="display: none">
        <table border='1'>
 	 <tbody>

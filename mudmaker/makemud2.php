@@ -448,7 +448,8 @@ $inbound="";
 $outbound="";
     
 $choice=$_POST['ipchoice'];
-$doegress=$_POST['bibox'];
+/* $doegress=$_POST['bibox']; */
+$doegress="Yes";
 
 if ( $choice != 'ipv4' && $choice != 'ipv6' && $choice != 'both' ) {
   errorexit("No IP version chosen");
@@ -551,15 +552,20 @@ if ( $gotin > 0 || $gotout > 0 ) {
     $masa = '';
   }
   $sysDesc=htmlspecialchars($_POST['sysDescr'],ENT_QUOTES);
+  $man_name=htmlspecialchars($_POST['man_name'],ENT_QUOTES);
+  $doc_url=htmlspecialchars($_POST['doc_url'],ENT_QUOTES);
+  $model_name=htmlspecialchars($_POST['model_name'],ENT_QUOTES);
   $mudurl= "https://" . htmlspecialchars($_POST['mudhost'],ENT_QUOTES) .
-  '/' . htmlspecialchars($_POST['mudfilename'],ENT_QUOTES);
+  '/' . $model_name;
   
-  $supportInfo = $actxt0 . '"mud-url" : "' . $mudurl . '",  "last-update" : "' . $time . '",' . "\n" .
-
-  '"cache-validity" : 48,' .
-  '"is-supported" : true,' . "\n" .
-  $masa . '"systeminfo": "' . $sysDesc . '",' . "\n";
-  
+  $supportInfo = $actxt0 . '"mud-url" : "' . $mudurl . '",
+  	       "last-update" : "' . $time . '",' . "\n" .
+	       '"cache-validity" : 48,' .
+	       '"is-supported": true,' . "\n" .
+	       $masa . '"systeminfo": "' . $sysDesc . '",' . "\n" .
+	       '"mfg-name": "' . $man_name . '",' . "\n" .
+	       '"documentation": "' . $doc_url . '",' . "\n" .
+	       '"model-name": "' . $model_name . '",' . "\n";   
   $devput = "{\n". $supportInfo . "\n";
 
   $mudname="mud-" . rand(10000,99999) . "-";
@@ -620,7 +626,7 @@ if ( $gotin > 0 || $gotout > 0 ) {
       $ipv6outbound= $ipv6outbound . str_replace("ipv4","ipv6",$outbound) . "]}}\n";
 
       if ( $choice == 'both' ) {
-          $output = $output . ",";
+          $output = $output . ","; 
       }
       $output = $output . $addsquiggle . $ipv6inbound . $ipv6outbound;
   }
@@ -645,8 +651,11 @@ if ( $gotin > 0 || $gotout > 0 ) {
        $pre6in='';
   }
 
-  $devput = $devput . $actxt1a . $actxt1b . $pre4in;
+  $devput = $devput  . $actxt1a . $actxt1b . $pre4in;
   
+  if ( $doegress == 'No' ) {
+     $comma = '';
+  }
   if ( $choice == 'ipv6' || $choice == "both" ) {
       $devput = $devput . $comma . $pre6in;
   }
@@ -662,10 +671,13 @@ if ( $gotin > 0 || $gotout > 0 ) {
   print "<!DOCTYPE html>\n<html>\n<body>\n";
 
   print "<h1>Your MUD file is ready!</h1>";
-  print "<p>Congratulations!  You've just created your first MUD file.  Simply ";
+  print "<p>Congratulations!  You've just created a MUD file.  Simply ";
   print "Cut and paste beween the lines and stick into a file.  Your next steps ";
   print "are to sign the file and place it in the location that its corresponding ";
-  print "MUD URL will find.</p>";
+  print "MUD URL will find.  To sign the files, do the following:</p>";
+  print "<ul><li>Get a certificate with which to sign documents/email.</li>";
+  print "<li>Use OpenSSL as follows:<br>openssl cms -sign -signer YourCertificate.pem -inkey YourKey.pem -in YourMUDfile.json -binary -outform DER -certfile intermediate-certs.pem -out YourSignature.p7s</li>";
+  print "<li>Place the signature file and the MUD file on your web server (it should match the MUD-URL)</li></ul>";
   print $downloadtext;
 
   print "<hr>\n";

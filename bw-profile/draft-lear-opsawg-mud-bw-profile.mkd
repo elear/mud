@@ -1,7 +1,7 @@
 ---
-title: Network QoS Expectations Extensions for MUD
+title: Bandwidth Profiling Extensions for MUD
 abbrev: MUD QoS
-docname: draft-lear-opsawg-mud-bw-profile-00
+docname: draft-lear-opsawg-mud-bw-profile-01
 category: exp
 
 ipr: trust200902
@@ -31,9 +31,6 @@ author:
     country: United States
     email: ofriel@cisco.com
 
-normative:
-   I-D.ietf-opsawg-mud:
-
 informative:
    RFC7011:
 
@@ -55,7 +52,7 @@ Devices connecting to networks will often exhibit certain nominal
 behaviors that can be described.  In addition, sometimes device
 require particular network behaviors such as appropriate
 quality-of-service treatment.  Manufacturer Usage Descriptions
-{{I-D.ietf-opsawg-mud}} discuss how to characterize access control
+{{!RFC8520}} discuss how to characterize access control
 requirements, for instance.  As just mentioned, access control
 requirements are not the only requirements device manufacturers may
 wish to specify.  This memo defines an extension to the MUD YANG model
@@ -168,7 +165,7 @@ The mud-qos YANG model
 
 ~~~~~~~~
 
-<CODE BEGINS>file "ietf-mud-bw-profile@2018-10-20.yang"
+<CODE BEGINS>file "ietf-mud-bw-profile@2019-07-08.yang"
 module ietf-mud-bw-profile {
   yang-version 1.1;
   namespace "urn:ietf:params:xml:ns:yang:ietf-mud-bw-profile";
@@ -219,13 +216,13 @@ module ietf-mud-bw-profile {
      This version of this YANG module is part of RFC XXXX; see
      the RFC itself for full legal notices.";
 
-  revision 2018-10-20 {
+  revision 2019-07-08 {
     description
       "Initial proposed standard.";
-    reference "RFC XXXX: QoS for MUD Specification";
+    reference "RFC XXXX: Bandwidth Descriptions for MUD Specification";
   }
 
-  grouping mud-qos-params {
+  grouping mud-bw-params {
     description
       "QoS and Bandwidth additions for MUD";
     container bw-params {
@@ -290,12 +287,12 @@ module ietf-mud-bw-profile {
   augment "/mud:mud/mud:to-device-policy" {
     description
       "add inbound QoS parameters";
-    uses mud-qos-params;
+    uses mud-bw-params;
   }
   augment "/mud:mud/mud:from-device-policy" {
     description
       "add outbound QoS parameters";
-    uses mud-qos-params;
+    uses mud-bw-params;
   }
 }
 <CODE ENDS>
@@ -350,6 +347,10 @@ follows:
 
 Changes from Earlier Versions
 =============================
+
+Draft -01:
+
+  * Very modest changes.
 
 Draft -00:
 

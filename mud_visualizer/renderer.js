@@ -173,21 +173,19 @@ var simulation = d3.forceSimulation()
 // ######################################
 // # Read graph.json and draw SVG graph #
 // ######################################
-function tester1 (){
-  var remote = require('electron').remote;
-  graph = JSON.parse(remote.getGlobal('sharedObj'));
-  // d3.json(data_from_main, function (error, graph) {
-    // if (error) throw error;
-    
-    
-    // graph['nodes'] = data_from_main['nodes']
-    // graph['links'] = data_from_main['links']  
+function mud_drawer (){
+    var remote = require('electron').remote;
+    graph = JSON.parse(remote.getGlobal('sharedObj'));
+
     var link = svg.append("g")
       .selectAll("line")
       .data(graph.links)
       .enter().append("line")
       .attr("stroke", function (d) { return color(parseInt(d.value)); })
-      .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); });
+      .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); })
+      .attr("src",function(d){ return d.source;})
+      .attr("trg",function(d){return d.target;})
+      
 
     var node = svg.append("g")
       .attr("class", "nodes")
@@ -196,6 +194,7 @@ function tester1 (){
       .enter().append("a")
       .attr("target", '_blank')
       .attr("xlink:href", function (d) { return (window.location.href + '?device=' + d.id) });
+      //
 
     node.on("click", function (d, i) {
       d3.event.preventDefault();
@@ -220,7 +219,8 @@ function tester1 (){
     node.append("text")
       .attr("font-size", "0.8em")
       .attr("dx", 12)
-      .attr("dy", ".35em")
+      // .attr("dy", ".35em")
+      .attr("dy", 12)
       .attr("x", +8)
       .text(function (d) { return d.id });
 
@@ -245,9 +245,45 @@ function tester1 (){
         .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
     }
     simulation.alphaTarget(0.3).restart();
-      
+    
+
+    // node.on("mouseover",function(d){d3.select(d.links).style("stroke","pink");});
+    node.on("mouseover",function(d){ 
+      var current_node_links = d.links ; 
+      d3.selectAll('line').each(function(d,i){ 
+        // console.log("#####"  + JSON.stringify(current_node_links[0]) );
+        for (var ll = 0; ll < current_node_links.length ; ll ++ ){
+          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"] ){
+            // console.log("hi " + d3.select(this).attr("src"));
+            d3.select(this).style("stroke","pink");}
+          }    
+        }
+        )
+      // d3.selectAll('g.link').each(function(){d3.select(this).style("stroke","pink");});
+    });
+    node.on("mouseout",function(d){ 
+      var current_node_links = d.links ; 
+      d3.selectAll('line').each(function(d,i){ 
+        // console.log("#####"  + JSON.stringify(current_node_links[0]) );
+        for (var ll = 0; ll < current_node_links.length ; ll ++ ){
+          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"] ){
+            // console.log("hi " + d3.select(this).attr("src"));
+            d3.select(this).style("stroke",function (d) { return color(parseInt(d.value)); });}
+          }    
+        }
+        )
+      // d3.selectAll('g.link').each(function(){d3.select(this).style("stroke","pink");});
+    });
+
+
+    link.on("mouseover", function(){ d3.select(this).style("stroke","pink");} );
+    link.on("mouseout", function(){ d3.select(this).style("stroke",function (d) { return color(parseInt(d.value)); }); });
+    //link.on("mouseover", function(d,i) { d3.select("#donut" + i).transition().style("fill", "#007DBC"); });
+    
   // });
+  // d3.selectAll('line').each(function(){d3.select(this).style("stroke","pink");});
 }
+
 
 function dragstarted(d) {
   if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -266,86 +302,6 @@ function dragended(d) {
   d.fy = null;
 }
 
-// function find_values_by_key(json_data, target_key) {
-//   output = []
-//   for (var key_ in json_data) {
-//     if (key_ == target_key){
-//       // console.log(json_data[key_]);
-//       output = output.concat([json_data[key_]]);
-//     }
-//     else if (typeof (json_data[key_]) == 'object') {
-//       output = output.concat(find_values_by_key(json_data[key_], target_key));
-//     }
-//   }
-//   return output; 
-// }
-
-// function mud_to_nodes(multi_mud_json){
-//   nodes = []
-//   links = []
-//   modelnames = find_values_by_key(multi_mud_json,"model-name");
-//   unique_modelnames = [... new Set(modelnames)];
-//   group_counter = new Array(unique_modelnames.length).fill(1)
-  
-//   nodes.push({"group":"2","id":"Router"})
-
-//   for (var current_mud_name in  multi_mud_json){
-//     var current_mud = multi_mud_json[current_mud_name];
-//     for (var m = 0 ; m < unique_modelnames.length ; m ++){
-//       model = unique_modelnames[m];
-//       if (find_values_by_key(current_mud,'model-name') == model){
-//         nodes.push({"group":String(m+1),"id":model+group_counter[m]})
-//         group_counter[m] += 1; 
-//       }       
-//     }
-//     var from_device_policies = find_values_by_key(find_values_by_key(current_mud,"from-device-policy"), "name");
-//     var to_device_policies = find_values_by_key(find_values_by_key(current_mud,"to-device-policy"), "name");
-
-    
-//     var all_acl_lists = find_values_by_key(current_mud,"ietf-access-control-list:acls");
-//     var acls = []
-//     for (var acl_idx=0; acl_idx < all_acl_lists.length ; acl_idx++){
-//       acls = acls.concat(find_values_by_key(all_acl_lists[acl_idx],'acl')[0]);
-//     }
-//     for (var acl_i = 0 ; acl_i < acls.length ; acl_i++){
-//       // check if the name of that ACL exists in the acl rule 
-//       var acl_found = false;
-//       for (var ii = 0; ii < from_device_policies.length; ii++) {
-//           tmp_acl_names = find_values_by_key( acls[acl_i],'name'); 
-//           if (tmp_acl_names.indexOf(from_device_policies[ii]) > -1) {
-//               acl_found = true;
-//               break;
-//           }
-//       }
-
-
-//       if (acl_found == true) {
-//           target =  find_values_by_key(acls[acl_idx],"ietf-acldns:dst-dnsname") [0]; 
-//           // check if node is already added
-//           if (find_values_by_key(Object.values(nodes),'id').indexOf(target) == -1) {
-//             nodes.push({"group":String(3),"id":target})
-//           }
-//           // check if link is already added 
-//           if (find_values_by_key(Object.values(links),'source').indexOf(model) == -1 || find_values_by_key(Object.values(links),'target').indexOf(target) == -1) {
-//             links.push({"source": model,"target":"Router","value": "40"})  
-//             links.push({"source": "Router","target":target,"value": "40"})  
-//           }
-
-//       }
-
-//     }
-
-//   }
-
-//   return [nodes,links];
-// }
-
-
-// function countItems(arr, what){
-//   var count= 0, i;
-//   while((i= arr.indexOf(what, i))!= -1){
-//       ++count;
-//       ++i;
-//   }
-//   return count
-// }
+require('electron').ipcRenderer.on('ping', (event, message) => {
+  mud_drawer();
+})

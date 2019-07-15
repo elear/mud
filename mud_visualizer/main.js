@@ -104,11 +104,12 @@ function mud_to_nodes(multi_mud_json){
           }          
       }
 
-      nodes.push({"group":String(1),"id":model});
+      
       var from_device_policies = find_values_by_key(find_values_by_key(current_mud,"from-device-policy"), "name");
       var to_device_policies = find_values_by_key(find_values_by_key(current_mud,"to-device-policy"), "name");
   
-      
+      var link_of_current_node = [] ; 
+      link_of_current_node.push({"source": "Router","target":"Internet","value": "10"});
       var all_acl_lists = find_values_by_key(current_mud,"ietf-access-control-list:acls");
       var acls = []
       for (var acl_idx=0; acl_idx < all_acl_lists.length ; acl_idx++){
@@ -133,14 +134,18 @@ function mud_to_nodes(multi_mud_json){
               nodes.push({"group":String(4),"id":target})
             }
             // check if link is already added 
-            if (find_values_by_key(Object.values(links),'source').indexOf(model) == -1 || find_values_by_key(Object.values(links),'target').indexOf(target) == -1) {
-              links.push({"source": model,"target":"Router","value": "10"})  
-              links.push({"source": "Internet","target":target,"value": "10"})  
-            }
+            if (find_values_by_key(Object.values(links),'source').indexOf(model) == -1  ||  
+                find_values_by_key(Object.values(links),'target').indexOf(target) == -1){
+               links.push({"source": model,"target":"Router","value": "10"});
+               link_of_current_node.push({"source": model,"target":"Router","value": "10"})
+
+              links.push({"source": "Internet","target":target,"value": "10"});  
+              link_of_current_node.push({"source": "Internet","target":target,"value": "10"});  
+             }
         }
-  
+        
       }
-  
+      nodes.push({"group":String(1),"id":model, "links":link_of_current_node});
     }
     
     return {"nodes": nodes, "links": links};
@@ -175,6 +180,7 @@ const mainMenuTemplate = [
                             console.log("The file content is : " + data);
                             global.sharedObj = JSON.stringify(mud_to_nodes(JSON.parse(data))); 
                             console.log("############### The file content is : " + global.sharedObj);
+                            mainWindow.webContents.send('ping', 'whoooooooh!')
                         });
                         
                         
@@ -204,6 +210,7 @@ const mainMenuTemplate = [
         submenu:[
             {
                 label: "Reload",
+                accelerator: process.platform == 'darwin' ? 'Command+R' : 'Ctrl+Q',
                 click(){
                     mainWindow.reload();
                 }

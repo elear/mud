@@ -1,380 +1,164 @@
 <!DOCTYPE html>
+<!--
+	Prism by TEMPLATED	templated.co @templatedco	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)-->
 <html>
   <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <meta http-equiv="Cache-Control" content="no-cache">
-    <link rel="stylesheet" href="style.css">
-    <title>MUD File Maker</title>
-    <script type="text/javascript" src="aux.js" defer></script>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Welcome to MUD Maker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
   </head>
   <body>
-    <h1>Welcome to MUD File Maker!</h1>
-    <img src="mud-maker.jpg" width="150" height="120"  align="right" />
-    <p>This page will help you create a Manufacturer Usage Description (MUD)
-      file for your web site.&nbsp; MUD files can be used by local networks to
-      determine how they should protect your products.&nbsp; You should only
-      list communications on this page that you have designed your product to
-      have.  For more information, see <a href="https://datatracker.ietf.org/doc/draft-ietf-opsawg-mud/">draft-ietf-opsawg-mud</a>.</p>
-    <p>Some resources you might find interesting (apart from this page):</p>
-    <ul>
-      <li><a href="https://datatracker.ietf.org/doc/draft-ietf-opsawg-mud/">
-	  The MUD specification</a>
-      </li>
-      <li><a href="https://github.com/CiscoDevNet/MUD-Manager">
-	  The Cisco POC MUD Manager</a>
-      </li>
-      <li><a href="https://osmud.org">The OSmud.org MUD Manager</a>
-      </li>
-    </ul>
-    <h3>Some Samples</h3>
-    <table border="2"><tbody>
-    <tr><td>A device that just needs to talk to a single cloud service</td>
-      <td><a href="/cloud-service.json">Cloud Service</td></tr>
-    <tr><td>A device that just needs to talk to its local controllers</td>
-      <td><a href="/my-controller.json">My Controller</td></tr>
-    <tr><td>A device that just needs to talk to devices from the same manufacturer</td>
-      <td><a href="/same-manufacturer.json">Same Manufacturer</td></tr>
-    </tbody></table>
-
-<p>If you use the samples, you will need to modify some of the fields, and
-  of course sign them.</p>
-<h3>Make Your Own!</h3>
-
-    <form method="POST" action="makemud2.php">
-      <p>Please enter host and model the intended MUD-URL for this
-      device: <span 
-title="This is the URL that the device will emit to the network.">
-<img src="Circle-question-yellow.png"/></span></p>
-      https://<input name="mudhost" maxlength="50" size="40" required="yes">
-      / (model name here->)<input name="model_name" maxlength="50" size="20" required="yes">
-      <p>Manufacturer Name&nbsp <input name="man_name" maxlength="40" size="40"
-				       required="yes"></p>
-      <p>Please provide a URL to documentation about this device:</p>
-      <input name="doc_url" maxlength="60" size="40" type="url" required="yes">
-
-      <p>Please enter a short description for this device:</p>
-      <input name="sysDescr" maxlength="120" size="40" required="yes" type="text">
-
-      <p>How will this device communicate on the network?</p>
-      <table border="1">
-        <tbody>
-          <tr>
-            <td style="width: 213.167px"><br>
-            </td>
-            <td>Allow?</td>
-          </tr>
-          <tr>
-            <td>Internet communication<br><br><small>Access to cloud services
-            and other specific Internet
-            hosts.&nbsp;</small>
-	      <span 
-title="Check this box to indicate specific Internet hostnames the device should talk to.">
-		<img src="Circle-question-yellow.png"/></span>
-	    </td>
-            <td style="width: 40.2px;"><input id="clbox" name="clbox"
-       type="checkbox"
-       onclick="javascript:yesnoCheck('bydevice','cl', 0);"></td>
-          </tr>
-	  <tr>
-	    <td>Access to controllers specific to this device (no need
-	    to name a class).
-	      <span 
-		 title="Controllers are specified by the local administrator.">
-		<img src="Circle-question-yellow.png"/></span>
-	    </td>
-          <td style="height: 38.4px;"><input name="myctlbox" id="myctlbox"
-          type="checkbox"
-          onclick="javascript:yesnoCheck('bydevice','myctl', 0);">
-	  </td>
-	  </tr>
-          <tr>
-            <td>Controller access<br><br><small>Access
-            to <b>classes</b> of devices that are known to be
-            controllers</small>
-             <span
-                title="You will be prompted below for a controller class.">
-                <img src="Circle-question-yellow.png"/></span>
-</td>
-            <td><input id="entbox" name="entbox" type="checkbox" onclick="javascript:yesnoCheck('bydevice','ent',0);"></td>
-          </tr>
-          <tr>
-            <td>Local communication<br><br><small>Access to/from <b>any</b>
-            local host for specific services (like COAP or HTTP)</small>
-             <span
-                title="Access to all LOCAL hosts (enterprise administrator gets to decide what' local' means).">
-                <img src="Circle-question-yellow.png"/></span>
-</td>
-            <td style="height: 38.4px;"><input name="locbox" id="locbox"
-            type="checkbox"
-            onclick="javascript:yesnoCheck('bydevice','loc',0);">
-	    </td>
-          </tr>
-	  <tr>
-	    <td>Specific types of devices<br><br><small>Access
-	    to <b>classes</b> of devices that are identified by their
-	    MUD URL</small>
-             <span
-                title="These are the domain names in MUD URLs you specify.">
-                <img src="Circle-question-yellow.png"/></span>
-	    </td>
-            <td><input id="manbox" name="manbox" type="checkbox" onclick="javascript:yesnoCheck('bydevice','man',0);"></td>
-          </tr>
-	  <tr>
-	    <td>Access to devices to/from the same manufacturer
-             <span
-                title="All devices that emit a MUD URL with the same domain name as this one (what you listed above).">
-                <img src="Circle-question-yellow.png"/></span>
-	    </td>
-	    <td style="height: 38.4px;"><input name="mymanbox" id="mymanbox"
-            type="checkbox"
-            onclick="javascript:yesnoCheck('bydevice','myman',0);">
-	    </td>
-          </tr>
-        </tbody>
-      </table>
-      <p><br>
-	This device speaks <select name="ipchoice" required>
-	  <option value=""></option>
-	  <option value="ipv4">IPv4</option>
-	  <option value="ipv6">IPv6</option>
-	  <option value="both">Both</option>
-	</select>
-      </p>
-<!--      Shall I create ACLs in both directions or just away from the device?
-     <p>
-      <span style='white-space:nowrap'>
-      <select id="bidir" name="bibox" default="No">
-	<option value="No">Away from Device</option>
-	<option value="Yes"></option>
-	&nbsp;
-      </select>
-      </span>
-      </p>
--->
-     <div id="bydevice" style="display: none">
-       <table border='1'>
-	 <tbody>
-	 <tr><td>
-      <h3>Create rules below</h3>
-         </td></tr><tr><td>
-      <div id="cl" style="display:none">
-      <p>Internet Hosts</p>
-      <span id="cllist">
-      <input pattern="[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$" maxlength="120" size="40"
-        name="clnames[]" type="text">&nbsp;&nbsp;&nbsp;
-      Protocol&nbsp;
-      <select id="clsel" name="clproto[]" value="any" onchange="tcporudp('clsel','clplist');">
-        <option value="any">Any</option>
-        <option value="tcp">TCP</option>
-        <option value="udp">UDP</option>
-        &nbsp;
-      </select>
-      <input type="button" value="+"
-       onClick="addInput('cllist','cl','dns',0);">
-      <br>
-      <span id="clplistl" style="visibility: hidden">
-      Local Port&nbsp; <input pattern="([0-9]{1,5}|any)" value="any"
-        name="clportl[]" style="width:60px">
-     </span>
-      <span id="clplist" style="visibility: hidden">
-      &nbsp;&nbsp;Remote Port&nbsp;
-      <input pattern="([0-9]{1,5}|any)" value="any"
-	     name="clport[]" style="width:60px">
-      </span>
-      <span id="clplistc" style="visibility: hidden">
-	&nbsp;&nbsp;Initiated by&nbsp;
-	<select name="clinit[]" id="clinit" value="either"
-	       onchange="localcheck('clinit','clplistl');">
-	  <option value="either">Either</option>
-	  <option value="thing">Thing</option>
-	  <option value="remote">Remote</option>
-	</select>
-      </span>
+    <!-- Banner -->
+    <section id="banner">
+      <div class="inner split">
+        <section>
+          <h2>Welcome to MUD Maker<a href="http://templated.co"></a></h2>
+        </section>
+        <section>
+          <p>A tool to build your own MUD files</p>
+          <ul class="actions">
+            <li><a href="mudmaker.html" class="button special">Go Right to MUD
+                Maker</a></li>
+          </ul>
+        </section>
       </div>
-      <div id="myctl" style="display:none">
-      <p>My Controller</p>
-      <span id='myctllist'>
-      <input type="hidden" value="(filled in by local admin)" name="myctlnames[]" disabled="disabled">
-      <input value="(filled in by local admin)" readonly=""
-          size="40"
-          name="myctlnames[]"
-          type="text">&nbsp;&nbsp;&nbsp;&nbsp;Protocol&nbsp;
-        <select id='myctlsel' name="myctlproto[]"  value="any" onchange="tcporudp('myctlsel','myctlplist');">
-	  <option value="any">Any</option>
-          <option value="tcp">TCP</option>
-          <option value="udp">UDP</option>
-        </select>
-      <input type="button" value="+"
-       onClick="addInput('myctllist','myctl','dns',8);">
-      <br>
-      <span id="myctlplistl" style="visibility: hidden">
-      Local Port&nbsp; <input pattern="([0-9]{1,5}|any)" value="any"
-        name="myctlportl[]" style="width:60px">
-     </span>
-      <span id="myctlplist" style="visibility: hidden">
-      &nbsp;&nbsp;Remote Port&nbsp;
-      <input pattern="([0-9]{1,5}|any)" value="any"
-	     name="myctlport[]" style="width:60px">
-      </span>
-      <span id="myctlplistc" style="visibility: hidden">
-	&nbsp;&nbsp;Initiated by&nbsp;
-	<select name="myctlinit[]" id="myctlinit" value="either"
-	       onchange="localcheck('myctlinit','myctlplistl');">
-	  <option value="either">Either</option>
-	  <option value="thing">Thing</option>
-	  <option value="remote">Remote</option>
-	</select>
-      </span>
+    </section>
+    <!-- One -->
+    <section id="one" class="wrapper">
+      <div class="inner split">
+        <section>
+          <h2>What is MUD?</h2>
+          <p>MUD stands for Manufacturer Usage Descriptions, a standard
+            manufacturers can use to describe what sort of network access their
+            devices need.</p>
+          <ul class="actions">
+            <li><a href="#two" class="button alt"><span style="color: #777777;">How
+                  to<br>
+                </span></a></li>
+          </ul>
+        </section>
+        <section>
+          <ul class="checklist">
+            <li>MUD provides customers information they can use to understand
+              how devices access the network.</li>
+            <li>&nbsp;MUD optionally uses existing device mechanisms to
+              communicate those needs to the network.</li>
+            <li>&nbsp;MUD can be used to keep your devices safe from other
+              compromised devices on the network.</li>
+            <li>&nbsp;MUD is an open standard.&nbsp; Anyone can implement it.</li>
+          </ul>
+        </section>
       </div>
-      <div id="loc" style="display:none">
-      <p>Local Access</p>
-      <span id='loclist'>
-      <input type="hidden" value="any" name="locnames[]" disabled="disabled">
-      <input  value="any" readonly=""
-          size="40"
-          name="locnames[]"
-          type="text">&nbsp;&nbsp;&nbsp;&nbsp;Protocol&nbsp;
-        <select id='locsel' name="locproto[]"  value="any" onchange="tcporudp('locsel','locplist');">
-	  <option value="any">Any</option>
-          <option value="tcp">TCP</option>
-          <option value="udp">UDP</option>
-        </select>
-      <input type="button" value="+"
-       onClick="addInput('loclist','loc','dns',4);">
-      <br>
-      <span id="locplistl" style="visibility: hidden">
-      Local Port&nbsp; <input pattern="([0-9]{1,5}|any)" value="any"
-        name="locportl[]" style="width:60px">
-     </span>
-      <span id="locplist" style="visibility: hidden">
-      &nbsp;&nbsp;Remote Port&nbsp;
-      <input pattern="([0-9]{1,5}|any)" value="any"
-	     name="locport[]" style="width:60px">
-      </span>
-      <span id="locplistc" style="visibility: hidden">
-	&nbsp;&nbsp;Initiated by&nbps;
-	<select name="locinit[]" id="locinit" value="either"
-	       onchange="localcheck('locinit','locplistl');">
-	  <option value="either">Either</option>
-	  <option value="thing">Thing</option>
-	  <option value="remote">Remote</option>
-	</select>
-      </span>
+    </section>
+    <!-- Two -->
+    <section id="two" class="wrapper style2 alt">
+      <div class="inner">
+        <div class="spotlight">
+          <div class="image"> <img src="images/800px-Thermostat_e%CC%81lectronique.jpg"
+              alt="Thermostat"></div>
+          <div class="content">
+            <h3>Knowing your device</h3>
+            The first step is documenting what access your device needs.&nbsp;
+            At a minimum, this means knowing which UDP and TCP ports a device
+            will use.&nbsp; MUD provides manufacturers a way to specify network
+            access policies for devices without having to know what every
+            customer deployment topology is.&nbsp; Also, don't worry about DNS
+            or NTP, as you get those services by default.<br>
+            <p></p>
+          </div>
+        </div>
+        <div class="spotlight">
+          <div class="image"> <img src="images/MUDmaker.png" alt="MUD Maker Tool">
+          </div>
+          <div class="content">
+            <h3>Building your MUD file</h3>
+            <p>Each MUD file contains access control lists that use various
+              classes.&nbsp; When you click on the checkboxes in MUD maker,
+              additional information will appear below that you will need to
+              fill out.&nbsp; Just choose which classes are appropriate for your
+              devices.&nbsp; If you need more entries per class, hit the +
+              button.</p>
+            <ul class="actions">
+              <li><a href="classes.html" class="button alt">More on MUD ACLs</a></li>
+              <li><a href="examples.html" class="button alt">Example MUD files</a></li>
+              <li> <a href="mudmaker.html" class="button alt">Make a MUD file</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="spotlight">
+          <div class="image"> <img src="images/mud-architecture.png" alt="MUD architecture">
+          </div>
+          <div class="content">
+            <h3>Pointing to the MUD file with a URL</h3>
+            <p>Once you've developed your MUD file, plop it on a server
+              somewhere.&nbsp; Then have your device announce a URL pointing to
+              that file.&nbsp; This can be done with LLDP, DHCP, or in a
+              certificate.</p>
+            <ul class="actions">
+              <li><a href="mudurl.html" class="button alt">Details</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div id="ent" style="display:none">
-      <p>Controllers (Enter a URI for the class)</p>
-      <span id="entlist">
-      <input maxlength="120" size="40" name="entnames[]" type="url">
-      &nbsp;&nbsp;&nbsp;Protocol&nbsp;
-      <select id="entsel" name="entproto[]" value="any" onchange="tcporudp('entsel','entplist');">
-	<option value="any">Any</option>
-        <option value="tcp">TCP</option>
-        <option value="udp">UDP</option>
-        &nbsp;
-      </select>
-      <input type="button" value="+"
-       onClick="addInput('entlist','ent','url',1);">
-      <br>
-      <span id="entplistl" style="visibility: hidden">
-      Local Port&nbsp; <input pattern="([0-9]{1,5}|any)" value="any"
-        name="entportl[]" style="width:60px">
-     </span>
-      <span id="entplist" style="visibility: hidden">
-      &nbsp;&nbsp;Remote Port&nbsp;
-      <input pattern="([0-9]{1,5}|any)" value="any"
-	     name="entport[]" style="width:60px">
-      </span>
-      <span id="entplistc" style="visibility: hidden">
-	&nbsp;&nbsp;Initiated by&nbsp;
-	<select name="entinit[]" id="entinit" value="either"
-	       onchange="localcheck('entinit','entplistl');">
-	  <option value="either">Either</option>
-	  <option value="thing">Thing</option>
-	  <option value="remote">Remote</option>
-	</select>
-      </span>
+      <div class="inner">
+        <div class="spotlight">
+          <div class="image"> <img src="images/mudnet.png" alt="MUD Protected Network"></div>
+          <div class="content">
+            <h3>Trying it out with a MUD Manager</h3>
+            Once you have created a MUD file and a MUD URL, you can test it out.
+            Here are a few MUD managers to try: <br>
+            <br>
+            <ul class="checklist">
+              <li>&nbsp;<a href="https://osmud.org">osmud.org</a> consumer open
+                source with OpenWRT.</li>
+              <li><a href="https://github.com/usnistgov/nist-mud">NIST MUD
+                  Manager based on OpenFlow<br>
+                </a></li>
+              <li><a href="https://github.com/CiscoDevNet/MUD-Manager">Cisco
+                  Radius-based proof of concept</a></li>
+              <li><a href="https://github.com/CIRALabs/Secure-IoT-Home-Gateway">CIRA
+                  Labs IoT Home Gateway</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div id="man" style="display:none">
-      <p>Device Types</p>
-      <span id="manlist">
-      <input pattern="[a-z0-9.-]+\.[a-z]{2,3}$" maxlength="120" size="40"
-        name="mannames[]" type="text">&nbsp;&nbsp;&nbsp;
-      Protocol&nbsp;
-      <select id="mansel" name="manproto[]" value="any" onchange="tcporudp('mansel','manplist');">
-        <option value="any">Any</option>
-        <option value="tcp">TCP</option>
-        <option value="udp">UDP</option>
-        &nbsp;
-      </select>
-      <input type="button" value="+"
-       onClick="addInput('manlist','man','dns',6);">
-      <br>
-      <span id="manplistl" style="visibility: hidden">
-      Local Port&nbsp; <input pattern="([0-9]{1,5}|any)" value="any"
-        name="manportl[]" style="width:60px">
-     </span>
-      <span id="manplist" style="visibility: hidden">
-      &nbsp;&nbsp;Remote Port&nbsp;
-      <input pattern="([0-9]{1,5}|any)" value="any"
-	     name="manport[]" style="width:60px">
-      </span>
-      <span id="manplistc" style="visibility: hidden">
-	&nbsp;&nbsp;Initiated by&nbsp;
-	<select name="maninit[]" id="maninit" value="either"
-	       onchange="localcheck('maninit','manplistl');">
-	  <option value="either">Either</option>
-	  <option value="thing">Thing</option>
-	  <option value="remote">Remote</option>
-	</select>
-      </span>
+    </section>
+    <!-- Contact -->
+    <section id="contact" class="wrapper">
+      <div class="inner split">
+        <section>
+          <ul class="contact">
+            <li class="fa-envelope"><a href="mailto:mud@ietf.org">mud@ietf.org</a></li>
+          </ul>
+          <img src="images/mud.jpg" alt="MUD" style="width: 350px; height: 146px;">
+          <ul class="contact">
+          </ul>
+        </section>
+        <section>
+          <h3>The Standard</h3>
+          <a href="https://www.rfc-editor.org/info/rfc8520">RFC 8520 -
+            Manufacturer Usage Descriptions</a><br>
+          <br>
+          <br>
+          <h3> Thanks for the artwork </h3>
+          <tiny><a href="https://commons.wikimedia.org/w/index.php?curid=6267845">Bouchecl
+              - Own work, CC BY-SA 3.0</a> </tiny> </section>
       </div>
-      <div id="myman" style="display:none">
-      <p>Same Manufacturer</p>
-      <span id="mymanlist">
-      <input value="(filled in by system)" readonly=""
-        name="mymannames[]" type="text">&nbsp;&nbsp;&nbsp;
-      Protocol&nbsp;
-      <select id="mymansel" name="mymanproto[]" value="any" onchange="tcporudp('mymansel','mymanplist');">
-        <option value="any">Any</option>
-        <option value="tcp">TCP</option>
-        <option value="udp">UDP</option>
-        &nbsp;
-      </select>
-      <input type="button" value="+"
-       onClick="addInput('mymanlist','myman','dns', 10);">
-      <br>
-      <span id="mymanplistl" style="visibility: hidden">
-      Local Port&nbsp; <input pattern="([0-9]{1,5}|any)" value="any"
-        name="mymanportl[]" style="width:60px">
-     </span>
-      <span id="mymanplist" style="visibility: hidden">
-      &nbsp;&nbsp;Remote Port&nbsp;
-      <input pattern="([0-9]{1,5}|any)" value="any"
-	     name="mymanport[]" style="width:60px">
-      </span>
-      <span id="mymanplistc" style="visibility: hidden">
-	&nbsp;&nbsp;Initiated by&nbsp;
-	<select name="mymaninit[]" id="mymaninit" value="either"
-	       onchange="localcheck('mymaninit','mymanplistl');">
-	  <option value="either">Either</option>
-	  <option value="thing">Thing</option>
-	  <option value="remote">Remote</option>
-	</select>
-      </span>
-      </div>
-      </td>
-     </tr>
-     </tbody>
-     </table>
-    </div>
-      <p><br>
-      </p>
-      <br>
-      <input value="Submit" type="submit"> <input name="Reset" type="reset">
-    </form>
-    <br>
-    <p><br>
-    </p>
-    <p><br>
-    </p>
-</body></html>
+    </section>
+    <!-- Footer -->
+    <footer id="footer">
+      <div class="copyright"> © Untitled. All rights reserved. Images: <a href="http://unsplash.com">Unsplash</a>.
+        Design: <a href="http://templated.co">TEMPLATED</a>. </div>
+    </footer>
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+    <script src="assets/js/main.js"></script>
+    
+  </body>
+</html>

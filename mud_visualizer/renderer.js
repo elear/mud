@@ -184,20 +184,25 @@ function mud_drawer (){
           ||
           (graph.links[i].source == graph.links[j].target && graph.links[i].target == graph.links[j].source)) 
          {
-          graph.links[i].linknum  += 1;
+          graph.links[i].linknum  += 0.5;
          }
-  }
-};
+      }
+    };
 
     var link = svg.append("g")
-      .selectAll("line")
+      // .selectAll("line")
+      .selectAll("path")
       .data(graph.links)
-      .enter().append("svg:line")
+      .enter().append("svg:path")
+      // .attr("stroke", function (d) { return color(parseInt(d.value)); })
+      // .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); })
+      .attr("fill","none")
       .attr("stroke", function (d) { return color(parseInt(d.value)); })
       .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); })
+      // .attr("stroke-dasharray","0,2 1")
       .attr("src",function(d){ return d.source;})
       .attr("trg",function(d){return d.target;})
-
+    
       
 
 
@@ -249,16 +254,17 @@ function mud_drawer (){
       .links(graph.links);
 
     function ticked() {
-      link
-        .attr("x1", function (d) { return d.source.x ; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; });
-      // link.attr("d", function(d) {
-      //   var dx = d.target.x - d.source.x,
-      //       dy = d.target.y - d.source.y,
-      //       dr = 75/d.linknum;  //linknum is defined above
-      //   return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;});
+      // link
+        // .attr("x1", function (d) { return d.source.x ; })
+        // .attr("y1", function (d) { return d.source.y; })
+        // .attr("x2", function (d) { return d.target.x; })
+        // .attr("y2", function (d) { return d.target.y; });
+
+      link.attr("d", function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = 250/d.linknum;  //linknum is defined above
+        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;});
 
       node
         .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
@@ -269,7 +275,7 @@ function mud_drawer (){
     // node.on("mouseover",function(d){d3.select(d.links).style("stroke","pink");});
     node.on("mouseover",function(d){ 
       var current_node_links = d.links ; 
-      d3.selectAll('line').each(function(d,i){ 
+      d3.selectAll('path').each(function(d,i){ 
         // console.log("#####"  + JSON.stringify(current_node_links[0]) );
         for (var ll = 0; ll < current_node_links.length ; ll ++ ){
           if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"] ){
@@ -282,7 +288,7 @@ function mud_drawer (){
     });
     node.on("mouseout",function(d){ 
       var current_node_links = d.links ; 
-      d3.selectAll('line').each(function(d,i){ 
+      d3.selectAll('path').each(function(d,i){ 
         // console.log("#####"  + JSON.stringify(current_node_links[0]) );
         for (var ll = 0; ll < current_node_links.length ; ll ++ ){
           if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"] ){

@@ -357,8 +357,8 @@ class Mud {
                     if (find_values_by_key(Object.values(this.all_nodes),'id').indexOf(destination) == -1) {
                         this.all_nodes.push({"group":String(4),"id":destination, "abstractions":["domain-names"]});
                     }
-                    if (find_values_by_key(Object.values(this.all_links),'source').indexOf(this.model) == -1  ||  
-                        find_values_by_key(Object.values(this.all_links),'target').indexOf(destination) == -1){
+                    // if (find_values_by_key(Object.values(this.all_links),'source').indexOf(this.model) == -1  ||  
+                        // find_values_by_key(Object.values(this.all_links),'target').indexOf(destination) == -1){
                         
                         this.all_links.push({"source": this.model,"target":"Router","value": "10"});
                         this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10"});
@@ -368,7 +368,7 @@ class Mud {
 
                         this.all_links.push({"source": "Router","target":"Internet","value": "10"})
                         this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10"})
-                    }
+                    // }
                     
                     var node_exists = false
                     for (var node_idx = 0; node_idx < this.all_nodes.length; node_idx ++ ){

@@ -177,15 +177,29 @@ function mud_drawer (){
     var remote = require('electron').remote;
     graph = JSON.parse(remote.getGlobal('sharedObj'));
 
+  for (var i=0; i<graph.links.length; i++) {
+    graph.links[i].linknum = 1;
+    for (var j=0; j<i; j++){
+      if ((graph.links[i].source == graph.links[j].source && graph.links[i].target == graph.links[j].target) 
+          ||
+          (graph.links[i].source == graph.links[j].target && graph.links[i].target == graph.links[j].source)) 
+         {
+          graph.links[i].linknum  += 1;
+         }
+  }
+};
+
     var link = svg.append("g")
       .selectAll("line")
       .data(graph.links)
-      .enter().append("line")
+      .enter().append("svg:line")
       .attr("stroke", function (d) { return color(parseInt(d.value)); })
       .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); })
       .attr("src",function(d){ return d.source;})
       .attr("trg",function(d){return d.target;})
+
       
+
 
     var node = svg.append("g")
       .attr("class", "nodes")
@@ -236,10 +250,15 @@ function mud_drawer (){
 
     function ticked() {
       link
-        .attr("x1", function (d) { return d.source.x; })
+        .attr("x1", function (d) { return d.source.x ; })
         .attr("y1", function (d) { return d.source.y; })
         .attr("x2", function (d) { return d.target.x; })
         .attr("y2", function (d) { return d.target.y; });
+      // link.attr("d", function(d) {
+      //   var dx = d.target.x - d.source.x,
+      //       dy = d.target.y - d.source.y,
+      //       dr = 75/d.linknum;  //linknum is defined above
+      //   return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;});
 
       node
         .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });

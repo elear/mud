@@ -244,13 +244,14 @@ const mainMenuTemplate = [
 class Mud_Network {
     constructor(multi_mud_json){
         this.multi_mud_json = multi_mud_json;
-        this.nodes = [];
-        this.links = [];
+        this.allNodes = [];
+        this.allLinks = [];
+        this.abstractions = [];
+        this.Mud_list = [];
         this.all_modelnames = find_values_by_key(multi_mud_json,"model-name");
         this.non_unique_modelnames = this.get_non_unique_modelnames();
-        this.nodes.push({"group":"2","id":"Router","abstractions":[]});
-        this.nodes.push({"group":"3","id":"Internet","abstractions":[]});
-        // this.links.push({"source": "Router","target":"Internet","value": "10"}) ;    
+        this.allNodes.push({"group":"2","id":"Router","abstractions":[]});
+        this.allNodes.push({"group":"3","id":"Internet","abstractions":[]});
     }
 
     get_non_unique_modelnames(){
@@ -265,23 +266,38 @@ class Mud_Network {
         return non_unique_models;
     }
 
-    create_network(){
-        this.Mud_list = []
-        for (var current_mud_name in  this.multi_mud_json){
-            var current_mud = new Mud(this.multi_mud_json[current_mud_name], this.non_unique_modelnames, this.nodes, this.links)
-            this.Mud_list = this.Mud_list.concat(current_mud)
+    
+    get_nodes_links_json(){
+        return {"nodes": this.allNodes, "links": this.allLinks};
+    }
+
+    updat_localnetworks_links(){
+        for (var mud_idx = 0 ; mud_idx < this.Mud_list.length ; mud_idx ++ ){
+            var current_mud = this.Mud_list[mud_idx];
+            if (current_mud.abstractions.includes("local-networks")){
+                for (var n_idx = 0 ; n_idx < this.allNodes.length ; n_idx++ ){
+                    if (current_mud.index_in_allnodes != n_idx && this.allNodes[n_idx].group == '1') {
+                        this.allLinks.push({"source": "Router","target":this.allNodes[n_idx].id, "value": "10", "device":current_mud.model});
+                        current_mud.link_of_current_node.push({"source": "Router", "target":this.allNodes[n_idx].id,"value": "10", "device":current_mud.model});        
+                    }
+                }
+            }
         }
     }
 
-    get_nodes_links_json(){
-        return {"nodes": this.nodes, "links": this.links};
+    create_network(){
+        for (var current_mud_name in  this.multi_mud_json){
+            var current_mud = new Mud(this.multi_mud_json[current_mud_name], this.non_unique_modelnames, this.allNodes, this.allLinks)
+            this.Mud_list = this.Mud_list.concat(current_mud)
+        }
+        this.updat_localnetworks_links(); 
     }
 
 }
 
 
 class Mud {
-    constructor(mudfile,non_unique_modelnames, all_nodes, all_links) {
+    constructor(mudfile,non_unique_modelnames, allNodes, allLinks) {
         this.mudfile = mudfile; 
         this.model = find_values_by_key(this.mudfile,"model-name")[0];
         for (var z = 0 ; z < non_unique_modelnames.length; z++ ){
@@ -294,13 +310,15 @@ class Mud {
         this.FromDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile,"from-device-policy")[0], "name");
         this.ToDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile,"to-device-policy")[0], "name");   
         this.acls = this.extract_acls();
+        this.abstractions = [];
         this.FromDevicePolicies = [];
         this.FromDeviceAces = [];
         this.ToDevicePolicies = [];
         this.ToDeviceAces = [];
-        this.all_nodes = all_nodes; 
-        this.all_links = all_links; 
+        this.allNodes = allNodes; 
+        this.allLinks = allLinks; 
         this.link_of_current_node = [];
+        this.index_in_allnodes = -1;
         this.extract_device_policies();
         this.extract_FromDevice_links();
     }
@@ -351,67 +369,66 @@ class Mud {
         for (var acl_idx = 0 ; acl_idx < this.FromDeviceAces.length ; acl_idx++){
             var ace = this.FromDeviceAces[acl_idx];
             var abstract = this.get_abstract_types(ace);
+            // add the abstraction to this mud instance if it's not there yet: 
+            if (!this.abstractions.includes(abstract)){
+                this.abstractions = this.abstractions.concat(abstract);
+            }
             switch(abstract){
                 case "domain-names":
                     var destination = find_values_by_key(ace,"ietf-acldns:dst-dnsname")[0];
-                    if (find_values_by_key(Object.values(this.all_nodes),'id').indexOf(destination) == -1) {
-                        this.all_nodes.push({"group":String(4),"id":destination, "abstractions":["domain-names"]});
+                    if (!this.allNodes_includes(destination)) {
+                        this.allNodes.push({"group":String(4),"id":destination, "abstractions":["domain-names"]});
                     }
                         
-                        this.all_links.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
-                        this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                    this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                    this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
 
-                        this.all_links.push({"source": "Internet","target":destination,"value": "10", "device":this.model});  
-                        this.link_of_current_node.push({"source": "Internet","target":destination,"value": "10", "device":this.model});
+                    this.allLinks.push({"source": "Internet","target":destination,"value": "10", "device":this.model});  
+                    this.link_of_current_node.push({"source": "Internet","target":destination,"value": "10", "device":this.model});
 
-                        this.all_links.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
-                        this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
-                    
-                    var node_exists = false
-                    for (var node_idx = 0; node_idx < this.all_nodes.length; node_idx ++ ){
-                        if (this.all_nodes[node_idx].group == '1' && this.all_nodes[node_idx].id == this.model){
-                            this.all_nodes[node_idx].links = this.all_nodes[node_idx].links.concat(this.link_of_current_node);
-                            if (!this.all_nodes[node_idx].abstractions.includes("domain-names")){
-                                this.all_nodes[node_idx].abstractions = this.all_nodes[node_idx].abstractions.concat("domain-names")
-                            }
-                            node_exists = true; 
+                    this.allLinks.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
+                    this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
+                
+                    if (this.node_is_in_allNodes()) {
+                        this.allNodes[this.index_in_allnodes].links = this.allNodes[this.index_in_allnodes].links.concat(this.link_of_current_node);
+                        if (!this.allNodes[this.index_in_allnodes].abstractions.includes("domain-names")){
+                            this.allNodes[this.index_in_allnodes].abstractions = this.allNodes[this.index_in_allnodes].abstractions.concat("domain-names")
                         }
                     }
-                    if (node_exists == false){
-                        this.all_nodes.push({"group":String(1), "id":this.model, "abstractions":["domain-names"] ,"links":this.link_of_current_node});
+                    else{
+                        this.index_in_allnodes = this.allNodes.length; 
+                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":["domain-names"] ,"links":this.link_of_current_node});
                     }
                     break;
                 case "local-networks":
-                    if (find_values_by_key(Object.values(this.all_links),'source').indexOf(this.model) == -1){
-                        this.all_links.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                    if (!this.is_connected_to_Router()){
+                        this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                         this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
-                        for (var n_idx = 0 ; n_idx < this.all_nodes.length ; n_idx++ ){
-                            if (this.all_nodes[n_idx].group == '1') {
-                                this.all_links.push({"source": "Router","target":this.all_nodes[n_idx].id, "value": "10", "device":this.model});
-                                this.link_of_current_node.push({"source": "Router", "target":this.all_nodes[n_idx].id,"value": "10", "device":this.model});        
-                            }
+                    }
+                    if (this.node_is_in_allNodes()){
+                        if (!this.allNodes[this.index_in_allnodes].abstractions.includes("local-network")){
+                            this.allNodes[this.index_in_allnodes].abstractions = this.allNodes[this.index_in_allnodes].abstractions.concat("local-network")
                         }
                     }
-                    var node_exists = false
-                    for (var node_idx = 0; node_idx < this.all_nodes.length; node_idx++ ){
-                        if (this.all_nodes[node_idx].group == '1' && this.all_nodes[node_idx].id == this.model){
-                            this.all_nodes[node_idx].links = this.all_nodes[node_idx].links.concat(this.link_of_current_node);
-                            if (!this.all_nodes[node_idx].abstractions.includes("local-network")){
-                                this.all_nodes[node_idx].abstractions = this.all_nodes[node_idx].abstractions.concat("local-network")
-                            }
-                            node_exists = true; 
-                        }
-                    }
-                    if (node_exists == false){
-                        this.all_nodes.push({"group":String(1), "id":this.model, "abstractions":["local-network"] ,"links":this.link_of_current_node});
+                    else{
+                        this.index_in_allnodes = this.allNodes.length; 
+                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":["local-network"] ,"links":this.link_of_current_node});
                     }
                     break;
             }   
         }
     }
    
-    update_local_network_abstraction(){
-                
+    node_is_in_allNodes(){
+        return (this.index_in_allnodes != -1)
+    }
+
+    allNodes_includes(node){
+        return (find_values_by_key(Object.values(this.allNodes),'id').indexOf(node) != -1)
+    }
+
+    is_connected_to_Router(){
+        return (find_values_by_key(Object.values(this.allLinks),'source').indexOf(this.model) != -1)
     }
 
     get_abstract_types(ace){
@@ -433,6 +450,4 @@ class Mud {
         }
         return abstract_types[0]; 
     }
-
-
 }

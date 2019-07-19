@@ -388,16 +388,10 @@ class Mud {
 
                     this.allLinks.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
                     this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
-                
-                    if (this.node_is_in_allNodes()) {
-                        this.allNodes[this.index_in_allnodes].links = this.allNodes[this.index_in_allnodes].links.concat(this.link_of_current_node);
-                        if (!this.allNodes[this.index_in_allnodes].abstractions.includes("domain-names")){
-                            this.allNodes[this.index_in_allnodes].abstractions = this.allNodes[this.index_in_allnodes].abstractions.concat("domain-names")
-                        }
-                    }
-                    else{
+
+                    if (!this.node_is_in_allNodes()){
                         this.index_in_allnodes = this.allNodes.length; 
-                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":["domain-names"] ,"links":this.link_of_current_node});
+                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node});
                     }
                     break;
                 case "local-networks":
@@ -405,16 +399,22 @@ class Mud {
                         this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                         this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                     }
-                    if (this.node_is_in_allNodes()){
-                        if (!this.allNodes[this.index_in_allnodes].abstractions.includes("local-network")){
-                            this.allNodes[this.index_in_allnodes].abstractions = this.allNodes[this.index_in_allnodes].abstractions.concat("local-network")
-                        }
-                    }
-                    else{
+                    if (!this.node_is_in_allNodes()){
                         this.index_in_allnodes = this.allNodes.length; 
-                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":["local-network"] ,"links":this.link_of_current_node});
+                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node});
                     }
                     break;
+                case "same-manufacturer":
+                        if (!this.is_connected_to_Router()){
+                            this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                            this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                        }
+                        if (!this.node_is_in_allNodes()){
+                            this.index_in_allnodes = this.allNodes.length; 
+                            this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node});
+                        }
+                        break;
+        
             }   
         }
     }

@@ -174,8 +174,11 @@ var simulation = d3.forceSimulation()
 // # Read graph.json and draw SVG graph #
 // ######################################
 function mud_drawer (){
-    var remote = require('electron').remote;
-    graph = JSON.parse(remote.getGlobal('sharedObj'));
+  
+  link_color = "black";
+  link_hover_color = "green";
+  var remote = require('electron').remote;
+  graph = JSON.parse(remote.getGlobal('sharedObj'));
 
   for (var i=0; i<graph.links.length; i++) {
     graph.links[i].linknum = 1;
@@ -197,11 +200,13 @@ function mud_drawer (){
       // .attr("stroke", function (d) { return color(parseInt(d.value)); })
       // .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); })
       .attr("fill","none")
-      .attr("stroke", function (d) { return color(parseInt(d.value)); })
-      .attr("stroke-width", function (d) { return Math.sqrt(parseInt(d.value)); })
+      // .attr("stroke", function (d) { return color(parseInt(d.value)); })
+      .attr("stroke",link_color)
+      .attr("stroke-width", function (d) { return Math.sqrt(parseInt(1)); })
       // .attr("stroke-dasharray","0,2 1")
       .attr("src",function(d){ return d.source;})
       .attr("trg",function(d){return d.target;})
+      .attr("dev",function(d){return d.device;})
     
       
 
@@ -263,7 +268,7 @@ function mud_drawer (){
       link.attr("d", function(d) {
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y,
-            dr = 250/d.linknum;  //linknum is defined above
+            dr = 400/d.linknum;  //linknum is defined above
         return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;});
 
       node
@@ -275,12 +280,33 @@ function mud_drawer (){
     // node.on("mouseover",function(d){d3.select(d.links).style("stroke","pink");});
     node.on("mouseover",function(d){ 
       var current_node_links = d.links ; 
+      var current_device = d.id 
       d3.selectAll('path').each(function(d,i){ 
         // console.log("#####"  + JSON.stringify(current_node_links[0]) );
         for (var ll = 0; ll < current_node_links.length ; ll ++ ){
-          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"] ){
+          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && 
+              d3.select(this).attr("trg") == current_node_links[ll]["target"] && 
+              d3.select(this).attr("dev") == current_device 
+              ){
             // console.log("hi " + d3.select(this).attr("src"));
-            d3.select(this).style("stroke","pink");}
+            d3.select(this)
+              .style("stroke",link_hover_color)
+              .style("stroke-width", 2);
+
+            
+              totalLength = 10;
+              // repeat();
+              // function repeat() {
+                d3.select(this)
+                .attr("stroke-dasharray", totalLength + " " + totalLength/2)
+                .attr("stroke-dashoffset", totalLength*30)
+                .transition()
+                  .duration(10000)
+                  .ease(d3.easeLinear)
+                  .attr("stroke-dashoffset", 0)
+                  // .on("end", repeat);
+              // }
+            }
           }    
         }
         )
@@ -293,7 +319,14 @@ function mud_drawer (){
         for (var ll = 0; ll < current_node_links.length ; ll ++ ){
           if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"] ){
             // console.log("hi " + d3.select(this).attr("src"));
-            d3.select(this).style("stroke",function (d) { return color(parseInt(d.value)); });}
+            d3.select(this)
+              .style("stroke",link_color)
+              .style("stroke-width", 1);
+            totalLength = 0; 
+            d3.select(this)
+              .attr("stroke-dasharray", totalLength + " " + totalLength)
+              .attr("stroke-dashoffset", totalLength)
+            }
           }    
         }
         )
@@ -301,12 +334,9 @@ function mud_drawer (){
     });
 
 
-    link.on("mouseover", function(){ d3.select(this).style("stroke","pink");} );
-    link.on("mouseout", function(){ d3.select(this).style("stroke",function (d) { return color(parseInt(d.value)); }); });
-    //link.on("mouseover", function(d,i) { d3.select("#donut" + i).transition().style("fill", "#007DBC"); });
-    
-  // });
-  // d3.selectAll('line').each(function(){d3.select(this).style("stroke","pink");});
+    link.on("mouseover", function(){ d3.select(this).style("stroke",link_hover_color);} );
+    link.on("mouseout", function(){ d3.select(this).style("stroke",link_color)});
+  
 }
 
 

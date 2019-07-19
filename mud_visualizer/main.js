@@ -357,18 +357,15 @@ class Mud {
                     if (find_values_by_key(Object.values(this.all_nodes),'id').indexOf(destination) == -1) {
                         this.all_nodes.push({"group":String(4),"id":destination, "abstractions":["domain-names"]});
                     }
-                    // if (find_values_by_key(Object.values(this.all_links),'source').indexOf(this.model) == -1  ||  
-                        // find_values_by_key(Object.values(this.all_links),'target').indexOf(destination) == -1){
                         
-                        this.all_links.push({"source": this.model,"target":"Router","value": "10"});
-                        this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10"});
+                        this.all_links.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                        this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
 
-                        this.all_links.push({"source": "Internet","target":destination,"value": "10"});  
-                        this.link_of_current_node.push({"source": "Internet","target":destination,"value": "10"});
+                        this.all_links.push({"source": "Internet","target":destination,"value": "10", "device":this.model});  
+                        this.link_of_current_node.push({"source": "Internet","target":destination,"value": "10", "device":this.model});
 
-                        this.all_links.push({"source": "Router","target":"Internet","value": "10"})
-                        this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10"})
-                    // }
+                        this.all_links.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
+                        this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
                     
                     var node_exists = false
                     for (var node_idx = 0; node_idx < this.all_nodes.length; node_idx ++ ){
@@ -386,12 +383,12 @@ class Mud {
                     break;
                 case "local-networks":
                     if (find_values_by_key(Object.values(this.all_links),'source').indexOf(this.model) == -1){
-                        this.all_links.push({"source": this.model,"target":"Router","value": "10"});
-                        this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10"});
+                        this.all_links.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                        this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                         for (var n_idx = 0 ; n_idx < this.all_nodes.length ; n_idx++ ){
                             if (this.all_nodes[n_idx].group == '1') {
-                                this.all_links.push({"source": "Router","target":this.all_nodes[n_idx].id, "value": "10"});
-                                this.link_of_current_node.push({"source": "Router", "target":this.all_nodes[n_idx].id,"value": "10"});        
+                                this.all_links.push({"source": "Router","target":this.all_nodes[n_idx].id, "value": "10", "device":this.model});
+                                this.link_of_current_node.push({"source": "Router", "target":this.all_nodes[n_idx].id,"value": "10", "device":this.model});        
                             }
                         }
                     }

@@ -285,12 +285,46 @@ class Mud_Network {
         }
     }
 
+    update_samemanufacturer_links(){
+        for (var mud_idx = 0 ; mud_idx < this.Mud_list.length ; mud_idx ++ ){
+            var current_mud = this.Mud_list[mud_idx];
+            if (current_mud.abstractions.includes("same-manufacturer")){
+                for (var n_idx = 0 ; n_idx < this.allNodes.length ; n_idx++ ){
+                    if (current_mud.index_in_allnodes != n_idx && 
+                        this.allNodes[n_idx].group == '1' &&
+                        current_mud.manufacturer == this.allNodes[n_idx].manufacturer) {
+                            this.allLinks.push({"source": "Router","target":this.allNodes[n_idx].id, "value": "10", "device":current_mud.model});
+                            current_mud.link_of_current_node.push({"source": "Router", "target":this.allNodes[n_idx].id,"value": "10", "device":current_mud.model});        
+                    }
+                }
+            }
+        }
+    }
+
+    update_manufacturer_links(){
+        for (var mud_idx = 0 ; mud_idx < this.Mud_list.length ; mud_idx ++ ){
+            var current_mud = this.Mud_list[mud_idx];
+            if (current_mud.abstractions.includes("manufacturer")){
+                for (var n_idx = 0 ; n_idx < this.allNodes.length ; n_idx++ ){
+                    if (current_mud.index_in_allnodes != n_idx && 
+                        this.allNodes[n_idx].group == '1' &&
+                        current_mud.other_manufacturer.includes(this.allNodes[n_idx].manufacturer)) {
+                            this.allLinks.push({"source": "Router","target":this.allNodes[n_idx].id, "value": "10", "device":current_mud.model});
+                            current_mud.link_of_current_node.push({"source": "Router", "target":this.allNodes[n_idx].id,"value": "10", "device":current_mud.model});        
+                    }
+                }
+            }
+        }
+    }
+
     create_network(){
         for (var current_mud_name in  this.multi_mud_json){
             var current_mud = new Mud(this.multi_mud_json[current_mud_name], this.non_unique_modelnames, this.allNodes, this.allLinks)
             this.Mud_list = this.Mud_list.concat(current_mud)
         }
         this.updat_localnetworks_links(); 
+        this.update_samemanufacturer_links();
+        this.update_manufacturer_links();
     }
 
 }
@@ -319,6 +353,8 @@ class Mud {
         this.allLinks = allLinks; 
         this.link_of_current_node = [];
         this.index_in_allnodes = -1;
+        this.manufacturer = this.extract_manufacturer()
+        this.other_manufacturer = this.extract_others_manufacturer();
         this.extract_device_policies();
         this.extract_FromDevice_links();
     }
@@ -373,6 +409,7 @@ class Mud {
             if (!this.abstractions.includes(abstract)){
                 this.abstractions = this.abstractions.concat(abstract);
             }
+            var abstract_matched = true;
             switch(abstract){
                 case "domain-names":
                     var destination = find_values_by_key(ace,"ietf-acldns:dst-dnsname")[0];
@@ -389,36 +426,63 @@ class Mud {
                     this.allLinks.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
                     this.link_of_current_node.push({"source": "Router","target":"Internet","value": "10", "device":this.model})
 
-                    if (!this.node_is_in_allNodes()){
-                        this.index_in_allnodes = this.allNodes.length; 
-                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node});
-                    }
                     break;
                 case "local-networks":
+                case "same-manufacturer":
+                case "manufacturer":
                     if (!this.is_connected_to_Router()){
                         this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                         this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                     }
-                    if (!this.node_is_in_allNodes()){
-                        this.index_in_allnodes = this.allNodes.length; 
-                        this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node});
-                    }
                     break;
-                case "same-manufacturer":
-                        if (!this.is_connected_to_Router()){
-                            this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
-                            this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
-                        }
-                        if (!this.node_is_in_allNodes()){
-                            this.index_in_allnodes = this.allNodes.length; 
-                            this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node});
-                        }
-                        break;
-        
+                    // if (!this.is_connected_to_Router()){
+                    //     this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                    //     this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                    // }
+                    // break;
+                default: 
+                    abstract_matched = false; 
+            }
+            if (abstract_matched && !this.node_is_in_allNodes()){
+                this.index_in_allnodes = this.allNodes.length; 
+                this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node, "manufacturer": this.manufacturer});
             }   
         }
     }
    
+    extract_manufacturer(){
+        var mud_url = find_values_by_key(this.mudfile,'mud-url')[0];
+        let psl = require('psl');
+        return psl.get(this.extractHostname(mud_url)); 
+    }
+
+    extract_others_manufacturer(){
+        return this.get_unique_values(find_values_by_key(this.mudfile,"manufacturer"));
+    }
+
+    get_unique_values(inp_list){
+        return [... new Set(inp_list)];
+    }
+
+    extractHostname(url) {
+        var hostname;
+        //find & remove protocol (http, ftp, etc.) and get hostname
+    
+        if (url.indexOf("//") > -1) {
+            hostname = url.split('/')[2];
+        }
+        else {
+            hostname = url.split('/')[0];
+        }
+    
+        //find & remove port number
+        hostname = hostname.split(':')[0];
+        //find & remove "?"
+        hostname = hostname.split('?')[0];
+    
+        return hostname;
+    }
+
     node_is_in_allNodes(){
         return (this.index_in_allnodes != -1)
     }

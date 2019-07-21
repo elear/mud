@@ -14,7 +14,7 @@ RUN chmod +x /init/gunicorn
 RUN rm -rf /app/muddy-api/Dockerfile
 
 # actual image
-FROM gcr.io/distroless/python3
+FROM python:3.7-slim
 COPY --from=build-env /app /app
 COPY --from=build-env /usr/local/lib/python3.7/site-packages /usr/local/lib/python3.7/site-packages
 COPY --from=build-env /init /init

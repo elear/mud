@@ -11,8 +11,7 @@ RUN pip install -r /build/muddy-api/requirements.txt --trusted-host pypi.org --t
 
 RUN cp /usr/local/bin/gunicorn /init/gunicorn
 RUN chmod +x /init/gunicorn
-RUN rm -rf /app/muddy-api/Dockerfile && \
-    rm -rf /app/muddy-api/docker-compose.yml
+RUN rm -rf /app/muddy-api/Dockerfile
 
 # actual image
 FROM gcr.io/distroless/python3

@@ -9,8 +9,15 @@
   "author": "Vafa Andalibi",
   "license": "MIT",
   "dependencies": {
+    "alertify": "^0.3.0",
+    "alertifyjs": "^1.11.4",
     "d3": "^5.9.7",
     "electron": "^5.0.6",
-    "electron-debug": "^3.0.1"
+    "electron-debug": "^3.0.1",
+    "html-escape": "^2.0.0",
+    "sweetalert2": "^8.14.0",
+    "uuid": "^3.3.2",
+    "vex-dialog": "^1.1.0",
+    "vex-js": "^4.1.0"
   }
 }

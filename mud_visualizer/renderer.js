@@ -472,7 +472,6 @@ $(":not(#mudSelectionDiv)").click(function () {
 });
 
 function opengithub(){
-  // require("shell").openExternal("https://github.com/vafa-Andalibi/mudvisualizer");
   const { shell } = require('electron');
 let url = "https://github.com/vafa-Andalibi/mudvisualizer";
 shell.openExternal(url);

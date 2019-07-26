@@ -7,10 +7,6 @@ class Config(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET = os.getenv('SECRET')
-    DATABASE = os.getenv('DATABASE')
-    DATABASE_HOST = os.getenv('DATABASE_HOST')
-    DATABASE_USER = os.getenv('DATABASE_USER')
-    DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD')
 
 
 class DevelopmentConfig(Config):

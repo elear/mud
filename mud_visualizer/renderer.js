@@ -277,9 +277,31 @@ var simulation = d3.forceSimulation()
 
   node.append("text")
     .attr("font-size", "0.8em")
-    .attr("dx", 5)
+    .attr("dx", function (d) {
+      switch (d.group) {
+        case "2": //router logo x axis 
+          return -30;
+        case "3": // intenret logo x axis 
+          return 5;
+        case "4": 
+          return -150;
+        default:
+          return 5;
+      }
+    })
     // .attr("dy", ".35em")
-    .attr("dy", -25)
+    .attr("dy", function (d) {
+      switch (d.group) {
+        case "2": //router logo y axis 
+          return 45;
+        case "3": // intenret logo y axis 
+          return -30;
+        case "4": 
+          return -25;
+        default:
+          return -20;
+      }
+    })
     .attr("x", +8)
     .text(function (d) { return d.id });
 

@@ -1,4 +1,4 @@
-{"mud1":{
+{
     "ietf-mud:mud": {
       "mud-version": 1,
       "mud-url": "https://wemo.com/crockpot",
@@ -248,4 +248,4 @@
       ]
     }
   }
-  }
+  

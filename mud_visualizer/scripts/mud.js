@@ -5,23 +5,28 @@ const Swal = require('sweetalert2');
 //////////////////////////////////
 
 class Mud_Network {
-    constructor(multi_mud_json) {
+    constructor() {
         this.ready_to_draw = false;
-        this.multi_mud_json = multi_mud_json;
+        this.all_mud_jsons = [];
         this.allNodes = [];
         this.allLinks = [];
         this.abstractions = [];
-        this.Mud_list = [];
+        this.all_mud_objects = [];
         this.allAbstractions = [];
         this.muds_with_controller = 0;  // this includes my-controllers too 
         this.controllers = [];
         this.my_controllers = [];
         this.mud_with_promises_raw = [];
         this.mud_with_promises_processed = [];
-        this.all_modelnames = find_values_by_key(multi_mud_json, "model-name");
-        this.non_unique_modelnames = this.get_non_unique_modelnames();
+        this.all_modelnames = [];
         this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [] });
         this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [] });
+    }
+
+    add_mudfile(mud_json){
+        this.all_mud_jsons = this.all_mud_jsons.concat({'data':mud_json, 'visible': true, 'processed': false });
+        this.all_modelnames = this.all_modelnames.concat(find_values_by_key(mud_json, "model-name"));
+        this.non_unique_modelnames = this.get_non_unique_modelnames();
     }
 
     get_non_unique_modelnames() {
@@ -42,8 +47,8 @@ class Mud_Network {
     }
 
     updat_localnetworks_links() {
-        for (var mud_idx = 0; mud_idx < this.Mud_list.length; mud_idx++) {
-            var current_mud = this.Mud_list[mud_idx];
+        for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+            var current_mud = this.all_mud_objects[mud_idx];
             if (current_mud.abstractions.includes("local-networks")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
                     if (current_mud.index_in_allnodes != n_idx && this.allNodes[n_idx].group == '1') {
@@ -56,8 +61,8 @@ class Mud_Network {
     }
 
     update_samemanufacturer_links() {
-        for (var mud_idx = 0; mud_idx < this.Mud_list.length; mud_idx++) {
-            var current_mud = this.Mud_list[mud_idx];
+        for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+            var current_mud = this.all_mud_objects[mud_idx];
             if (current_mud.abstractions.includes("same-manufacturer")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
                     if (current_mud.index_in_allnodes != n_idx &&
@@ -72,8 +77,8 @@ class Mud_Network {
     }
 
     update_manufacturer_links() {
-        for (var mud_idx = 0; mud_idx < this.Mud_list.length; mud_idx++) {
-            var current_mud = this.Mud_list[mud_idx];
+        for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+            var current_mud = this.all_mud_objects[mud_idx];
             if (current_mud.abstractions.includes("manufacturer")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
                     if (current_mud.index_in_allnodes != n_idx &&
@@ -180,21 +185,24 @@ class Mud_Network {
     }
 
     create_network() {
-
-        for (var current_mud_name in this.multi_mud_json) {
-            var current_mud = new Mud(this.multi_mud_json[current_mud_name], this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.promise);
-            if (current_mud.has_promise()) {
-                this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
+        
+        for (var current_mud_name in this.all_mud_jsons) {
+            if (!this.all_mud_jsons[current_mud_name].processed){
+                var current_mud = new Mud(this.all_mud_jsons[current_mud_name].data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.promise);
+                if (current_mud.has_promise()) {
+                    this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
+                }
+    
+                this.all_mud_objects = this.all_mud_objects.concat(current_mud);
+                this.all_mud_jsons[current_mud_name].processed = true; 
+                $("#fileNotLoaded").hide();
+                $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value=' + current_mud_name+ ' checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
             }
-
-            this.Mud_list = this.Mud_list.concat(current_mud)
         }
         this.fulfill_promises();
         this.updat_localnetworks_links();
         this.update_samemanufacturer_links();
         this.update_manufacturer_links();
-
-
     }
 }
 

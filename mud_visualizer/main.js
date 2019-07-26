@@ -163,7 +163,7 @@ function openAboutWindow(){
     aboutWindow.setMenu(null);
     // // load html in window 
     aboutWindow.loadURL(url.format({
-        pathname: path.join(__dirname,'about.html'),
+        pathname: path.join(__dirname,'html/about.html'),
         protocol: 'file:',
         slashes: true
     }));

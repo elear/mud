@@ -152,41 +152,41 @@
 
 
 function mud_drawer(inp_json) {
-var graph = JSON.parse(JSON.stringify(inp_json));
-var svg = d3.select("svg"),
-  //width = +svg.attr("width"),
-  //height = +svg.attr("height");
-  width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
-  height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  var graph = JSON.parse(JSON.stringify(inp_json));
+  var svg = d3.select("svg"),
+    //width = +svg.attr("width"),
+    //height = +svg.attr("height");
+    width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+    height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
-d3.select("svg").attr("height", height)
-d3.select("svg").attr("width", width)
+  d3.select("svg").attr("height", height)
+  d3.select("svg").attr("width", width)
 
-var color = d3.scaleOrdinal(d3.schemeCategory20);
+  var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-var simulation = d3.forceSimulation()
-  .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
-  .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
-  .force("x", d3.forceX(function (d) {
-    if (d.group === "1" || d.group == "0") {
-      return 4 * (width) / 5
-    } else if (d.group === "2") {
-      return 3 * (width) / 5
-    } else if (d.group === "3") {
-      return 2 * (width) / 5
-    } else if (d.group === "4") {
-      return 1 * (width) / 5
-    } else {
-      return 0 * (width) / 5
-    }
-  }).strength(1))
-  .force("y", d3.forceY(height / 2))
-  // .force("center", d3.forceCenter((width) / 2, height / 2))
-  .force("collision", d3.forceCollide().radius(35));
+  var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
+    .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
+    .force("x", d3.forceX(function (d) {
+      if (d.group === "1" || d.group == "0") {
+        return 4 * (width) / 5
+      } else if (d.group === "2") {
+        return 3 * (width) / 5
+      } else if (d.group === "3") {
+        return 2 * (width) / 5
+      } else if (d.group === "4") {
+        return 1 * (width) / 5
+      } else {
+        return 0 * (width) / 5
+      }
+    }).strength(1))
+    .force("y", d3.forceY(height / 2))
+    // .force("center", d3.forceCenter((width) / 2, height / 2))
+    .force("collision", d3.forceCollide().radius(35));
 
-// ######################################
-// # Read graph.json and draw SVG graph #
-// ######################################
+  // ######################################
+  // # Read graph.json and draw SVG graph #
+  // ######################################
 
 
   // d3.selectAll("svg > *").remove();
@@ -196,9 +196,6 @@ var simulation = d3.forceSimulation()
 
   link_color = "black";
   link_hover_color = "green";
-  // var remote = require('electron').remote;
-  // graph = JSON.parse(remote.getGlobal('sharedObj'));
-
 
   for (var i = 0; i < graph.links.length; i++) {
     graph.links[i].linknum = 1;
@@ -221,9 +218,6 @@ var simulation = d3.forceSimulation()
     .attr("src", function (d) { return d.source; })
     .attr("trg", function (d) { return d.target; })
     .attr("dev", function (d) { return d.device; })
-
-
-
 
   var node = svg.append("g")
     .attr("class", "nodes")
@@ -255,7 +249,7 @@ var simulation = d3.forceSimulation()
           return ("img/group" + d.group + ".svg");
       }
     })
-    .attr("width",  function (d) {
+    .attr("width", function (d) {
       switch (d.group) {
         case "3": // make the internet logo bigger than others
           return 100;
@@ -263,7 +257,7 @@ var simulation = d3.forceSimulation()
           return 50;
       }
     })
-    .attr("height",  function (d) {
+    .attr("height", function (d) {
       switch (d.group) {
         case "3": // make the internet logo bigger than others
           return 100;
@@ -283,7 +277,7 @@ var simulation = d3.forceSimulation()
           return -30;
         case "3": // intenret logo x axis 
           return 5;
-        case "4": 
+        case "4":
           return -150;
         default:
           return 5;
@@ -296,7 +290,7 @@ var simulation = d3.forceSimulation()
           return 45;
         case "3": // intenret logo y axis 
           return -30;
-        case "4": 
+        case "4":
           return -25;
         default:
           return -20;
@@ -317,9 +311,9 @@ var simulation = d3.forceSimulation()
 
   function ticked() {
     link
-        .attr("d", linkArc);
+      .attr("d", linkArc);
     node
-        .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
+      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
   }
 
   function linkArc(d) {
@@ -376,7 +370,7 @@ var simulation = d3.forceSimulation()
       }
     }
     )
-    // d3.selectAll('g.link').each(function(){d3.select(this).style("stroke","pink");});
+
   });
 
 
@@ -411,7 +405,7 @@ var network;
 var network_data;
 require('electron').ipcRenderer.on('draw', (event, message) => {
   var remote = require('electron').remote;
-network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
+  network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
   network.create_network()
 
 
@@ -422,18 +416,12 @@ network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
     }
     clearInterval(interval);
 
-     network_data = network.get_nodes_links_json();
+    network_data = network.get_nodes_links_json();
     mud_drawer(network_data);
 
   }, 100);
 
 })
-
-
-function drawer(){
-  d3.selectAll("svg > *").remove();
-  mud_drawer(network_data);
-}
 
 
 require('electron').ipcRenderer.on('resize', (event, message) => {
@@ -442,9 +430,6 @@ require('electron').ipcRenderer.on('resize', (event, message) => {
     height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
   d3.select("svg").attr("height", height)
   d3.select("svg").attr("width", width)
-  // to redraw : 
-  // d3.selectAll("svg > *").remove();
-  // mud_drawer();
 })
 
 
@@ -453,6 +438,7 @@ require('electron').ipcRenderer.on('clearsvg', (event, message) => {
 });
 
 
+// this is for fading in/out select mud-file menu
 var mudfile_select_menu_open = false;
 
 $("#SelectMudFiles").click(function () {
@@ -471,8 +457,17 @@ $(":not(#mudSelectionDiv)").click(function () {
   }
 });
 
-function opengithub(){
+
+
+// used in mainWindow.html in refresh button
+function drawer() {
+  d3.selectAll("svg > *").remove();
+  mud_drawer(network_data);
+}
+
+// used in about.html page
+function opengithub() {
   const { shell } = require('electron');
-let url = "https://github.com/vafa-Andalibi/mudvisualizer";
-shell.openExternal(url);
+  let url = "https://github.com/vafa-Andalibi/mudvisualizer";
+  shell.openExternal(url);
 }

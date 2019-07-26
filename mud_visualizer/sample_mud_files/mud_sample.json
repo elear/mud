@@ -1,0 +1,1326 @@
+{
+  "mudfile1": {
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://iot-device.example.com/dnsname",
+      "last-update": "2019-01-15T10:22:47+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is an example of a device that just wants to talk to its cloud service",
+      "mfg-name": "Example, Inc.",
+      "documentation": "https://iot-device.example.com/doc/dnsname",
+      "model-name": "smart cam",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4fr"
+            },
+            {
+              "name": "mud-96898-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4to"
+            },
+            {
+              "name": "mud-96898-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-96898-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:src-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:dst-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:src-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:dst-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mudfile2": {
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://iot-device.example.com/dnsname",
+      "last-update": "2019-01-15T10:22:47+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is an example of a device that just wants to talk to its cloud service",
+      "mfg-name": "Example, Inc.",
+      "documentation": "https://iot-device.example.com/doc/dnsname",
+      "model-name": "smart cam",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4fr"
+            },
+            {
+              "name": "mud-96898-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4to"
+            },
+            {
+              "name": "mud-96898-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-96898-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:src-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:dst-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:src-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:dst-dnsname": "cloud-service.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mudfile3": {
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://iot-device.example.com/dnsname",
+      "last-update": "2019-01-15T10:22:47+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is an example of a device that just wants to talk to its cloud service",
+      "mfg-name": "Example, Inc.",
+      "documentation": "https://iot-device.example.com/doc/dnsname",
+      "model-name": "light",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4fr"
+            },
+            {
+              "name": "mud-96898-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4to"
+            },
+            {
+              "name": "mud-96898-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-96898-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:src-dnsname": "luminaire.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:dst-dnsname": "luminaire.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:src-dnsname": "luminaire.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:dst-dnsname": "luminaire.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mudfile4": {
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://iot-device.example.com/dnsname",
+      "last-update": "2019-01-15T10:22:47+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is an example of a device that just wants to talk to its cloud service",
+      "mfg-name": "Example, Inc.",
+      "documentation": "https://iot-device.example.com/doc/dnsname",
+      "model-name": "fridge",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4fr"
+            },
+            {
+              "name": "mud-96898-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-96898-v4to"
+            },
+            {
+              "name": "mud-96898-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-96898-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:src-dnsname": "fridge.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:dst-dnsname": "fridge.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:src-dnsname": "fridge.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-96898-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:dst-dnsname": "fridge.example.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mudfile5": {
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://samplemotion.com/motion",
+      "last-update": "2019-07-17T12:59:30+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "Motion detection",
+      "mfg-name": "Motion Inc. ",
+      "documentation": "https://samplemotion.com/docs",
+      "model-name": "motion",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-35723-v4fr"
+            },
+            {
+              "name": "mud-35723-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-35723-v4to"
+            },
+            {
+              "name": "mud-35723-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-35723-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "loc0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 225
+                    },
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 123
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-35723-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "loc0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 225
+                    },
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 123
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-35723-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "loc0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv6": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 225
+                    },
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 123
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-35723-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "loc0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv6": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 225
+                    },
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 123
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mudfile6":
+  {
+      "ietf-mud:mud": {
+        "mud-version": 1,
+        "mud-url": "https://iot-device.example.com/toaster",
+        "last-update": "2019-01-15T10:18:08+00:00",
+        "cache-validity": 48,
+        "is-supported": true,
+        "systeminfo": "This is an example device that just wants to talk to devices from the same manufacturer",
+        "mfg-name": "Example, Inc.",
+        "documentation": "https://iot-device.example.com/doc/toaster",
+        "model-name": "toaster",
+        "from-device-policy": {
+          "access-lists": {
+            "access-list": [
+              {
+                "name": "mud-99852-v4fr"
+              }
+            ]
+          }
+        },
+        "to-device-policy": {
+          "access-lists": {
+            "access-list": [
+              {
+                "name": "mud-99852-v4to"
+              }
+            ]
+          }
+        }
+      },
+      "ietf-access-control-list:acls": {
+        "acl": [
+          {
+            "name": "mud-99852-v4to",
+            "type": "ipv4-acl-type",
+            "aces": {
+              "ace": [
+                {
+                  "name": "myman0-todev",
+                  "matches": {
+                    "ietf-mud:mud": {
+                      "same-manufacturer": [
+                        null
+                      ]
+                    }
+                  },
+                  "actions": {
+                    "forwarding": "accept"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "mud-99852-v4fr",
+            "type": "ipv4-acl-type",
+            "aces": {
+              "ace": [
+                {
+                  "name": "myman0-frdev",
+                  "matches": {
+                    "ietf-mud:mud": {
+                      "same-manufacturer": [
+                        null
+                      ]
+                    }
+                  },
+                  "actions": {
+                    "forwarding": "accept"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+  },
+  "mudfile7":{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://bmw.com/remotelight",
+      "last-update": "2019-07-20T14:37:14+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "motion sesor 2 ",
+      "mfg-name": "Sensing2 Inc.",
+      "documentation": "https://www.motion2.com/doc",
+      "model-name": "remotelight",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-95478-v4fr"
+            },
+            {
+              "name": "mud-95478-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-95478-v4to"
+            },
+            {
+              "name": "mud-95478-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-95478-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "man0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "samplemotion.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-95478-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "man0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "samplemotion.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-95478-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "man0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "samplemotion.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-95478-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "man0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "samplemotion.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mudfile8":{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://ring.com/doorbell",
+      "last-update": "2019-07-22T18:03:31+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is a ring doorbell that has a controller class",
+      "mfg-name": "ring",
+      "documentation": "https://www.ring.com/doc",
+      "model-name": "doorbell",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-99356-v4fr"
+            },
+            {
+              "name": "mud-99356-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-99356-v4to"
+            },
+            {
+              "name": "mud-99356-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-99356-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "https://ring.com/doorbellclass"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-99356-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "https://ring.com/doorbellclass"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-99356-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "https://ring.com/doorbellclass"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-99356-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "https://ring.com/doorbellclass"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mud1":{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://wemo.com/crockpot",
+      "last-update": "2019-07-22T18:31:00+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "this is a crockpot with controller",
+      "mfg-name": "wemo",
+      "documentation": "https://wemo.com/doc",
+      "model-name": "crockpot",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-61392-v4fr"
+            },
+            {
+              "name": "mud-61392-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-61392-v4to"
+            },
+            {
+              "name": "mud-61392-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-61392-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-61392-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-61392-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-61392-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mud8":{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://wemo.com/crockpot",
+      "last-update": "2019-07-22T18:31:00+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "this is a crockpot with controller",
+      "mfg-name": "wemo",
+      "documentation": "https://wemo.com/doc",
+      "model-name": "crockpot",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-61392-v4fr"
+            },
+            {
+              "name": "mud-61392-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-61392-v4to"
+            },
+            {
+              "name": "mud-61392-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-61392-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-61392-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-61392-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-61392-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "mud9":{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://amazon.com/dash",
+      "last-update": "2019-07-24T16:23:29+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is the amazon dash button",
+      "mfg-name": "amazon",
+      "documentation": "https://amazon.com/docs",
+      "model-name": "dash",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-50384-v4fr"
+            },
+            {
+              "name": "mud-50384-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-50384-v4to"
+            },
+            {
+              "name": "mud-50384-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-50384-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "http://amazon.com/dashserver"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-50384-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "http://amazon.com/dashserver"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-50384-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "http://amazon.com/dashserver"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-50384-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "ent0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "controller": "http://amazon.com/dashserver"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

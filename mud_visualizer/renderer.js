@@ -151,6 +151,7 @@
 
 // var $ = require("jquery");
 
+var excluded_models = [];
 function mud_drawer(inp_json) {
   var graph = JSON.parse(JSON.stringify(inp_json));
   var svg = d3.select("svg"),
@@ -210,7 +211,9 @@ function mud_drawer(inp_json) {
 
   var link = svg.append("g")
     .selectAll("path")
-    .data(graph.links)
+    .data(graph.links.filter( function(d) {
+      return !have_common_element(excluded_models, d.device); // this filters the mudfile links that are deselected in the selection menu
+    })) 
     .enter().append("svg:path")
     .attr("fill", "none")
     .attr("stroke", link_color)
@@ -222,7 +225,9 @@ function mud_drawer(inp_json) {
   var node = svg.append("g")
     .attr("class", "nodes")
     .selectAll("a")
-    .data(graph.nodes)
+    .data(graph.nodes.filter( function(d) {
+      return set_difference(d.device,excluded_models).length > 0 || excluded_models.length == 0 ; // this filters the mudfile links that are deselected in the selection menu
+    }))
     .enter().append("a")
     .attr("target", '_blank')
     .attr("xlink:href", function (d) { return (window.location.href + '?device=' + d.id) });
@@ -470,9 +475,10 @@ $("div:not(#mudSelectionDiv)").click(function () {
 $('body').on('click', 'input[id="mudcheckbox"]', function () {
   // $("#fileNotLoaded").show();
   console.log("hi");
+  excluded_models = excluded_models.concat($(this).val());
+  d3.selectAll("svg > *").remove();
+  drawer();
 });
-
-
 
 // used in mainWindow.html in refresh button
 function drawer() {

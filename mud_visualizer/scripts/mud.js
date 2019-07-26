@@ -19,8 +19,8 @@ class Mud_Network {
         this.mud_with_promises_raw = [];
         this.mud_with_promises_processed = [];
         this.all_modelnames = [];
-        this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [] });
-        this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [] });
+        this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [] ,"device": ['Router']});
+        this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [] ,"device": ['Internet']});
     }
 
     add_mudfile(mud_json){
@@ -52,8 +52,8 @@ class Mud_Network {
             if (current_mud.abstractions.includes("local-networks")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
                     if (current_mud.index_in_allnodes != n_idx && this.allNodes[n_idx].group == '1') {
-                        this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": current_mud.model });
-                        current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": current_mud.model });
+                        this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
+                        current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
                     }
                 }
             }
@@ -68,8 +68,8 @@ class Mud_Network {
                     if (current_mud.index_in_allnodes != n_idx &&
                         this.allNodes[n_idx].group == '1' &&
                         current_mud.manufacturer == this.allNodes[n_idx].manufacturer) {
-                        this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": current_mud.model });
-                        current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": current_mud.model });
+                        this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
+                        current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
                     }
                 }
             }
@@ -84,8 +84,8 @@ class Mud_Network {
                     if (current_mud.index_in_allnodes != n_idx &&
                         this.allNodes[n_idx].group == '1' &&
                         current_mud.other_manufacturer.includes(this.allNodes[n_idx].manufacturer)) {
-                        this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": current_mud.model });
-                        current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": current_mud.model });
+                        this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
+                        current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
                     }
                 }
             }
@@ -102,8 +102,8 @@ class Mud_Network {
                 if (!current_mud.allNodes_includes(my_controller_name)) {
                     this.allNodes.push({ "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] });
                 }
-                this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": current_mud.model });
-                current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": current_mud.model });
+                this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
+                current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
             }
             current_mud.index_in_allnodes = this.allNodes.length;
             this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstractions": current_mud.abstractions, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer });
@@ -123,11 +123,11 @@ class Mud_Network {
             var tmp_mud = this.mud_with_promises_raw[0];
             var style =
                 '<style>  \
-            dynamic {color: brown; \
-                    font-weight: bold} \
-            input {  \
-                      width: 80%;} \
-        </style>'
+                        dynamic {color: brown; \
+                               font-weight: bold} \
+                         input {  \
+                                 width: 80%;} \
+                 </style>'
             var egress_html = style +
                 // '<div style="border: 1px solid #000000;">' +     
                 '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
@@ -185,7 +185,6 @@ class Mud_Network {
     }
 
     create_network() {
-        
         for (var current_mud_name in this.all_mud_jsons) {
             if (!this.all_mud_jsons[current_mud_name].processed){
                 var current_mud = new Mud(this.all_mud_jsons[current_mud_name].data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.promise);
@@ -196,7 +195,7 @@ class Mud_Network {
                 this.all_mud_objects = this.all_mud_objects.concat(current_mud);
                 this.all_mud_jsons[current_mud_name].processed = true; 
                 $("#fileNotLoaded").hide();
-                $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value=' + current_mud_name+ ' checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
+                $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model+ '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
             }
         }
         this.fulfill_promises();
@@ -352,48 +351,53 @@ class Mud {
                 case "domain-names":
                     var destination = find_values_by_key(ace, "ietf-acldns:dst-dnsname")[0];
                     if (!this.allNodes_includes(destination)) {
-                        this.allNodes.push({ "group": String(4), "id": destination, "abstractions": ["domain-names"] });
+                        this.allNodes.push({ "group": String(4), "id": destination, "abstractions": ["domain-names"], device: [this.model] });
+                    }
+                    else{
+                        let tmp_idx = find_values_by_key(Object.values(this.allNodes), 'id').indexOf(destination);
+                        if ( !this.allNodes[tmp_idx].device.includes(this.model) )
+                            this.allNodes[tmp_idx].device = this.allNodes[tmp_idx].device.concat(this.model);
                     }
 
-                    this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
-                    this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
+                    this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                    this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
 
-                    this.allLinks.push({ "source": "Internet", "target": destination, "value": "10", "device": this.model });
-                    this.link_of_current_node.push({ "source": "Internet", "target": destination, "value": "10", "device": this.model });
+                    this.allLinks.push({ "source": "Internet", "target": destination, "value": "10", "device": [this.model] });
+                    this.link_of_current_node.push({ "source": "Internet", "target": destination, "value": "10", "device": [this.model] });
 
-                    this.allLinks.push({ "source": "Router", "target": "Internet", "value": "10", "device": this.model })
-                    this.link_of_current_node.push({ "source": "Router", "target": "Internet", "value": "10", "device": this.model })
+                    this.allLinks.push({ "source": "Router", "target": "Internet", "value": "10", "device": [this.model] })
+                    this.link_of_current_node.push({ "source": "Router", "target": "Internet", "value": "10", "device": [this.model] })
 
                     break;
                 case "local-networks":
                 case "same-manufacturer":
                 case "manufacturer":
                     if (!this.is_connected_to_Router()) {
-                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
-                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
+                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
                     }
                     break;
                 case "my-controller":
                     this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
                     if (!this.is_connected_to_Router()) {
-                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
-                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
+                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
                     }
                     break;
                 case "controller":
                     var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
                     // this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'controller' ,'keys': ['controller-name', 'controller-IP-address'],'values':[]});
                     if (!this.is_connected_to_Router()) {
-                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
-                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": this.model });
+                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
                     }
                     if (!find_values_by_key(this.allNodes, 'id').includes(controller_class)) { // add controller to nodes if it's not there
-                        this.allNodes.push({ "group": String(0), "id": controller_class, "abstractions": ["controller"] });
-                        this.allLinks.push({ "source": controller_class, "target": "Router", "value": "10", "device": this.model });
+                        this.allNodes.push({ "group": String(0), "id": controller_class, "abstractions": ["controller"] , "device": [this.model]});
+                        this.allLinks.push({ "source": controller_class, "target": "Router", "value": "10", "device": [this.model] });
                     }
 
-                    this.allLinks.push({ "source": "Router", "target": controller_class, "value": "10", "device": this.model });
-                    this.link_of_current_node.push({ "source": "Router", "target": controller_class, "value": "10", "device": this.model });
+                    this.allLinks.push({ "source": "Router", "target": controller_class, "value": "10", "device": [this.model] });
+                    this.link_of_current_node.push({ "source": "Router", "target": controller_class, "value": "10", "device": [this.model] });
 
                     break
                 default:
@@ -401,7 +405,7 @@ class Mud {
             }
             if (abstract_matched && abstract != "my-controller" && !this.node_is_in_allNodes()) {
                 this.index_in_allnodes = this.allNodes.length;
-                this.allNodes.push({ "group": String(1), "id": this.model, "abstractions": this.abstractions, "links": this.link_of_current_node, "manufacturer": this.manufacturer });
+                this.allNodes.push({ "group": String(1), "id": this.model, "abstractions": this.abstractions, "links": this.link_of_current_node, "manufacturer": this.manufacturer, device: [this.model] });
             }
         }
     }

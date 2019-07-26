@@ -25,3 +25,15 @@ function unique(inp_list) {
     return [... new Set(inp_list)];
 }
 
+
+function have_common_element(arr1, arr2){
+    let common = arr1.filter(x=> arr2.includes(x));
+    if (common.length > 0) {
+        return true;
+    }
+    return false; 
+}
+
+function set_difference(arr1, arr2){
+    return arr1.filter(x=> !arr2.includes(x));
+}

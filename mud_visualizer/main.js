@@ -7,7 +7,7 @@ var fs = require('fs');
 const {app, BrowserWindow, Menu} = electron; 
 
 let mainWindow; 
-let addWindow; 
+
 var json_data_loaded = false;
 // Listen for app to be ready 
 app.on('ready',function(){
@@ -56,23 +56,6 @@ app.on('ready',function(){
 
 });
 
-// handle new windows 
-// function createAddWindow(){
-
-//         //create new window 
-//         addWindow = new BrowserWindow({
-//             width: 300, 
-//             height: 200, 
-//             title: 'Add shopping list item'
-//         });
-//         // load html in window 
-//         addWindow.loadURL(url.format({
-//             pathname: path.join(__dirname,'addWindow.html'),
-//             protocol: 'file:',
-//             slashes: true
-//         }));
-
-// }
 
 function find_values_by_key(json_data, target_key, partial = false) {
     output = []
@@ -104,7 +87,7 @@ const mainMenuTemplate = [
         submenu:[
             {
                 
-                label: 'Open',
+                label: 'Open Mud File',
                 accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
                 click(){
                     mainWindow.webContents.send('clearsvg', 'clearsvg');
@@ -123,12 +106,6 @@ const mainMenuTemplate = [
                                 return;
                             }
                             global.sharedObj = data; 
-
-                            // network = new Mud_Network(JSON.parse(data));
-                            // network.create_network()
-                            // network_data = network.get_nodes_links_json();
-
-                            // global.sharedObj = JSON.stringify(network_data); 
                             mainWindow.webContents.send('draw', 'draw')
                         });
                         
@@ -150,13 +127,46 @@ const mainMenuTemplate = [
         label: "Run",
         submenu:[
             {
-                label: "Reload",
+                label: "Reset",
                 accelerator: process.platform == 'darwin' ? 'Command+R' : 'Ctrl+R',
                 click(){
                     mainWindow.reload();
                 }
             }
         ]
+    },
+    {
+        label: "Help",
+        submenu:[
+            {
+                label: "About",
+                // accelerator: process.platform == 'darwin' ? 'Command+H' : 'Ctrl+H',
+                click(){
+                    openAboutWindow();
+                }
+            }
+        ]
     }
 ]
+
+let aboutWindow; 
+function openAboutWindow(){
+    //create new window 
+    aboutWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+        width: 300, 
+        height: 250, 
+        title: 'About'
+    });
+    aboutWindow.setMenu(null);
+    // // load html in window 
+    aboutWindow.loadURL(url.format({
+        pathname: path.join(__dirname,'about.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+
+}
 

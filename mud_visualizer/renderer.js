@@ -432,23 +432,7 @@ network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
 
 function drawer(){
   d3.selectAll("svg > *").remove();
-  // var remote = require('electron').remote;
-  // network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
-  // network.create_network()
   mud_drawer(network_data);
-
-  // var interval = setInterval(function () {
-  //   // get elem
-  //   if (network.ready_to_draw == false) {
-  //     return;
-  //   }
-  //   clearInterval(interval);
-
-  //   network_data = network.get_nodes_links_json();
-  //   mud_drawer(network_data);
-
-  // }, 100);
-
 }
 
 
@@ -473,16 +457,23 @@ var mudfile_select_menu_open = false;
 
 $("#SelectMudFiles").click(function () {
   if (mudfile_select_menu_open == false) {
-    $("#welcomeDiv").fadeIn("slow", function () {
+    $("#mudSelectionDiv").fadeIn("slow", function () {
       mudfile_select_menu_open = true;
     });
   }
 });
 
-$(":not(#welcomeDiv)").click(function () {
+$(":not(#mudSelectionDiv)").click(function () {
   if (mudfile_select_menu_open == true) {
-    $("#welcomeDiv").fadeOut("slow", function () {
+    $("#mudSelectionDiv").fadeOut("slow", function () {
       mudfile_select_menu_open = false;
     });
   }
 });
+
+function opengithub(){
+  // require("shell").openExternal("https://github.com/vafa-Andalibi/mudvisualizer");
+  const { shell } = require('electron');
+let url = "https://github.com/vafa-Andalibi/mudvisualizer";
+shell.openExternal(url);
+}

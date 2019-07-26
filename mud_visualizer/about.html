@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+    <meta charset="utf-8">
+    <title>About</title>
+    <link rel='stylesheet' href='css/about.css' type='text/css' media='all' />
+
+    
+<body>
+    <div class="main_div"> 
+            <h2>Mud Visualizer</h2>
+            <p>Version: 0.1.0-alpha</p>
+            <p>&copy; 2019 Cisco.com<p></p>
+            <div align="center">
+            <img src="img/other_icons/Octocat.png" width=40 height=40>
+            <button class="github" onclick="opengithub()">GitHub</button>
+            </div>
+    </div>
+</body>
+<script>
+function opengithub(){
+  const { shell } = require('electron');
+let url = "https://github.com/vafa-Andalibi/mudvisualizer";
+shell.openExternal(url);
+}
+</script>
+

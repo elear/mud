@@ -167,7 +167,7 @@ var simulation = d3.forceSimulation()
   .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
   .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
   .force("x", d3.forceX(function (d) {
-    if (d.group === "1") {
+    if (d.group === "1" || d.group == "0") {
       return 4 * (width) / 5
     } else if (d.group === "2") {
       return 3 * (width) / 5
@@ -188,7 +188,7 @@ var simulation = d3.forceSimulation()
 // ######################################
 
 function mud_drawer (graph){
-  d3.selectAll("svg > *").remove();
+  // d3.selectAll("svg > *").remove();
   var oig_width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
   var orig_height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
@@ -247,7 +247,14 @@ function mud_drawer (graph){
       .on("end", dragended));
 
     node.append("image")
-      .attr("xlink:href", function (d) { return ("img/group" + d.group + ".png"); })
+      .attr("xlink:href", function (d) { 
+        switch(d.group)  {
+          case "0":
+            return "img/controller.png";
+          default: 
+            return ("img/group" + d.group + ".png"); 
+        }
+      })
       .attr("width", 32)
       .attr("height", 32)
       .attr("x", - 16)
@@ -315,7 +322,7 @@ function mud_drawer (graph){
               .attr("stroke-dasharray", totalLength + " " + totalLength/2)
               .attr("stroke-dashoffset", totalLength*30)
               .transition()
-                .duration(8000)
+                .duration(20000)
                 .ease(d3.easeLinear)
                 .attr("stroke-dashoffset", 0);
             }
@@ -335,6 +342,7 @@ function mud_drawer (graph){
             d3.select(this)
               .attr("stroke-dasharray", totalLength + " " + totalLength)
               .attr("stroke-dashoffset", totalLength);
+            d3.select(this).transition();
             }
           }    
         }
@@ -376,6 +384,7 @@ function dragended(d) {
 
 class Mud_Network {
   constructor(multi_mud_json){
+      this.ready_to_draw = false; 
       this.multi_mud_json = multi_mud_json;
       this.allNodes = [];
       this.allLinks = [];
@@ -385,7 +394,8 @@ class Mud_Network {
       this.muds_with_controller = 0;  // this includes my-controllers too 
       this.controllers = [] ; 
       this.my_controllers = [] ; 
-      this.mud_with_promises = [];
+      this.mud_with_promises_raw = [];
+      this.mud_with_promises_processed = [];
       this.all_modelnames = find_values_by_key(multi_mud_json,"model-name");
       this.non_unique_modelnames = this.get_non_unique_modelnames();
       this.allNodes.push({"group":"2","id":"Router","abstractions":[]});
@@ -455,16 +465,35 @@ class Mud_Network {
       }
   }
 
+  update_mycontroller_links(){
+    for (var mud_idx = 0 ; mud_idx < this.mud_with_promises_processed.length ; mud_idx ++){
+      var current_mud = this.mud_with_promises_processed[mud_idx];
+      for (var prom_idx = 0; prom_idx < current_mud.promise.data.length ; prom_idx ++){
+          var current_promise_data = current_mud.promise.data[prom_idx];
+          let tmp_idx = current_promise_data.keys.indexOf('my-controller-name'); 
+          let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
+          if (!current_mud.allNodes_includes(my_controller_name)) {
+            this.allNodes.push({"group":String(0),"id":my_controller_name, "abstractions":["my-controller"]});
+          }
+          this.allLinks.push({"source": "Router","target":my_controller_name,"value": "10", "device":current_mud.model});
+          current_mud.link_of_current_node = current_mud.link_of_current_node.concat({"source": "Router","target":my_controller_name,"value": "10", "device":current_mud.model});
+      }
+      current_mud.index_in_allnodes = this.allNodes.length; 
+      this.allNodes.push({"group":String(1), "id":current_mud.model, "abstractions":current_mud.abstractions ,"links":current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer});
+    }
+    this.ready_to_draw = true; 
+  }
+
   has_promise(){
-    if (this.mud_with_promises.length > 0){
+    if (this.mud_with_promises_raw.length > 0){
       return true; 
     }
     return false; 
   }
 
-  process_promises(){
-    // for (var mud_idx=0; mud_idx < this.mud_with_promises.length; mud_idx ++){
-      var tmp_mud = this.mud_with_promises[0];
+  fulfill_promises(){
+    if (this.has_promise()){
+      var tmp_mud = this.mud_with_promises_raw[0];
       var style = 
       '<style>  \
           dynamic {color: brown; \
@@ -490,36 +519,6 @@ class Mud_Network {
         var current_ace_type = ace_types[type_idx];
         for (var promise_idx = 0 ; promise_idx < tmp_mud.promise.length(); promise_idx++){
 
-          // html_content =   '<p> The device <span style="color: brown;font-weight: bold">' + my_controller.model + 
-          // '</span> in this network needs its controller to be configured:</p> ';
-          // for 
-
-          // 'Controller Name: <input id="swal-input1" class="swal2-input">' +
-          // 'Controller IP Address: <input id="swal-input2" class="swal2-input">',
-
-          // Swal.fire({
-          //             title: 'Configure My-Controller',
-          //             html:
-          //             '<div style="border: 1px;">' +   
-          //             '<p style="border: 1px;"> The device <span style="color: brown;font-weight: bold">' + tmp_mud.model + 
-          //               '</span> in this network needs its controller to be configured:</p> ' +
-          //               '</div>'+ 
-          //               'Controller Name: <input id="swal-input1" class="swal2-input">' +
-          //               'Controller IP Address: <input id="swal-input2" class="swal2-input">' +
-          //               '<div>' + 
-          //               'Controller Name: <input id="swal-input1" class="swal2-input">' +
-          //               'Controller IP Address: <input id="swal-input2" class="swal2-input">' + 
-          //               '</div>',
-          //             focusConfirm: false,
-          //             preConfirm: () => {
-          //               return [
-          //                 document.getElementById('swal-input1').value,
-          //                 document.getElementById('swal-input2').value
-          //               ]
-          //             }
-          //           })
-          // const Swal = require('sweetalert2');
-          
           var tmp_promise = tmp_mud.promise.data[promise_idx];
           if (tmp_promise.ace.type == current_ace_type){
             for (var key_idx = 0 ; key_idx < tmp_promise.keys.length ; key_idx++) {
@@ -535,38 +534,45 @@ class Mud_Network {
         title:"Configuring My-Controller", 
         html: egress_html, 
         allowOutsideClick: false
-        // preConfirm: () => {return document.getElementById('swal-input1').value;}
         }).then(()=>{
+          // store the user input values in the mud objects
           for (var dat_idx = 0 ; dat_idx < tmp_mud.promise.data.length; dat_idx ++){
             for (var key_idx = 0 ; key_idx < tmp_mud.promise.data[dat_idx].keys.length; key_idx ++){
               let tmp_input_id = tmp_mud.promise.data[dat_idx].input_id[key_idx];
               let tmp_input_value = document.getElementById(tmp_input_id).value;
-              console.log(tmp_input_value);
               tmp_mud.promise.data[dat_idx].values = tmp_mud.promise.data[dat_idx].values.concat(tmp_input_value);
             }
           }
-          this.mud_with_promises.shift();
-          this.process_promises();
+          // process the next mud object that has promise, otherwise update the links and draw
+          this.mud_with_promises_processed = this.mud_with_promises_processed.concat(this.mud_with_promises_raw[0]);
+          this.mud_with_promises_raw.shift();
+          if (this.has_promise())
+            this.fulfill_promises();
+          else
+            this.update_mycontroller_links();            
         });
-      // if (formValues) {
-      //   Swal.fire(JSON.stringify(formValues));
-      // }
-    // }
-  }
+      }
+      else{
+        this.ready_to_draw = true;
+      }
+    }
 
   create_network(){
       
       for (var current_mud_name in  this.multi_mud_json){
           var current_mud = new Mud(this.multi_mud_json[current_mud_name], this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.promise);
           if (current_mud.has_promise()){
-            this.mud_with_promises = this.mud_with_promises.concat(current_mud);
+            this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
           }    
+         
           this.Mud_list = this.Mud_list.concat(current_mud)
       }
+      this.fulfill_promises();
       this.updat_localnetworks_links(); 
       this.update_samemanufacturer_links();
       this.update_manufacturer_links();
-      this.process_promises();
+      
+      
   }
 }
 
@@ -738,36 +744,32 @@ class Mud {
                   }
                   break;
               case "my-controller":
-                  this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'my-controller' ,'keys': ['Name', 'IP Address'],'values':[]});
-                  // const {value: formValues} = Swal.fire({
-                  //   title: 'Configure My-Controller',
-                  //   html:
-                  //     '<p> The device <span style="color: brown;font-weight: bold">' + my_controller.model + '</span> in this network needs its controller to be configured:</p> ' + 
-                  //     'Controller Name: <input id="swal-input1" class="swal2-input">' +
-                  //     'Controller IP Address: <input id="swal-input2" class="swal2-input">',
-                  //   focusConfirm: false,
-                  //   preConfirm: () => {
-                  //     return [
-                  //       document.getElementById('swal-input1').value,
-                  //       document.getElementById('swal-input2').value
-                  //     ]
-                  //   }
-                  // })
-
-                  // if (formValues) {
-                  //   this.allNodes.push({"group":String(1),"id": document.getElementById('swal-input1').value, "abstractions":["my-controller"]});
-                  //   Swal.fire(JSON.stringify(formValues))
-                  // }
-                  
+                  this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'my-controller' ,'keys': ['my-controller-name', 'my-controller-IP-address'],'values':[]});
                   if (!this.is_connected_to_Router()){
                       this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                       this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
                   }
                   break;
+              case "controller":
+                  var controller_class = unique(find_values_by_key(ace,'controller'))[0];
+                  // this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'controller' ,'keys': ['controller-name', 'controller-IP-address'],'values':[]});
+                  if (!this.is_connected_to_Router()){
+                    this.allLinks.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                    this.link_of_current_node.push({"source": this.model,"target":"Router","value": "10", "device":this.model});
+                  }
+                  if (!find_values_by_key(this.allNodes, 'id').includes(controller_class)){ // add controller to nodes if it's not there
+                    this.allNodes.push({"group":String(0),"id":controller_class, "abstractions":["controller"]});
+                    this.allLinks.push({"source": controller_class,"target":"Router","value": "10", "device":this.model});
+                  }
+                  
+                  this.allLinks.push({"source": "Router","target":controller_class,"value": "10", "device":this.model});
+                  this.link_of_current_node.push({"source": "Router","target":controller_class,"value": "10", "device":this.model});
+                  
+                  break 
               default: 
                   abstract_matched = false; 
           }
-          if (abstract_matched && !this.node_is_in_allNodes()){
+          if (abstract_matched && abstract != "my-controller" && !this.node_is_in_allNodes()){
               this.index_in_allnodes = this.allNodes.length; 
               this.allNodes.push({"group":String(1), "id":this.model, "abstractions":this.abstractions ,"links":this.link_of_current_node, "manufacturer": this.manufacturer});
           }   
@@ -867,6 +869,9 @@ function unique(inp_list){
   return [... new Set(inp_list)];
 }
 
+
+var network; 
+var network_data;
 require('electron').ipcRenderer.on('draw', (event, message) => {
   var remote = require('electron').remote;
   network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
@@ -875,7 +880,7 @@ require('electron').ipcRenderer.on('draw', (event, message) => {
 
   var interval = setInterval(function() {
     // get elem
-    if (network.has_promise()) {
+    if (network.ready_to_draw == false) {
       return;
     }
     clearInterval(interval);
@@ -883,7 +888,7 @@ require('electron').ipcRenderer.on('draw', (event, message) => {
     network_data = network.get_nodes_links_json();
     mud_drawer(network_data);
   
-  }, 2000);  
+  }, 100);  
   
 })
 
@@ -929,3 +934,16 @@ require('electron').ipcRenderer.on('my-controller-prompt', (event, my_controller
   const { BrowserWindow } = require('electron').remote
 });
 
+// function redraw(){
+  
+//   d3.selectAll("svg > *").remove();
+//   setTimeout(function() {mud_drawer(network_data); }, 5000);
+ 
+// }
+
+// var $ = require("jquery");
+// $(document).on("click", "a", function(){
+//   d3.selectAll("svg > *").remove();
+//   setTimeout(function() {mud_drawer(network_data); }, 5000);
+
+// });

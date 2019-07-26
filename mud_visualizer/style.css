@@ -1,4 +1,58 @@
-.main_svg {
-    border: 1px ; 
-    border-style: groove;
+.svg_board {
+    display: block;
+    position:absolute;
+    height:auto;
+    bottom:0;
+    top:0;
+    left:0;
+    right:0;
+    margin-top:5px;
+    margin-bottom:5px;
+    margin-right:5px;
+    margin-left:70px;
+    background-color: #F9F7ED;
+    border: 1px solid #555;
 }
+  
+.icon-bar {
+    display: block;
+    position:absolute;
+    height:auto;
+    bottom:0;
+    top:0;
+    left:0;
+    right:0;
+    margin-top:5px;
+    margin-bottom:5px;
+    margin-right: calc(100% - 65px);
+    margin-left:5px;
+    background-color: #F3F3CC;
+    border: 1px solid #555;
+}
+
+.toolbar-button {
+    background-color: #4CAF50;
+    border-color: white;
+    border:none; 
+    color: white;
+    width: 80px;
+    padding:5px;
+    box-align: center;
+    transition-duration: 0.4s;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.icon-button {
+    background-color:#C87533;
+    /* border-color: black; */
+    /* border:1px;  */
+    color: white;
+    box-align: center;
+    transition-duration: 0.4s;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.icon-button:hover {
+    background-color: #33170D;
+}
+

@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <link rel='stylesheet' href='style.css' type='text/css' media='all' />
+<link rel='stylesheet' href='tooltip.css' type='text/css' media='all' />
 
 <body>
-    <svg class="main_svg" width="100%" height="100%" ></svg>
+    <!-- <svg class="svg" ></svg> -->
+
+
+
   <!-- <table>
     <tr>
       <td>
@@ -20,7 +24,34 @@
       </td>
     </tr>
   </table> -->
+
+
+  
+
+<!-- <div class="split svg_dix">
+    <svg class="svg" ></svg>
+        
+</div>
+    
+<div class="split icon-bar">
+  <div style="text-align: center; margin-top: 5px;">
+    <button class="toolbar-button">Re-Draw</button> 
+  </div>
+</div> -->
+
+<div class="icon-bar">
+  <div style="text-align: center; margin-top: 5px;">
+      <button class="icon-button" tooltip="Slide to the right" flow="right"><img align="middle" src="img/menu_icons/refresh.png" width="35" height="35" vspace="5"></button> 
+      <button class="icon-button" tooltip="Slide to the right" flow="right"><img align="middle" src="img/menu_icons/select.png" width="35" height="35" vspace="5"></button> 
+  </div>
+</div>
+<div class="svg_board">
+    <svg class="svg" ></svg>  
+</div>
+
+
 </body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
 <script src="./renderer.js"></script>
+

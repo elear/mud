@@ -2,4 +2,4 @@ werkzeug==0.15.5
 flask==1.1.1
 Flask-API==1.1
 gunicorn==19.9.0
-muddy==2019.7.25.post1
+muddy==2019.7.25.post2

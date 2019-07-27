@@ -212,7 +212,7 @@ function mud_drawer(inp_json) {
   var link = svg.append("g")
     .selectAll("path")
     .data(graph.links.filter( function(d) {
-      return !have_common_element(excluded_models, d.device); // this filters the mudfile links that are deselected in the selection menu
+      return set_difference(d.device, excluded_models).length > 0; // this filters the mudfile links that are deselected in the selection menu
     })) 
     .enter().append("svg:path")
     .attr("fill", "none")

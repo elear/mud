@@ -107,11 +107,42 @@ class Mud_Network {
                 var current_promise_data = current_mud.promise.data[prom_idx];
                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
                 let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
-                if (!current_mud.allNodes_includes(my_controller_name)) {
-                    this.allNodes.push({ "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] , "device": [current_mud.model]});
+                
+                    
+                let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] , "device": [current_mud.model]};
+                tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller,['group','id']);
+                if (tmp_idx == -1){
+                    this.allNodes.push(node_controller);    
                 }
-                this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
-                current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
+                else{
+                    this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model); 
+                }
+
+                let link_router_to_mycontroller = { "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] };
+                // update all_links
+                tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller,['source','target']);
+                if (tmp_idx == -1){
+                    this.allLinks.push(link_router_to_mycontroller);    
+                }
+                else{
+                    this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model); 
+                }
+                
+                //update links_of_current_node
+                tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller,['source','target']);
+                if (tmp_idx == -1){
+                    current_mud.link_of_current_node.push(link_router_to_mycontroller);    
+                }
+                else{
+                    current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model); 
+                }
+
+
+                // if (!current_mud.allNodes_includes(my_controller_name)) {
+                //     this.allNodes.push({ "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] , "device": [current_mud.model]});
+                // }
+                // this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
+                // current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
             }
             current_mud.index_in_allnodes = this.allNodes.length;
             this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstractions": current_mud.abstractions, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer, "device": [current_mud.model] });
@@ -383,7 +414,7 @@ class Mud {
                         this.link_of_current_node.push(link_device_to_router);    
                     }
                     else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
                     }
 
                     let link_internet_to_destination = { "source": "Internet", "target": destination, "value": "10", "device": [this.model] };
@@ -403,7 +434,7 @@ class Mud {
                         this.link_of_current_node.push(link_internet_to_destination);    
                     }
                     else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
                     }
 
                     let link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.model] }; 
@@ -423,12 +454,11 @@ class Mud {
                         this.link_of_current_node.push(link_router_to_internet);    
                     }
                     else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
                     }
 
-                    
-
                     break;
+
                 case "local-networks":
                 case "same-manufacturer":
                 case "manufacturer":
@@ -439,25 +469,100 @@ class Mud {
                     break;
                 case "my-controller":
                     this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
-                    if (!this.is_connected_to_Router()) {
-                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                    let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model] };
+
+
+                    // update all_links
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_my_cont,['source','target']);
+                    if (tmp_idx == -1){
+                        this.allLinks.push(link_device_to_router_my_cont);    
                     }
+                    else{
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+
+                    //update links_of_current_node
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_my_cont,['source','target']);
+                    if (tmp_idx == -1){
+                        this.link_of_current_node.push(link_device_to_router_my_cont);    
+                    }
+                    else{
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    }
+
+
+                    // if (!this.is_connected_to_Router()) {
+                    //     this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                    //     this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                    // }
                     break;
                 case "controller":
                     var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
                     // this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'controller' ,'keys': ['controller-name', 'controller-IP-address'],'values':[]});
-                    if (!this.is_connected_to_Router()) {
-                        this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                        this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                    
+
+                    let link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model] };
+                    
+                    // update all_links
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_cont,['source','target']);
+                    if (tmp_idx == -1){
+                        this.allLinks.push(link_device_to_router_cont);    
                     }
-                    if (!find_values_by_key(this.allNodes, 'id').includes(controller_class)) { // add controller to nodes if it's not there
-                        this.allNodes.push({ "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model] });
-                        this.allLinks.push({ "source": controller_class, "target": "Router", "value": "10", "device": [this.model] });
+                    else{
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+                    
+                    //update links_of_current_node
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_cont,['source','target']);
+                    if (tmp_idx == -1){
+                        this.link_of_current_node.push(link_device_to_router_cont);    
+                    }
+                    else{
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
                     }
 
-                    this.allLinks.push({ "source": "Router", "target": controller_class, "value": "10", "device": [this.model] });
-                    this.link_of_current_node.push({ "source": "Router", "target": controller_class, "value": "10", "device": [this.model] });
+
+
+                    let node_controller = { "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model] };
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller,['group','id']);
+                    if (tmp_idx == -1){
+                        this.allNodes.push(node_controller);    
+                    }
+                    else{
+                        this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model); 
+                    }
+
+
+                    // let link_controller_to_router = { "source": controller_class, "target": "Router", "value": "10", "device": [this.model]};
+                    // // update all_links
+                    // var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_controller_to_router,['source','target']);
+                    // if (tmp_idx == -1){
+                    //     this.allLinks.push(link_controller_to_router);    
+                    // }
+                    // else{
+                    //     this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    // }
+
+
+                    let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model] };
+                    
+                    // update all_links
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_controller,['source','target']);
+                    if (tmp_idx == -1){
+                        this.allLinks.push(link_router_to_controller);    
+                    }
+                    else{
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+
+                    //update links_of_current_node
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_router_to_controller,['source','target']);
+                    if (tmp_idx == -1){
+                        this.link_of_current_node.push(link_router_to_controller);    
+                    }
+                    else{
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    }
 
                     break
                 default:

@@ -325,7 +325,7 @@ function mud_drawer(inp_json) {
         for (var ll = 0; ll < current_node_links.length; ll++) {
           if (d3.select(this).attr("src") == current_node_links[ll]["source"] &&
             d3.select(this).attr("trg") == current_node_links[ll]["target"] &&
-            d3.select(this).attr("dev") == current_device
+            d3.select(this).attr("dev").includes(current_device)
           ) {
             d3.select(this)
               .style("stroke", link_hover_color)

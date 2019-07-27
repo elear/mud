@@ -366,15 +366,67 @@ class Mud {
                         if (!this.allNodes[tmp_idx].device.includes(this.model))
                             this.allNodes[tmp_idx].device = this.allNodes[tmp_idx].device.concat(this.model);
                     }
+                    let link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device": [this.model] };
+                    
+                    // update all_links
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router,['source','target']);
+                    if (tmp_idx == -1){
+                        this.allLinks.push(link_device_to_router);    
+                    }
+                    else{
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+                    
+                    //update links_of_current_node
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router,['source','target']);
+                    if (tmp_idx == -1){
+                        this.link_of_current_node.push(link_device_to_router);    
+                    }
+                    else{
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
 
-                    this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                    this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
+                    let link_internet_to_destination = { "source": "Internet", "target": destination, "value": "10", "device": [this.model] };
 
-                    this.allLinks.push({ "source": "Internet", "target": destination, "value": "10", "device": [this.model] });
-                    this.link_of_current_node.push({ "source": "Internet", "target": destination, "value": "10", "device": [this.model] });
+                    // update all_links
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_internet_to_destination,['source','target']);
+                    if (tmp_idx == -1){
+                        this.allLinks.push(link_internet_to_destination);    
+                    }
+                    else{
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+                    
+                    //update links_of_current_node
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_internet_to_destination,['source','target']);
+                    if (tmp_idx == -1){
+                        this.link_of_current_node.push(link_internet_to_destination);    
+                    }
+                    else{
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
 
-                    this.allLinks.push({ "source": "Router", "target": "Internet", "value": "10", "device": [this.model] })
-                    this.link_of_current_node.push({ "source": "Router", "target": "Internet", "value": "10", "device": [this.model] })
+                    let link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.model] }; 
+
+                    // update all_links
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_internet,['source','target']);
+                    if (tmp_idx == -1){
+                        this.allLinks.push(link_router_to_internet);    
+                    }
+                    else{
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+                    
+                    //update links_of_current_node
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_router_to_internet,['source','target']);
+                    if (tmp_idx == -1){
+                        this.link_of_current_node.push(link_router_to_internet);    
+                    }
+                    else{
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    }
+
+                    
 
                     break;
                 case "local-networks":

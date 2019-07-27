@@ -226,7 +226,7 @@ function mud_drawer(inp_json) {
     .attr("class", "nodes")
     .selectAll("a")
     .data(graph.nodes.filter( function(d) {
-      return set_difference(d.device,excluded_models).length > 0 || excluded_models.length == 0 ; // this filters the mudfile links that are deselected in the selection menu
+      return set_difference(d.device,excluded_models).length > 0 ; // this filters the mudfile links that are deselected in the selection menu
     }))
     .enter().append("a")
     .attr("target", '_blank')
@@ -254,22 +254,8 @@ function mud_drawer(inp_json) {
           return ("img/group" + d.group + ".svg");
       }
     })
-    .attr("width", function (d) {
-      switch (d.group) {
-        case "3": // make the internet logo bigger than others
-          return 100;
-        default:
-          return 50;
-      }
-    })
-    .attr("height", function (d) {
-      switch (d.group) {
-        case "3": // make the internet logo bigger than others
-          return 100;
-        default:
-          return 50;
-      }
-    })
+    .attr("width", 50)
+    .attr("height", 50)
     .attr("x", - 16)
     .attr("y", - 16)
     .attr("fill", function (d) { return color(d.group); });
@@ -412,6 +398,7 @@ function mud_drawer(inp_json) {
 var network = new Mud_Network();
 var network_data;
 require('electron').ipcRenderer.on('draw', (event, message) => {
+  d3.selectAll("svg > *").remove();
   var remote = require('electron').remote;
   // network = new Mud_Network(JSON.parse(remote.getGlobal('sharedObj')));
   network.ready_to_draw = false;
@@ -457,10 +444,6 @@ $("#SelectMudFiles").click(function () {
       mudfile_select_menu_open = true;
     });
   }
-
-  // if ($("#mudSelectionDiv").children().length == 0 ){
-  //   $("#mudSelectionDiv").append('No mud file is loaded');
-  // }
 });
 
 $("div:not(#mudSelectionDiv)").click(function () {
@@ -473,12 +456,18 @@ $("div:not(#mudSelectionDiv)").click(function () {
 
 
 $('body').on('click', 'input[id="mudcheckbox"]', function () {
-  // $("#fileNotLoaded").show();
-  console.log("hi");
-  excluded_models = excluded_models.concat($(this).val());
+  if ($(this).prop("checked")){
+    let item_idx = excluded_models.indexOf($(this).val());
+    excluded_models.splice(item_idx,1);
+  }
+  else{
+    excluded_models = excluded_models.concat($(this).val());
+  }
   d3.selectAll("svg > *").remove();
-  drawer();
+  drawer();  
+
 });
+
 
 // used in mainWindow.html in refresh button
 function drawer() {

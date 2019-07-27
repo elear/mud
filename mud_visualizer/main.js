@@ -4,8 +4,7 @@ const path = require('path');
 const d3 = require('d3');
 var fs = require('fs');
 
-const {app, BrowserWindow, Menu} = electron; 
-
+const { dialog, app, BrowserWindow, Menu} = electron; 
 let mainWindow; 
 
 var json_data_loaded = false;
@@ -90,8 +89,6 @@ const mainMenuTemplate = [
                 label: 'Open Mud File',
                 accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
                 click(){
-                    mainWindow.webContents.send('clearsvg', 'clearsvg');
-                    const { dialog } = require('electron');
                     dialog.showOpenDialog((fileNames) => {
                         // fileNames is an array that contains all the selected
                         if(fileNames === undefined){

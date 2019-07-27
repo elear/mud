@@ -5,6 +5,7 @@ const Swal = require('sweetalert2');
 //////////////////////////////////
 
 class Mud_Network {
+
     constructor() {
         this.ready_to_draw = false;
         this.all_mud_jsons = [];
@@ -19,26 +20,33 @@ class Mud_Network {
         this.mud_with_promises_raw = [];
         this.mud_with_promises_processed = [];
         this.all_modelnames = [];
-        this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [] ,"device": ['Router']});
-        this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [] ,"device": ['Internet']});
+        this.non_unique_modelnames = [];
+        this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [], "device": ['Router'] });
+        this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [], "device": ['Internet'] });
     }
 
-    add_mudfile(mud_json){
-        this.all_mud_jsons = this.all_mud_jsons.concat({'data':mud_json, 'visible': true, 'processed': false });
-        this.all_modelnames = this.all_modelnames.concat(find_values_by_key(mud_json, "model-name"));
-        this.non_unique_modelnames = this.get_non_unique_modelnames();
+    add_mudfile(mud_json) {
+        this.all_mud_jsons = this.all_mud_jsons.concat({ 'data': mud_json, 'visible': true, 'processed': false });
+        let model_name = find_values_by_key(mud_json, "model-name")[0];
+        this.all_modelnames = this.all_modelnames.concat(model_name);
+        this.update_non_unique_modelnames();
     }
 
-    get_non_unique_modelnames() {
+    update_non_unique_modelnames() {
         var sorted_models = this.all_modelnames.slice().sort();
-        var non_unique_models = [];
 
         for (var i = 0; i < sorted_models.length - 1; i++) {
             if (sorted_models[i + 1] == sorted_models[i]) {
-                non_unique_models.push([sorted_models[i], 1]);
+                let model_exists = false;
+                for (var tmp_mod in this.non_unique_modelnames) {
+                    if (this.non_unique_modelnames[tmp_mod][0] == sorted_models[i]) {
+                        model_exists = true;
+                    }
+                }
+                if (!model_exists)
+                    this.non_unique_modelnames.push([sorted_models[i], 2]);
             }
         }
-        return non_unique_models;
     }
 
 
@@ -100,13 +108,13 @@ class Mud_Network {
                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
                 let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
                 if (!current_mud.allNodes_includes(my_controller_name)) {
-                    this.allNodes.push({ "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] });
+                    this.allNodes.push({ "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] , "device": [current_mud.model]});
                 }
                 this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
                 current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
             }
             current_mud.index_in_allnodes = this.allNodes.length;
-            this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstractions": current_mud.abstractions, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer });
+            this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstractions": current_mud.abstractions, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer, "device": [current_mud.model] });
         }
         this.ready_to_draw = true;
     }
@@ -186,16 +194,16 @@ class Mud_Network {
 
     create_network() {
         for (var current_mud_name in this.all_mud_jsons) {
-            if (!this.all_mud_jsons[current_mud_name].processed){
+            if (!this.all_mud_jsons[current_mud_name].processed) {
                 var current_mud = new Mud(this.all_mud_jsons[current_mud_name].data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.promise);
                 if (current_mud.has_promise()) {
                     this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
                 }
-    
+
                 this.all_mud_objects = this.all_mud_objects.concat(current_mud);
-                this.all_mud_jsons[current_mud_name].processed = true; 
+                this.all_mud_jsons[current_mud_name].processed = true;
                 $("#fileNotLoaded").hide();
-                $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model+ '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
+                $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model + '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
             }
         }
         this.fulfill_promises();
@@ -353,9 +361,9 @@ class Mud {
                     if (!this.allNodes_includes(destination)) {
                         this.allNodes.push({ "group": String(4), "id": destination, "abstractions": ["domain-names"], device: [this.model] });
                     }
-                    else{
+                    else {
                         let tmp_idx = find_values_by_key(Object.values(this.allNodes), 'id').indexOf(destination);
-                        if ( !this.allNodes[tmp_idx].device.includes(this.model) )
+                        if (!this.allNodes[tmp_idx].device.includes(this.model))
                             this.allNodes[tmp_idx].device = this.allNodes[tmp_idx].device.concat(this.model);
                     }
 
@@ -392,7 +400,7 @@ class Mud {
                         this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
                     }
                     if (!find_values_by_key(this.allNodes, 'id').includes(controller_class)) { // add controller to nodes if it's not there
-                        this.allNodes.push({ "group": String(0), "id": controller_class, "abstractions": ["controller"] , "device": [this.model]});
+                        this.allNodes.push({ "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model] });
                         this.allLinks.push({ "source": controller_class, "target": "Router", "value": "10", "device": [this.model] });
                     }
 

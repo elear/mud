@@ -212,7 +212,9 @@ function mud_drawer(inp_json) {
   var link = svg.append("g")
     .selectAll("path")
     .data(graph.links.filter( function(d) {
-      return set_difference(d.device, excluded_models).length > 0; // this filters the mudfile links that are deselected in the selection menu
+      return (set_difference(d.device, excluded_models).length > 0 && // this filters the mudfile links that are deselected in the selection menu
+              !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
+              !excluded_models.includes(d.target))
     })) 
     .enter().append("svg:path")
     .attr("fill", "none")
@@ -226,12 +228,12 @@ function mud_drawer(inp_json) {
     .attr("class", "nodes")
     .selectAll("a")
     .data(graph.nodes.filter( function(d) {
-      return set_difference(d.device,excluded_models).length > 0 ; // this filters the mudfile links that are deselected in the selection menu
+      return set_difference(d.device,excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
+
     }))
     .enter().append("a")
     .attr("target", '_blank')
     .attr("xlink:href", function (d) { return (window.location.href + '?device=' + d.id) });
-
 
   // node.on("click", function (d, i) {
   //   d3.event.preventDefault();
@@ -299,6 +301,7 @@ function mud_drawer(inp_json) {
 
   simulation.force("link")
     .links(graph.links);
+  
 
   function ticked() {
     link

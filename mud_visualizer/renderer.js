@@ -160,6 +160,12 @@ function mud_drawer(inp_json) {
     width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
     height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
+  // var svg = d3.select("svg.svg")
+  // .call(d3.zoom().on("zoom", function () {
+  //    svg.attr("transform", d3.event.transform)
+  // }));
+
+
   d3.select("svg").attr("height", height)
   d3.select("svg").attr("width", width)
 
@@ -320,6 +326,14 @@ function mud_drawer(inp_json) {
 
   simulation.alphaTarget(0.3).restart();
 
+  var div = d3.select("body")
+  .append("div")
+  .attr("id", "mytooltip")
+  .attr("class","node-tooltip")
+  .style("position", "absolute")
+  .style("opacity", 0);
+
+
   node.on("mouseover", function (d) {
     if (d.links !== undefined) {
       var current_node_links = d.links;
@@ -346,7 +360,18 @@ function mud_drawer(inp_json) {
         }
       }
       )
+      // // for showing the information:
+      // div.transition()		
+      // .duration(200)		
+      // .style("opacity", .9);		
+      // div	
+      // .html( "hiiiiiiiiiiiiiii<br/>"  )	
+      // .style("left",  (d3.event.pageX) - (0.25*width) + "px")		
+      // .style("bottom", (d3.event.pageY - 28) + "px");	
+      // console.log(d3.event.pageX);
+
     }
+
   });
 
   node.on("mouseout", function (d) {

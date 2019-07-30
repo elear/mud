@@ -41,8 +41,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * initiate.  
  */
 
-use \DateTime;
-
 date_default_timezone_set("GMT");
 $aclhead= <<< ACL_HEAD
 "ietf-access-control-list:acls" : {
@@ -552,18 +550,23 @@ if ( $gotin > 0 || $gotout > 0 ) {
     $masa = '';
   }
   $sysDesc=htmlspecialchars($_POST['sysDescr'],ENT_QUOTES);
-  $man_name=htmlspecialchars($_POST['man_name'],ENT_QUOTES);
   $doc_url=htmlspecialchars($_POST['doc_url'],ENT_QUOTES);
   $model_name=htmlspecialchars($_POST['model_name'],ENT_QUOTES);
   $mudurl= "https://" . htmlspecialchars($_POST['mudhost'],ENT_QUOTES) .
   '/' . $model_name;
   
+  if( isset($_POST['man_name']) && strlen(htmlspecialchars($_POST['man_name'],ENT_QUOTES)) > 0) {
+    $man_name = htmlspecialchars($_POST['man_name'],ENT_QUOTES);
+    $mfg_info = '"mfg-name": "' . $man_name . '",' . "\n";
+  } else {
+    $mfg_info = '';
+  }
   $supportInfo = $actxt0 . '"mud-url" : "' . $mudurl . '",
   	       "last-update" : "' . $time . '",' . "\n" .
 	       '"cache-validity" : 48,' .
 	       '"is-supported": true,' . "\n" .
 	       $masa . '"systeminfo": "' . $sysDesc . '",' . "\n" .
-	       '"mfg-name": "' . $man_name . '",' . "\n" .
+	       $mfg_info .
 	       '"documentation": "' . $doc_url . '",' . "\n" .
 	       '"model-name": "' . $model_name . '",' . "\n";   
   $devput = "{\n". $supportInfo . "\n";

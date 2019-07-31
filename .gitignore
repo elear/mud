@@ -7,3 +7,7 @@ drafts/*#draft*#
 draft*mud*xml
 drafts/old/*
 drafts/*yang
+
+muddy-api/\.idea/
+
+muddy-api/venv/

@@ -89,8 +89,10 @@
 .node-tooltip {
     display: block;
     position:absolute;
-    height:25%;
-    width:25%;
+    /* height:25%;
+    width:25%; */
+
+
     /* bottom:0;
     top:0;
     left:0;
@@ -104,4 +106,5 @@
     padding: 10px;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
     overflow-y: auto;
+    right:0;
 }

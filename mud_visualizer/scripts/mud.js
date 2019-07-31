@@ -223,8 +223,10 @@ class Mud_Network {
                 // this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
                 // current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
             }
-            current_mud.index_in_allnodes = this.allNodes.length;
-            this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstractions": current_mud.abstractions, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer, "device": [current_mud.model] });
+            if (!current_mud.node_is_in_allNodes()){
+                current_mud.index_in_allnodes = this.allNodes.length;
+                this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstractions": current_mud.abstractions, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer, "device": [current_mud.model] });    
+            }
         }
         this.ready_to_draw = true;
     }
@@ -670,7 +672,7 @@ class Mud {
             }
             if (abstract_matched && abstract != "my-controller" && !this.node_is_in_allNodes()) {
                 this.index_in_allnodes = this.allNodes.length;
-                this.allNodes.push({ "group": String(1), "id": this.model, "abstractions": this.abstractions, "links": this.link_of_current_node, "manufacturer": this.manufacturer, "other-manufacturer":this.other_manufacturer,device: [this.model] });
+                this.allNodes.push({ "group": String(1), "id": this.model, "abstractions": this.abstractions, "links": this.link_of_current_node, "manufacturer": this.manufacturer, "other_manufacturer":this.other_manufacturer,device: [this.model] });
             }
         }
     }

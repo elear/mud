@@ -10,6 +10,7 @@ let mainWindow;
 var json_data_loaded = false;
 // Listen for app to be ready 
 app.on('ready',function(){
+    
     //create new window 
     mainWindow = new BrowserWindow({
         webPreferences: {

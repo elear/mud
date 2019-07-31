@@ -153,275 +153,304 @@
 
 var excluded_models = [];
 function mud_drawer(inp_json) {
-  var graph = JSON.parse(JSON.stringify(inp_json));
-  var svg = d3.select("svg"),
-    //width = +svg.attr("width"),
-    //height = +svg.attr("height");
-    width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
-    height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      var graph = JSON.parse(JSON.stringify(inp_json));
+      var svg = d3.select("svg"); 
+      var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth; 
+      var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
-  // var svg = d3.select("svg.svg")
-  // .call(d3.zoom().on("zoom", function () {
-  //    svg.attr("transform", d3.event.transform)
-  // }));
+      // var svg = d3.select("svg.svg")
+      // .call(d3.zoom().on("zoom", function () {
+      //    svg.attr("transform", d3.event.transform)
+      // }));
 
 
-  d3.select("svg").attr("height", height)
-  d3.select("svg").attr("width", width)
+      d3.select("svg").attr("height", height)
+      d3.select("svg").attr("width", width)
 
-  var color = d3.scaleOrdinal(d3.schemeCategory20);
+      var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-  var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
-    .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
-    .force("x", d3.forceX(function (d) {
-      if (d.group === "1" || d.group == "0") {
-        return 4 * (width) / 5
-      } else if (d.group === "2") {
-        return 3 * (width) / 5
-      } else if (d.group === "3") {
-        return 2 * (width) / 5
-      } else if (d.group === "4") {
-        return 1 * (width) / 5
-      } else {
-        return 0 * (width) / 5
-      }
-    }).strength(1))
-    .force("y", d3.forceY(height / 2))
-    // .force("center", d3.forceCenter((width) / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(35));
+      var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
+        .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
+        .force("x", d3.forceX(function (d) {
+          if (d.group === "1" || d.group == "0") {
+            return 4 * (width) / 5
+          } else if (d.group === "2") {
+            return 3 * (width) / 5
+          } else if (d.group === "3") {
+            return 2 * (width) / 5
+          } else if (d.group === "4") {
+            return 1 * (width) / 5
+          } else {
+            return 0 * (width) / 5
+          }
+        }).strength(1))
+        .force("y", d3.forceY(height / 2))
+        // .force("center", d3.forceCenter((width) / 2, height / 2))
+        .force("collision", d3.forceCollide().radius(35));
 
-  // ######################################
-  // # Read graph.json and draw SVG graph #
-  // ######################################
-
-
-  // d3.selectAll("svg > *").remove();
-  var oig_width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  var orig_height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      // ######################################
+      // # Read graph.json and draw SVG graph #
+      // ######################################
 
 
-  link_color = "black";
-  link_hover_color = "green";
-
-  for (var i = 0; i < graph.links.length; i++) {
-    graph.links[i].linknum = 1;
-    for (var j = 0; j < i; j++) {
-      if ((graph.links[i].source == graph.links[j].source && graph.links[i].target == graph.links[j].target)
-        ||
-        (graph.links[i].source == graph.links[j].target && graph.links[i].target == graph.links[j].source)) {
-        graph.links[i].linknum += 0.5;
-      }
-    }
-  };
-
-  var link = svg.append("g")
-    .selectAll("path")
-    .data(graph.links.filter( function(d) {
-      return (set_difference(d.device, excluded_models).length > 0 && // this filters the mudfile links that are deselected in the selection menu
-              !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
-              !excluded_models.includes(d.target))
-    })) 
-    .enter().append("svg:path")
-    .attr("fill", "none")
-    .attr("stroke", link_color)
-    .attr("stroke-width", function (d) { return Math.sqrt(parseInt(1)); })
-    .attr("src", function (d) { return d.source; })
-    .attr("trg", function (d) { return d.target; })
-    .attr("dev", function (d) { return d.device; })
-
-  var node = svg.append("g")
-    .attr("class", "nodes")
-    .selectAll("a")
-    .data(graph.nodes.filter( function(d) {
-      return set_difference(d.device,excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
-
-    }))
-    .enter().append("a")
-    .attr("target", '_blank')
-    .attr("xlink:href", function (d) { return (window.location.href + '?device=' + d.id) });
-
-  // node.on("click", function (d, i) {
-  //   d3.event.preventDefault();
-  //   d3.event.stopPropagation();
-  //   OnClickDetails(d.id);
-  // }
-  // );
-
-  node.call(d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended));
-
-  node.append("image")
-    .attr("xlink:href", function (d) {
-      switch (d.group) {
-        case "0":
-          return "img/controller.svg";
-        default:
-          return ("img/group" + d.group + ".svg");
-      }
-    })
-    .attr("width", 50)
-    .attr("height", 50)
-    .attr("x", - 16)
-    .attr("y", - 16)
-    .attr("fill", function (d) { return color(d.group); });
-
-  node.append("text")
-    .attr("font-size", "0.8em")
-    .attr("dx", function (d) {
-      switch (d.group) {
-        case "2": //router logo x axis 
-          return -30;
-        case "3": // intenret logo x axis 
-          return 5;
-        case "4":
-          return -150;
-        default:
-          return 5;
-      }
-    })
-    // .attr("dy", ".35em")
-    .attr("dy", function (d) {
-      switch (d.group) {
-        case "2": //router logo y axis 
-          return 45;
-        case "3": // intenret logo y axis 
-          return -30;
-        case "4":
-          return -25;
-        default:
-          return -20;
-      }
-    })
-    .attr("x", +8)
-    .text(function (d) { return d.id });
-
-  node.append("title")
-    .text(function (d) { return d.id; });
-
-  simulation
-    .nodes(graph.nodes)
-    .on("tick", ticked);
-
-  simulation.force("link")
-    .links(graph.links);
-  
-
-  function ticked() {
-    link
-      .attr("d", linkArc);
-    node
-      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
-  }
-
-  function linkArc(d) {
-    var dx = d.target.x - d.source.x,
-      dy = d.target.y - d.source.y,
-      dr = oig_width / d.linknum;
-    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-  }
+      // d3.selectAll("svg > *").remove();
+      var oig_width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      var orig_height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
 
-  simulation.alphaTarget(0.3).restart();
+      link_color = "black";
+      link_hover_color = "green";
 
-  var div = d3.select("body")
-  .append("div")
-  .attr("id", "mytooltip")
-  .attr("class","node-tooltip")
-  .style("position", "absolute")
-  .style("opacity", 0);
-
-
-  node.on("mouseover", function (d) {
-    if (d.links !== undefined) {
-      var current_node_links = d.links;
-      var current_device = d.id
-      d3.selectAll('path').each(function (d, i) {
-        for (var ll = 0; ll < current_node_links.length; ll++) {
-          if (d3.select(this).attr("src") == current_node_links[ll]["source"] &&
-            d3.select(this).attr("trg") == current_node_links[ll]["target"] &&
-            d3.select(this).attr("dev").includes(current_device)
-          ) {
-            d3.select(this)
-              .style("stroke", link_hover_color)
-              .style("stroke-width", 2);
-
-            totalLength = 10;
-            d3.select(this)
-              .attr("stroke-dasharray", totalLength + " " + totalLength / 2)
-              .attr("stroke-dashoffset", totalLength * 30)
-              .transition()
-              .duration(20000)
-              .ease(d3.easeLinear)
-              .attr("stroke-dashoffset", 0);
+      for (var i = 0; i < graph.links.length; i++) {
+        graph.links[i].linknum = 1;
+        for (var j = 0; j < i; j++) {
+          if ((graph.links[i].source == graph.links[j].source && graph.links[i].target == graph.links[j].target)
+            ||
+            (graph.links[i].source == graph.links[j].target && graph.links[i].target == graph.links[j].source)) {
+            graph.links[i].linknum += 0.5;
           }
         }
-      }
-      )
-      // // for showing the information:
-      // div.transition()		
-      // .duration(200)		
-      // .style("opacity", .9);		
-      // div	
-      // .html( "hiiiiiiiiiiiiiii<br/>"  )	
-      // .style("left",  (d3.event.pageX) - (0.25*width) + "px")		
-      // .style("bottom", (d3.event.pageY - 28) + "px");	
-      // console.log(d3.event.pageX);
+      };
 
-    }
+      var link = svg.append("g")
+        .selectAll("path")
+        .data(graph.links.filter( function(d) {
+          return (set_difference(d.device, excluded_models).length > 0 && // this filters the mudfile links that are deselected in the selection menu
+                  !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
+                  !excluded_models.includes(d.target))
+        })) 
+        .enter().append("svg:path")
+        .attr("fill", "none")
+        .attr("stroke", link_color)
+        .attr("stroke-width", function (d) { return Math.sqrt(parseInt(1)); })
+        .attr("src", function (d) { return d.source; })
+        .attr("trg", function (d) { return d.target; })
+        .attr("dev", function (d) { return d.device; })
 
-  });
+      var node = svg.append("g")
+        .attr("class", "nodes")
+        .selectAll("a")
+        .data(graph.nodes.filter( function(d) {
+          return set_difference(d.device,excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
 
-  node.on("mouseout", function (d) {
-    if (d.links !== undefined) {
-      var current_node_links = d.links;
-      d3.selectAll('path').each(function (d, i) {
-        for (var ll = 0; ll < current_node_links.length; ll++) {
-          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"]) {
-            d3.select(this)
-              .style("stroke", link_color)
-              .style("stroke-width", 1);
-            totalLength = 0;
-            d3.select(this)
-              .attr("stroke-dasharray", totalLength + " " + totalLength)
-              .attr("stroke-dashoffset", totalLength);
-            d3.select(this).transition();
+        }))
+        .enter().append("a")
+        .attr("target", '_blank');
+        // .attr("xlink:href", function (d) { return (window.location.href + '?device=' + d.id) });
+
+      // node.on("click", function (d, i) {
+      //   d3.event.preventDefault();
+      //   d3.event.stopPropagation();
+      //   OnClickDetails(d.id);
+      // }
+      // );
+
+      node.call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+      node.append("image")
+        .attr("xlink:href", function (d) {
+          switch (d.group) {
+            case "0":
+              return "img/controller.svg";
+            default:
+              return ("img/group" + d.group + ".svg");
           }
-        }
+        })
+        .attr("width", 50)
+        .attr("height", 50)
+        .attr("x", - 16)
+        .attr("y", - 16)
+        .attr("fill", function (d) { return color(d.group); });
+
+      node.append("text")
+        .attr("font-size", "0.8em")
+        .attr("dx", function (d) {
+          switch (d.group) {
+            case "2": //router logo x axis 
+              return -30;
+            case "3": // intenret logo x axis 
+              return 5;
+            case "4":
+              return -150;
+            default:
+              return 5;
+          }
+        })
+        // .attr("dy", ".35em")
+        .attr("dy", function (d) {
+          switch (d.group) {
+            case "2": //router logo y axis 
+              return 45;
+            case "3": // intenret logo y axis 
+              return -30;
+            case "4":
+              return -25;
+            default:
+              return -20;
+          }
+        })
+        .attr("x", +8)
+        .text(function (d) { return d.id });
+
+      node.append("title")
+        .text(function (d) { return d.id; });
+
+      simulation
+        .nodes(graph.nodes)
+        .on("tick", ticked);
+
+      simulation.force("link")
+        .links(graph.links);
+      
+
+      function ticked() {
+        link
+          .attr("d", linkArc);
+        node
+          .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
       }
-      )
-    }
-  });
+
+      function linkArc(d) {
+        var dx = d.target.x - d.source.x,
+          dy = d.target.y - d.source.y,
+          dr = oig_width / d.linknum;
+        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+      }
+
+      function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        // d.fx = null;
+        // d.fy = null;
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+
+      }
+      
+      // simulation.alphaTarget(0.3).restart();
+
+      var div = d3.select("body")
+      .append("div")
+      .attr("id", "mytooltip")
+      .attr("class","node-tooltip")
+      .style("bottom","0px")
+      .style("left", "0px")
+      .style("height","0px")
+      .style("width", "0px")
+      .style("opacity", 0);
 
 
-  link.on("mouseover", function () { d3.select(this).style("stroke", link_hover_color); });
-  link.on("mouseout", function () { d3.select(this).style("stroke", link_color) });
+      
+
+      node.on("mouseover", function (d) {
+        if (d.links !== undefined) {
+          var current_node_links = d.links;
+          var current_device = d.id
+          d3.selectAll('path').each(function (d, i) {
+            for (var ll = 0; ll < current_node_links.length; ll++) {
+              if (d3.select(this).attr("src") == current_node_links[ll]["source"] &&
+                d3.select(this).attr("trg") == current_node_links[ll]["target"] &&
+                d3.select(this).attr("dev").includes(current_device)
+              ) {
+                d3.select(this)
+                  .style("stroke", link_hover_color)
+                  .style("stroke-width", 2);
+
+                totalLength = 10;
+                d3.select(this)
+                  .attr("stroke-dasharray", totalLength + " " + totalLength / 2)
+                  .attr("stroke-dashoffset", totalLength * 30)
+                  .transition()
+                  .duration(20000)
+                  .ease(d3.easeLinear)
+                  .attr("stroke-dashoffset", 0);
+              }
+            }
+          }
+          )
+        }
+      });
+
+      node.on("click", function(d) { 
+        if (d.group == "1" || d.group == "0"){
+           // for showing the information:
+           div.transition()		
+           .duration(500)		
+           .style("opacity", .9);		
+           div	
+           .html( "iiiiiiiiiiiiiii<br/>"  )	
+           .style("top", d.y - 50 + "px")
+           .style("left", d.x - 200 + "px")
+           .style("right", width - d.x - 100 + "px")
+           .style("height","100px")
+           .style("width", "250px");
+           console.log(d3.event.pageX  );
+        }
+      });
+
+      node.on("mouseout", function (d) {
+        if (d.links !== undefined) {
+          var current_node_links = d.links;
+          d3.selectAll('path').each(function (d, i) {
+            for (var ll = 0; ll < current_node_links.length; ll++) {
+              if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"]) {
+                d3.select(this)
+                  .style("stroke", link_color)
+                  .style("stroke-width", 1);
+                totalLength = 0;
+                d3.select(this)
+                  .attr("stroke-dasharray", totalLength + " " + totalLength)
+                  .attr("stroke-dashoffset", totalLength);
+                d3.select(this).transition();
+              }
+            }
+          }
+          )
+        div.transition()
+          .duration(500)
+          .style("opacity", 0)
+          .on("end", function(){
+            div
+              .style("top",height + "px")
+              .style("left", "0px")
+              .style("height","0px")
+              .style("width", "0px");
+          })
+        }
+      });
+
+
+      link.on("mouseover", function () { d3.select(this).style("stroke", link_hover_color); });
+      link.on("mouseout", function () { d3.select(this).style("stroke", link_color) });
 
 
 
 
-  function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
 
-  function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-  }
-
-  function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    // d.fx = null;
-    // d.fy = null;
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-
-  }
 }
+
+
+
+
+
+
+
+
+
 
 var network = new Mud_Network();
 var network_data;
@@ -450,11 +479,10 @@ require('electron').ipcRenderer.on('draw', (event, message) => {
 
 
 require('electron').ipcRenderer.on('resize', (event, message) => {
-
-  width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
-    height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  d3.select("svg").attr("height", height)
-  d3.select("svg").attr("width", width)
+  width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+  height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+  d3.select("svg").attr("height", height);
+  d3.select("svg").attr("width", width);
 })
 
 
@@ -493,9 +521,7 @@ $('body').on('click', 'input[id="mudcheckbox"]', function () {
   }
   d3.selectAll("svg > *").remove();
   drawer();  
-
 });
-
 
 // used in mainWindow.html in refresh button
 function drawer() {

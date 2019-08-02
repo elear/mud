@@ -330,7 +330,12 @@ require('electron').ipcRenderer.on('draw', (event, message) => {
   var remote = require('electron').remote;
 
   network.ready_to_draw = false;
-  network.add_mudfile(JSON.parse(remote.getGlobal('sharedObj')));
+  // let data = remote.getGlobal('sharedObj');
+  let sharedobj = JSON.parse(remote.getGlobal('sharedObj')); 
+  for (var mudfile_idx in sharedobj){
+    network.add_mudfile(JSON.parse(sharedobj[mudfile_idx]));
+  }
+  // network.add_mudfile(JSON.parse(data));
   network.create_network()
 
   var interval = setInterval(function () {
@@ -381,7 +386,7 @@ $("div:not(#nodestooltip)").click(function () {
   if (tooltip_status == 'ready-to-hide') {
     $("div[id='nodestooltip']").each(function () {
       $(this).animate({ opacity: 0 })
-      .animate({ bottom: "0px", left: "0px", height: "0px", width: "0px" })
+        .animate({ bottom: "0px", left: "0px", height: "0px", width: "0px" })
     });
   }
   else {

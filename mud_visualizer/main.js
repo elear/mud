@@ -61,6 +61,7 @@ const mainMenuTemplate = [
                 label: 'Open Mud File',
                 accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
                 click(){
+                    var files_data = {};
                     dialog.showOpenDialog({properties:["multiSelections","openFile"]}, (fileNames) => {
                         // fileNames is an array that contains all the selected
                         if(fileNames === undefined){
@@ -69,19 +70,20 @@ const mainMenuTemplate = [
                         }
                         
                         for (var file_idx in fileNames){
-                            var filepath = fileNames[file_idx]
-                            fs.readFile(filepath, 'utf-8', (err, data) => {
-                                if(err){
-                                    alert("An error ocurred reading the file :" + err.message);
-                                    return;
-                                }
-                                global.sharedObj = data; 
-                                mainWindow.webContents.send('draw', 'draw')
-                            });
-
+                            var filepath = fileNames[file_idx];
+                            // fs.readFile(filepath, 'utf-8', (err, data) => {
+                            //     if(err){
+                            //         alert("An error ocurred reading the file :" + err.message);
+                            //         return;
+                            //     }
+                            //     global.sharedObj= data; 
+                            //     mainWindow.webContents.send('draw', 'draw');
+                            // });
+                            var data = fs.readFileSync(filepath,'utf-8');
+                            files_data[file_idx] = data; 
                         }
-                        
-                        
+                        global.sharedObj = JSON.stringify(files_data);
+                        mainWindow.webContents.send('draw', 'draw');
                     });
                     json_data_loaded = true; 
                 }

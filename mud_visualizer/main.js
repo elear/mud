@@ -61,22 +61,25 @@ const mainMenuTemplate = [
                 label: 'Open Mud File',
                 accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
                 click(){
-                    dialog.showOpenDialog((fileNames) => {
+                    dialog.showOpenDialog({properties:["multiSelections","openFile"]}, (fileNames) => {
                         // fileNames is an array that contains all the selected
                         if(fileNames === undefined){
                             console.log("No file selected");
                             return;
                         }
                         
-                        var filepath = fileNames[0]
-                        fs.readFile(filepath, 'utf-8', (err, data) => {
-                            if(err){
-                                alert("An error ocurred reading the file :" + err.message);
-                                return;
-                            }
-                            global.sharedObj = data; 
-                            mainWindow.webContents.send('draw', 'draw')
-                        });
+                        for (var file_idx in fileNames){
+                            var filepath = fileNames[file_idx]
+                            fs.readFile(filepath, 'utf-8', (err, data) => {
+                                if(err){
+                                    alert("An error ocurred reading the file :" + err.message);
+                                    return;
+                                }
+                                global.sharedObj = data; 
+                                mainWindow.webContents.send('draw', 'draw')
+                            });
+
+                        }
                         
                         
                     });

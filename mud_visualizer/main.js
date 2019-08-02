@@ -35,49 +35,22 @@ app.on('ready',function(){
         app.quit();
     })
 
+    // on resize: get the size and send it to the renderer process in case it's needed there
     mainWindow.on('resize', function () {
         var size   = mainWindow.getSize();
         var width  = size[0];
         var height = size[1];
-        console.log("width: " + width);
-        console.log("height: " + height);
         if (json_data_loaded){
             mainWindow.webContents.send('resize', 'resize')
         }
     });
 
-    //build menu from tempalte
+    //build menu from tempalte defined below
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     // insert menu 
     Menu.setApplicationMenu(mainMenu);
 
-
-
 });
-
-
-function find_values_by_key(json_data, target_key, partial = false) {
-    output = []
-    for (var key_ in json_data) {
-        if (partial === false ){
-            if (key_ == target_key){
-                output = output.concat([json_data[key_]]);
-            }
-            else if (typeof (json_data[key_]) == 'object') {
-                output = output.concat(find_values_by_key(json_data[key_], target_key, partial=false));
-            }
-        }
-        else if (partial === true ) {
-            if (key_.includes(target_key)){
-                output = output.concat([json_data[key_]]);
-              }
-            else if (typeof (json_data[key_]) == 'object') {
-                output = output.concat(find_values_by_key(json_data[key_], target_key, partial=true));
-            }
-        }
-    }
-    return output; 
-} 
 
 // create menu tempalte 
 const mainMenuTemplate = [
@@ -85,7 +58,6 @@ const mainMenuTemplate = [
         label: 'File',
         submenu:[
             {
-                
                 label: 'Open Mud File',
                 accelerator: process.platform == 'darwin' ? 'Command+O' : 'Ctrl+O',
                 click(){
@@ -111,7 +83,7 @@ const mainMenuTemplate = [
                     json_data_loaded = true; 
                 }
             },
-            {
+            {   // label and shortcut for quititng the application
                 label: 'Quit',
                 accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
                 click(){
@@ -123,7 +95,7 @@ const mainMenuTemplate = [
     {
         label: "Run",
         submenu:[
-            {
+            {   // shortcut and label for resetting the application
                 label: "Reset",
                 accelerator: process.platform == 'darwin' ? 'Command+R' : 'Ctrl+R',
                 click(){
@@ -132,7 +104,7 @@ const mainMenuTemplate = [
             }
         ]
     },
-    {
+    {   // help menu duh (what's About shortcut btw?) 
         label: "Help",
         submenu:[
             {
@@ -146,19 +118,20 @@ const mainMenuTemplate = [
     }
 ]
 
+
 let aboutWindow; 
 function openAboutWindow(){
     //create new window 
     aboutWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: true
-        },
+        }, // hardcoded size for the about window (small) 
         width: 300, 
         height: 250, 
         title: 'About'
     });
     aboutWindow.setMenu(null);
-    // // load html in window 
+    // load the local html in window from file
     aboutWindow.loadURL(url.format({
         pathname: path.join(__dirname,'html/about.html'),
         protocol: 'file:',

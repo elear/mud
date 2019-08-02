@@ -107,12 +107,5 @@ function protocols_match(src_protocols, dst_protocols){
         }
         }
     }
-    // if ((src_protocol.transport == null || dst_protocol.transport == null || src.protocol.transport == dst.protocol.transport) && 
-    //     (src_protocol.protocol == null || dst_protocol.protocol == null || src_protocol.protocol[0] == dst_protocol.protocol[0]) && 
-    //     (src_protocol.source_port == undefined || dst_protocol.destination_port == undefined ||  src_protocol.source_port[0] ==  dst_protocol.destination_port[0] == undefined) && 
-    //     (src_protocol.destination_port == undefined || dst_protocol.source_port == undefined ||  src_protocol.destination_port[0] ==  dst_protocol.source_port[0] == undefined)
-    // )
-    //     return true; 
-    // return false; 
     return matched_protocols; 
 }

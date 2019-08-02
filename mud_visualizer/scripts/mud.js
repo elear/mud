@@ -441,15 +441,6 @@ class Mud {
     extract_acls() {
         this.ietf_acl = find_values_by_key(this.mudfile, "ietf-access-control-list", true);
         let acls = find_values_by_key(this.ietf_acl, 'acl');
-        // if (acls.length > 1) {
-        //     Swal.fire({
-        //         title: 'Warning: More than one ACL found in this MUD file, only the first one will be considered.',
-        //         animation: false,
-        //         customClass: {
-        //           popup: 'animated tada'
-        //         }
-        //       })
-        // }
         return acls;
     }
 
@@ -536,9 +527,6 @@ class Mud {
             else {
                 this.abstraction_protocols[abstract] = [protocol_data]
             }
-            // if (!this.abstractions.includes(abstract)) {
-            //     this.abstractions = this.abstractions.concat(abstract);
-            // }
             if (!this.allAbstractions.includes(abstract)) {
                 this.allAbstractions = this.allAbstractions.concat(abstract);
             }
@@ -646,12 +634,8 @@ class Mud {
                         this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
-
-                    // if (!this.is_connected_to_Router()) {
-                    //     this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                    //     this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                    // }
                     break;
+
                 case "my-controller":
                     this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
                     let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
@@ -676,12 +660,6 @@ class Mud {
                         this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
-
-
-                    // if (!this.is_connected_to_Router()) {
-                    //     this.allLinks.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                    //     this.link_of_current_node.push({ "source": this.model, "target": "Router", "value": "10", "device": [this.model] });
-                    // }
                     break;
 
                 case "controller":
@@ -720,18 +698,6 @@ class Mud {
                     else {
                         this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model);
                     }
-
-
-                    // let link_controller_to_router = { "source": controller_class, "target": "Router", "value": "10", "device": [this.model]};
-                    // // update all_links
-                    // var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_controller_to_router,['source','target']);
-                    // if (tmp_idx == -1){
-                    //     this.allLinks.push(link_controller_to_router);    
-                    // }
-                    // else{
-                    //     this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
-                    // }
-
 
                     let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
 

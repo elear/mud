@@ -152,6 +152,7 @@
 // var $ = require("jquery");
 
 var excluded_models = [];
+var tooltip_status; 
 function mud_drawer(inp_json) {
       var graph = JSON.parse(JSON.stringify(inp_json));
       var svg = d3.select("svg"); 
@@ -345,7 +346,10 @@ function mud_drawer(inp_json) {
 
       var div = d3.select("body")
       .append("div")
-      .attr("id", "mytooltip")
+      // .data(graph.nodes.filter( function(d) {
+      //   return set_difference(d.device,excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
+      // }))
+      .attr("id", "nodestooltip")
       .attr("class","node-tooltip")
       .style("bottom","0px")
       .style("left", "0px")
@@ -386,20 +390,74 @@ function mud_drawer(inp_json) {
       });
 
       node.on("click", function(d) { 
-        if (d.group == "1" || d.group == "0"){
+        if (d.group == "1" || d.group == "0") {
            // for showing the information:
-           div.transition()		
+           div.transition()
            .duration(500)		
            .style("opacity", .9);		
-           div	
-           .html( "iiiiiiiiiiiiiii<br/>"  )	
-           .style("top", d.y - 50 + "px")
-           .style("left", d.x - 200 + "px")
-           .style("right", width - d.x - 100 + "px")
-           .style("height","100px")
-           .style("width", "250px");
-           console.log(d3.event.pageX  );
-        }
+           div
+           .html(function(){
+            let table =   '<table id="ace_protocols">'
+            table+=   "<tr>\
+            <th>Destination</th>\
+            <th>Transport</th>\
+            <th>Protocol</th>\
+            <th>Src Port</th>\
+            <th>Dst Port</th>\
+          </tr>"
+            for (var link_idx in d.links){
+
+              let current_link = d.links[link_idx];
+              if (current_link.target != "Router" && 
+                  current_link.target != "Internet" && 
+                  !excluded_models.includes(current_link.source) &&  
+                  !excluded_models.includes(current_link.target)){
+              
+              for (var prot_idx in current_link.protocol_data){
+                table+= "<tr><td>" + current_link.target + "</td>" ; 
+                current_protocol = current_link.protocol_data[prot_idx];
+                if (current_protocol.transport != undefined){
+                  table+= "<td>" + current_protocol.transport + "</td>" ; 
+                }
+                else{
+                  table+= "<td>any</td>" ;
+                }
+
+                if (current_protocol.protocol != undefined){
+                  table+= "<td>" + current_protocol.protocol + "</td>" ; 
+                }
+                else{
+                  table+= "<td>any</td>" ;
+                }
+
+                if (current_protocol.source_port[0] != undefined){
+                  table+= "<td>" + current_protocol.source_port[0] + "</td>" ; 
+                }
+                else {
+                  table += "<td>any</td>"; 
+                }
+
+                if (current_protocol.destination_port[0] != undefined){
+                  table+= "<td>" + current_protocol.destination_port[0] + "</td>" ; 
+                }
+                else {
+                  table += "<td>any</td>"; 
+                }
+                table += "</tr>"
+              }
+            }
+          }
+           table += '</table>'
+           return table; 
+          })
+          //  .style("top", d.y - 50 + "px")
+          //  .style("left", d.x - 600 + "px")
+           .style("top", "10px")
+           .style("left", "75px")
+           .style("height","200px")
+           .style("width", "500px");
+        tooltip_status = 'just-clicked'; 
+          }
       });
 
       node.on("mouseout", function (d) {
@@ -420,16 +478,16 @@ function mud_drawer(inp_json) {
             }
           }
           )
-        div.transition()
-          .duration(500)
-          .style("opacity", 0)
-          .on("end", function(){
-            div
-              .style("top",height + "px")
-              .style("left", "0px")
-              .style("height","0px")
-              .style("width", "0px");
-          })
+          // div.transition()
+          // .duration(500)
+          // .style("opacity", 0)
+          // .on("end", function(){
+          //   div
+          //     .style("top",height + "px")
+          //     .style("left", "0px")
+          //     .style("height","0px")
+          //     .style("width", "0px");
+          // })
         }
       });
 
@@ -439,17 +497,7 @@ function mud_drawer(inp_json) {
 
 
 
-
-
 }
-
-
-
-
-
-
-
-
 
 
 var network = new Mud_Network();
@@ -494,6 +542,7 @@ require('electron').ipcRenderer.on('clearsvg', (event, message) => {
 // this is for fading in/out select mud-file menu
 var mudfile_select_menu_open = false;
 
+
 $("#SelectMudFiles").click(function () {
   if (mudfile_select_menu_open == false) {
     $("#mudSelectionDiv").fadeIn("slow", function () {
@@ -510,7 +559,25 @@ $("div:not(#mudSelectionDiv)").click(function () {
   }
 });
 
+$("div:not(#nodestooltip)").click(function () {
+  if (tooltip_status == 'ready-to-hide'){
+    $("div[id='nodestooltip']").each(function(){$(this).animate({opacity: 0})
+    .animate({ bottom: "0px", left : "0px", height: "0px", width: "0px"  })});
+  }
+  else{
+    tooltip_status = 'ready-to-hide';
+  }
+});
+//   // $("div[id='nodestooltip']").each(function(){$(this).addClass("hidden");});
+  
+// });
 
+// $("div:not(#nodestooltip), a").on("click",function(){
+//     $("[id='nodestooltip']").each(function(){$(this).animate({opacity: 0}).animate({ bottom: "0px", left : "0px", height: "0px", width: "0px"  });});
+// })
+
+
+// selecting/unselecting a mudfile
 $('body').on('click', 'input[id="mudcheckbox"]', function () {
   if ($(this).prop("checked")){
     let item_idx = excluded_models.indexOf($(this).val());
@@ -522,6 +589,11 @@ $('body').on('click', 'input[id="mudcheckbox"]', function () {
   d3.selectAll("svg > *").remove();
   drawer();  
 });
+
+
+
+
+
 
 // used in mainWindow.html in refresh button
 function drawer() {

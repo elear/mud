@@ -23,7 +23,6 @@ app.on('ready',function(){
     // openninng dev tools 
     mainWindow.openDevTools();
 
-
     // load html in window 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname,'mainWindow.html'),

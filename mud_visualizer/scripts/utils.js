@@ -70,7 +70,49 @@ function index_of_object_in_array_based_on_keys(arr, obj, keys){
 
 
 function concat_if_not_exists(arr,val){
-    if (arr.indexOf(val)== -1)
-        arr = arr.concat(val);
+    if (typeof(val)!= "object"){
+        if (arr.indexOf(val)== -1)
+            arr = arr.concat(val);
+    }
+    else{
+        if (containsObject(arr,val))
+            arr = arr.concat(val);
+    }
     return arr; 
+}
+
+function containsObject(arr,obj) {
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        if (arr[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function protocols_match(src_protocols, dst_protocols){
+    let matched_protocols = [];
+    for (var sp_idx in src_protocols){
+        cur_src_p = src_protocols[sp_idx];
+        for (var dp_idx in dst_protocols){
+            cur_dst_p = dst_protocols[dp_idx];
+            if ((cur_src_p.transport == null || cur_dst_p.transport == null || cur_src_p.transport == cur_dst_p.transport) && 
+            (cur_src_p.protocol == null || cur_dst_p.protocol == null || cur_src_p.protocol[0] == cur_dst_p.protocol[0]) && 
+            (cur_src_p.source_port == undefined || cur_dst_p.destination_port == undefined ||  cur_src_p.source_port[0] ==  cur_dst_p.destination_port[0] == undefined) && 
+            (cur_src_p.destination_port == undefined || cur_dst_p.source_port == undefined ||  cur_src_p.destination_port[0] ==  cur_dst_p.source_port[0] == undefined)
+        ){
+            matched_protocols = matched_protocols.concat(cur_src_p); 
+        }
+        }
+    }
+    // if ((src_protocol.transport == null || dst_protocol.transport == null || src.protocol.transport == dst.protocol.transport) && 
+    //     (src_protocol.protocol == null || dst_protocol.protocol == null || src_protocol.protocol[0] == dst_protocol.protocol[0]) && 
+    //     (src_protocol.source_port == undefined || dst_protocol.destination_port == undefined ||  src_protocol.source_port[0] ==  dst_protocol.destination_port[0] == undefined) && 
+    //     (src_protocol.destination_port == undefined || dst_protocol.source_port == undefined ||  src_protocol.destination_port[0] ==  dst_protocol.source_port[0] == undefined)
+    // )
+    //     return true; 
+    // return false; 
+    return matched_protocols; 
 }

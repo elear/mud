@@ -59,45 +59,45 @@ class Mud_Network {
             var current_mud = this.all_mud_objects[mud_idx];
             if (Object.keys(current_mud.abstraction_protocols).includes("local-networks")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-                    var tmp_node = this.allNodes[n_idx]; 
+                    var tmp_node = this.allNodes[n_idx];
                     if (current_mud.index_in_allnodes != n_idx &&  // don't connect to itself 
                         tmp_node.group == '1' // &&  // make sure the node is in local network group
-                        ) {
-                            // a local-network node shold only connect to others under 3 conditions: 
-                            // the other node is also of local-network abstraction, 
-                            // it's of same-manufacturer and their manufacturer match
-                            // it's of manufacturer and their target manufacturers match
-                            let accepted_abstractions = ['local-networks',"same-manufacturer", 'manufacturer'];
-                            for (var abs_idx in accepted_abstractions){
-                                let current_abstraction = accepted_abstractions[abs_idx];
-                                if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction) ){
-                                    // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
-                                        // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
-                                        let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
-                                        if (protocol_data.length > 0 ) {
-                                            let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
+                    ) {
+                        // a local-network node shold only connect to others under 3 conditions: 
+                        // the other node is also of local-network abstraction, 
+                        // it's of same-manufacturer and their manufacturer match
+                        // it's of manufacturer and their target manufacturers match
+                        let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
+                        for (var abs_idx in accepted_abstractions) {
+                            let current_abstraction = accepted_abstractions[abs_idx];
+                            if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
+                                // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
+                                // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
+                                let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
+                                if (protocol_data.length > 0) {
+                                    let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
 
-                                            let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link,['source','target']);
-                                            if (tmp_idx == -1){
-                                                this.allLinks.push(tmp_link);    
-                                            }
-                                            else{
-                                                this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model); 
-                                                this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data); 
-                                            }
-                                            
-                                            //update links_of_current_node
-                                            tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link,['source','target']);
-                                            if (tmp_idx == -1){
-                                                current_mud.link_of_current_node.push(tmp_link);    
-                                            }
-                                            else{
-                                                current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model); 
-                                                current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
-                                            }   
-                                        }   
+                                    let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+                                    if (tmp_idx == -1) {
+                                        this.allLinks.push(tmp_link);
+                                    }
+                                    else {
+                                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                                        this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
+                                    }
+
+                                    //update links_of_current_node
+                                    tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+                                    if (tmp_idx == -1) {
+                                        current_mud.link_of_current_node.push(tmp_link);
+                                    }
+                                    else {
+                                        current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                                        current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
+                                    }
                                 }
                             }
+                        }
                     }
                 }
             }
@@ -109,42 +109,42 @@ class Mud_Network {
             var current_mud = this.all_mud_objects[mud_idx];
             if (Object.keys(current_mud.abstraction_protocols).includes("same-manufacturer")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-                    var tmp_node = this.allNodes[n_idx]; 
+                    var tmp_node = this.allNodes[n_idx];
                     if (current_mud.index_in_allnodes != n_idx &&
                         tmp_node.group == '1' &&
                         current_mud.manufacturer == tmp_node.manufacturer
-                        ){
-                        
-                        let accepted_abstractions = ['local-network', 'same-manufacturer']
-                        for (var abs_idx in accepted_abstractions){
-                            let current_abstraction = accepted_abstractions[abs_idx];
-                            if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)){
-                                let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction]);
-                                if (protocol_data.length > 0){
-                                    let tmp_link =  { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
+                    ) {
 
-                                    let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link,['source','target']);
-                        if (tmp_idx == -1){
-                            this.allLinks.push(tmp_link);    
-                        }
-                        else{
-                            this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model); 
-                            this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data); 
-                        }
-                        
-                        //update links_of_current_node
-                        tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link,['source','target']);
-                        if (tmp_idx == -1){
-                            current_mud.link_of_current_node.push(tmp_link);    
-                        }
-                        else{
-                            current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model); 
-                            current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
+                        let accepted_abstractions = ['local-network', 'same-manufacturer']
+                        for (var abs_idx in accepted_abstractions) {
+                            let current_abstraction = accepted_abstractions[abs_idx];
+                            if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
+                                let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
+                                if (protocol_data.length > 0) {
+                                    let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
+
+                                    let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+                                    if (tmp_idx == -1) {
+                                        this.allLinks.push(tmp_link);
+                                    }
+                                    else {
+                                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                                        this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
+                                    }
+
+                                    //update links_of_current_node
+                                    tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+                                    if (tmp_idx == -1) {
+                                        current_mud.link_of_current_node.push(tmp_link);
+                                    }
+                                    else {
+                                        current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                                        current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            }
-        }
                 }
             }
         }
@@ -155,36 +155,48 @@ class Mud_Network {
             var current_mud = this.all_mud_objects[mud_idx];
             if (Object.keys(current_mud.abstraction_protocols).includes("manufacturer")) {
                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-                    var tmp_node = this.allNodes[n_idx]; 
+                    var tmp_node = this.allNodes[n_idx];
                     if (current_mud.index_in_allnodes != n_idx &&
                         tmp_node.group == '1' &&
-                        current_mud.other_manufacturer.includes(tmp_node.manufacturer)) 
-                        
-                        if (Object.keys(tmp_node.abstraction_protocols).includes('local-networks') || 
-                        (Object.keys(tmp_node.abstraction_protocols).includes("manufacturer") &&  current_mud.other_manufacturer.includes(tmp_node.manufacturer) )
-                        )
-                        {
+                        current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
+                        // if (Object.keys(tmp_node.abstraction_protocols).includes('local-networks') ||
+                        //     (Object.keys(tmp_node.abstraction_protocols).includes("manufacturer") && current_mud.other_manufacturer.includes(tmp_node.manufacturer))
+                        // ) {
 
-
-                            
-                            let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model] };
-                            let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link,['source','target']);
-                            if (tmp_idx == -1){
-                                this.allLinks.push(tmp_link);    
-                            }
-                            else{
-                                this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model); 
-                            }
-                            
-                            //update links_of_current_node
-                            tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link,['source','target']);
-                            if (tmp_idx == -1){
-                                current_mud.link_of_current_node.push(tmp_link);    
-                            }
-                            else{
-                                current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model); 
-                            }  
+                        let accepted_abstractions = ['local-network', 'manufacturer'];
+                        for (var abs_idx in accepted_abstractions) {
+                            let current_abstraction = accepted_abstractions[abs_idx];
+                            if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
+                                if (current_mud.other_manufacturer.includes(tmp_node.manufacturer)){
+                                    let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
+                                    if (protocol_data.length > 0) {
+                                        let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
     
+                                        let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+                                        if (tmp_idx == -1) {
+                                            this.allLinks.push(tmp_link);
+                                        }
+                                        else {
+                                            this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                                            this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
+                                        }
+    
+                                        //update links_of_current_node
+                                        tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+                                        if (tmp_idx == -1) {
+                                            current_mud.link_of_current_node.push(tmp_link);
+                                        }
+                                        else {
+                                            current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                                            current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
+                                        }
+    
+                                    }
+                                }
+                            }
+                        }
+
+
 
                         // this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
                         // current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
@@ -200,34 +212,34 @@ class Mud_Network {
             for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
                 var current_promise_data = current_mud.promise.data[prom_idx];
                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
-                let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];                
-                    
-                let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] , "device": [current_mud.model]};
-                tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller,['group','id']);
-                if (tmp_idx == -1){
-                    this.allNodes.push(node_controller);    
+                let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
+
+                let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model] };
+                tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
+                if (tmp_idx == -1) {
+                    this.allNodes.push(node_controller);
                 }
-                else{
-                    this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model); 
+                else {
+                    this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
                 }
 
                 let link_router_to_mycontroller = { "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] };
                 // update all_links
-                tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller,['source','target']);
-                if (tmp_idx == -1){
-                    this.allLinks.push(link_router_to_mycontroller);    
+                tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
+                if (tmp_idx == -1) {
+                    this.allLinks.push(link_router_to_mycontroller);
                 }
-                else{
-                    this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model); 
+                else {
+                    this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
                 }
-                
+
                 //update links_of_current_node
-                tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller,['source','target']);
-                if (tmp_idx == -1){
-                    current_mud.link_of_current_node.push(link_router_to_mycontroller);    
+                tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller, ['source', 'target']);
+                if (tmp_idx == -1) {
+                    current_mud.link_of_current_node.push(link_router_to_mycontroller);
                 }
-                else{
-                    current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model); 
+                else {
+                    current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
                 }
 
 
@@ -237,9 +249,9 @@ class Mud_Network {
                 // this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
                 // current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
             }
-            if (!current_mud.node_is_in_allNodes()){
+            if (!current_mud.node_is_in_allNodes()) {
                 current_mud.index_in_allnodes = this.allNodes.length;
-                this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstraction_protocols": current_mud.abstraction_protocols, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer, "device": [current_mud.model] });    
+                this.allNodes.push({ "group": String(1), "id": current_mud.model, "abstraction_protocols": current_mud.abstraction_protocols, "links": current_mud.link_of_current_node, "manufacturer": current_mud.manufacturer, "device": [current_mud.model] });
             }
         }
         this.ready_to_draw = true;
@@ -403,7 +415,7 @@ class Mud {
         this.allLinks = allLinks;
         this.link_of_current_node = [];
         this.index_in_allnodes = -1;
-        this.number_protocol_mapping = {"1" : "ICMP" , "6": "TCP", "17": "UDP"}
+        this.number_protocol_mapping = { "1": "ICMP", "6": "TCP", "17": "UDP" }
         this.manufacturer = this.extract_manufacturer()
         this.other_manufacturer = this.extract_others_manufacturer();
         this.extract_device_policies();
@@ -419,7 +431,7 @@ class Mud {
 
     extract_acls() {
         this.ietf_acl = find_values_by_key(this.mudfile, "ietf-access-control-list", true);
-        let acls = find_values_by_key(this.ietf_acl, 'acl'); 
+        let acls = find_values_by_key(this.ietf_acl, 'acl');
         // if (acls.length > 1) {
         //     Swal.fire({
         //         title: 'Warning: More than one ACL found in this MUD file, only the first one will be considered.',
@@ -433,8 +445,8 @@ class Mud {
     }
 
     extract_device_policies() {
-        for (var acls_idx1 in this.acls){
-            var current_acl_set = this.acls[acls_idx1]; 
+        for (var acls_idx1 in this.acls) {
+            var current_acl_set = this.acls[acls_idx1];
             for (var acl_idx = 0; acl_idx < current_acl_set.length; acl_idx++) {
                 var current_acl = current_acl_set[acl_idx];
                 if (this.is_FromDevicePolicy(current_acl)) {
@@ -487,32 +499,32 @@ class Mud {
     extract_FromDevice_links() {
         for (var acl_idx = 0; acl_idx < this.FromDeviceAces.length; acl_idx++) {
             var ace = this.FromDeviceAces[acl_idx];
-            
-            let transport; 
-            for (var k in ace.matches){
-                if (k.includes("ip")){
-                    transport = k; 
-                    break; 
+
+            let transport;
+            for (var k in ace.matches) {
+                if (k.includes("ip")) {
+                    transport = k;
+                    break;
                 }
             }
-            
-            let protocol_num = find_values_by_key(ace,"protocol")[0];
-            let protocol = this.number_protocol_mapping[protocol_num]; 
-            
-            let source_port = find_values_by_key(ace,"source-port");
+
+            let protocol_num = find_values_by_key(ace, "protocol")[0];
+            let protocol = this.number_protocol_mapping[protocol_num];
+
+            let source_port = find_values_by_key(ace, "source-port");
             let source_port_number = find_values_by_key(source_port, "port");
-            
-            let destination_port = find_values_by_key(ace,"destination-port");
+
+            let destination_port = find_values_by_key(ace, "destination-port");
             let destination_port_number = find_values_by_key(destination_port, "port");
-            
-            let protocol_data = {"transport": transport,"protocol": protocol, "source_port": source_port_number, "destination_port": destination_port_number};
+
+            let protocol_data = { "transport": transport, "protocol": protocol, "source_port": source_port_number, "destination_port": destination_port_number };
 
             var abstract = this.get_abstract_types(ace);
             // add the abstraction to this mud instance if it's not there yet: 
-            if (Object.keys(this.abstraction_protocols).includes(abstract)){
-                this.abstraction_protocols[abstract] = this.abstraction_protocols[abstract].concat(protocol_data); 
+            if (Object.keys(this.abstraction_protocols).includes(abstract)) {
+                this.abstraction_protocols[abstract] = this.abstraction_protocols[abstract].concat(protocol_data);
             }
-            else{ 
+            else {
                 this.abstraction_protocols[abstract] = [protocol_data]
             }
             // if (!this.abstractions.includes(abstract)) {
@@ -534,69 +546,69 @@ class Mud {
                         if (!this.allNodes[tmp_idx].device.includes(this.model))
                             this.allNodes[tmp_idx].device = this.allNodes[tmp_idx].device.concat(this.model);
                     }
-                    let link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device": [this.model] , "protocol_data": [protocol_data]};
-                    
+                    let link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_device_to_router);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_device_to_router);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
-                    
+
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_device_to_router);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_device_to_router);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
-                    let link_internet_to_destination = { "source": "Internet", "target": destination, "value": "10", "device": [this.model], "protocol_data":[protocol_data] };
+                    let link_internet_to_destination = { "source": "Internet", "target": destination, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
 
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_internet_to_destination,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_internet_to_destination);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_internet_to_destination, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_internet_to_destination);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
-                    
+
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_internet_to_destination,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_internet_to_destination);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_internet_to_destination, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_internet_to_destination);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
-                    let link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.model] , "protocol_data":[protocol_data]}; 
+                    let link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
 
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_internet,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_router_to_internet);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_internet, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_router_to_internet);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
-                    
+
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_router_to_internet,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_router_to_internet);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_router_to_internet, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_router_to_internet);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -605,24 +617,24 @@ class Mud {
                 case "local-networks":
                 case "same-manufacturer":
                 case "manufacturer":
-                    let link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data":[protocol_data] };
+                    let link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_device_to_router_);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_device_to_router_);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_device_to_router_);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_device_to_router_);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -633,26 +645,26 @@ class Mud {
                     break;
                 case "my-controller":
                     this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
-                    let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model] , "protocol_data":[protocol_data]};
+                    let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
 
 
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_my_cont,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_device_to_router_my_cont);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_my_cont, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_device_to_router_my_cont);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_my_cont,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_device_to_router_my_cont);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_my_cont, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_device_to_router_my_cont);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -666,38 +678,38 @@ class Mud {
                 case "controller":
                     var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
                     // this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'controller' ,'keys': ['controller-name', 'controller-IP-address'],'values':[]});
-                    
-                    let link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data":[protocol_data] };
-                    
+
+                    let link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_cont,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_device_to_router_cont);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_cont, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_device_to_router_cont);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
-                    
+
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_cont,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_device_to_router_cont);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_device_to_router_cont, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_device_to_router_cont);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
 
 
-                    let node_controller = { "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model] , "protocol_data":[protocol_data]};
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller,['group','id']);
-                    if (tmp_idx == -1){
-                        this.allNodes.push(node_controller);    
+                    let node_controller = { "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model], "protocol_data": [protocol_data] };
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
+                    if (tmp_idx == -1) {
+                        this.allNodes.push(node_controller);
                     }
-                    else{
-                        this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model); 
+                    else {
+                        this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model);
                     }
 
 
@@ -712,25 +724,25 @@ class Mud {
                     // }
 
 
-                    let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model] , "protocol_data":[protocol_data]};
-                    
+                    let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+
                     // update all_links
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_controller,['source','target']);
-                    if (tmp_idx == -1){
-                        this.allLinks.push(link_router_to_controller);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_controller, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_router_to_controller);
                     }
-                    else{
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model); 
+                    else {
+                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
                     //update links_of_current_node
-                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_router_to_controller,['source','target']);
-                    if (tmp_idx == -1){
-                        this.link_of_current_node.push(link_router_to_controller);    
+                    var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_router_to_controller, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.link_of_current_node.push(link_router_to_controller);
                     }
-                    else{
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model); 
+                    else {
+                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -742,7 +754,7 @@ class Mud {
             }
             if (abstract_matched && abstract != "my-controller" && !this.node_is_in_allNodes()) {
                 this.index_in_allnodes = this.allNodes.length;
-                this.allNodes.push({ "group": String(1), "id": this.model, "abstraction_protocols": this.abstraction_protocols, "links": this.link_of_current_node, "manufacturer": this.manufacturer, "other_manufacturer":this.other_manufacturer,device: [this.model] });
+                this.allNodes.push({ "group": String(1), "id": this.model, "abstraction_protocols": this.abstraction_protocols, "links": this.link_of_current_node, "manufacturer": this.manufacturer, "other_manufacturer": this.other_manufacturer, device: [this.model] });
             }
         }
     }

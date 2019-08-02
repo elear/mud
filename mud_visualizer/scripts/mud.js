@@ -1,11 +1,14 @@
+// This file contains the main two class for building the network of mud nodes: MUD_Network, MUD_Promise and MUD
+
 const uuidv4 = require('uuid/v4');
 const Swal = require('sweetalert2');
-///////////////////////////////////
-//////////////// MUD NETWORK 
-//////////////////////////////////
+
+
+/////////////////////////////////////////////
+//////////////// MUD NETWORK ////////////////
+/////////////////////////////////////////////
 
 class Mud_Network {
-
     constructor() {
         this.ready_to_draw = false;
         this.all_mud_jsons = [];
@@ -168,9 +171,6 @@ class Mud_Network {
                     if (current_mud.index_in_allnodes != n_idx &&
                         tmp_node.group == '1' &&
                         current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
-                        // if (Object.keys(tmp_node.abstraction_protocols).includes('local-networks') ||
-                        //     (Object.keys(tmp_node.abstraction_protocols).includes("manufacturer") && current_mud.other_manufacturer.includes(tmp_node.manufacturer))
-                        // ) {
 
                         let accepted_abstractions = ['local-network', 'manufacturer'];
                         for (var abs_idx in accepted_abstractions) {
@@ -204,11 +204,6 @@ class Mud_Network {
                                 }
                             }
                         }
-
-
-
-                        // this.allLinks.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
-                        // current_mud.link_of_current_node.push({ "source": "Router", "target": this.allNodes[n_idx].id, "value": "10", "device": [current_mud.model] });
                     }
                 }
             }
@@ -250,13 +245,6 @@ class Mud_Network {
                 else {
                     current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
                 }
-
-
-                // if (!current_mud.allNodes_includes(my_controller_name)) {
-                //     this.allNodes.push({ "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"] , "device": [current_mud.model]});
-                // }
-                // this.allLinks.push({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
-                // current_mud.link_of_current_node = current_mud.link_of_current_node.concat({ "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] });
             }
             if (!current_mud.node_is_in_allNodes()) {
                 current_mud.index_in_allnodes = this.allNodes.length;
@@ -284,13 +272,11 @@ class Mud_Network {
                                  width: 80%;} \
                  </style>'
             var egress_html = style +
-                // '<div style="border: 1px solid #000000;">' +     
                 '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
                 '</dynamic> in this network needs its controller to be configured for <dynamic>egress</dynamic> traffic:</p>' +
                 '<div style="border: 1px solid #000000;">';
 
             var ingress_html = style +
-                // '<div style="border: 1px solid #000000;">' +     
                 '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
                 '</dynamic> in this network needs its controller to be configured for <dynamic>ingress</dynamic> traffic:</p>';
 
@@ -362,7 +348,7 @@ class Mud_Network {
 
 
 ///////////////////////////////////////
-//////////////// promise
+//////////////// promise //////////////
 ///////////////////////////////////////
 
 class Mud_Promise {
@@ -392,9 +378,9 @@ class Mud_Promise {
     }
 }
 
-///////////////////////////////////
-//////////////// MUD Node
-//////////////////////////////////
+//////////////////////////////////////////
+//////////////// MUD Node ////////////////
+//////////////////////////////////////////
 
 class Mud {
     constructor(mudfile, non_unique_modelnames, allNodes, allLinks, allAbstractions) {
@@ -664,8 +650,6 @@ class Mud {
 
                 case "controller":
                     var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
-                    // this.promise.append({'direction': 'egress', 'ace': ace,  'abstraction': 'controller' ,'keys': ['controller-name', 'controller-IP-address'],'values':[]});
-
                     let link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
 
                     // update all_links
@@ -687,8 +671,6 @@ class Mud {
                         this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
-
-
 
                     let node_controller = { "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model], "protocol_data": [protocol_data] };
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);

@@ -73,6 +73,10 @@ class Mud_Network {
                             if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
                                 // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
                                 // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
+                                if ((current_abstraction == "same-manufacturer" && tmp_node.manufacturer != current_mud.manufacturer) ||
+                                    (current_abstraction == "manufacturer" && !tmp_node.other_manufacturer.includes(current_mud.manufacturer))) {
+                                    continue;
+                                }
                                 let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
                                 if (protocol_data.length > 0) {
                                     let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
@@ -96,6 +100,8 @@ class Mud_Network {
                                         current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                                     }
                                 }
+
+
                             }
                         }
                     }
@@ -119,6 +125,9 @@ class Mud_Network {
                         for (var abs_idx in accepted_abstractions) {
                             let current_abstraction = accepted_abstractions[abs_idx];
                             if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
+                                if ((current_abstraction == "same-manufacturer") && tmp_node.manufacturer != current_mud.manufacturer) {
+                                    continue;
+                                }
                                 let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
                                 if (protocol_data.length > 0) {
                                     let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
@@ -167,11 +176,11 @@ class Mud_Network {
                         for (var abs_idx in accepted_abstractions) {
                             let current_abstraction = accepted_abstractions[abs_idx];
                             if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
-                                if (current_mud.other_manufacturer.includes(tmp_node.manufacturer)){
+                                if (current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
                                     let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
                                     if (protocol_data.length > 0) {
                                         let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
-    
+
                                         let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
                                         if (tmp_idx == -1) {
                                             this.allLinks.push(tmp_link);
@@ -180,7 +189,7 @@ class Mud_Network {
                                             this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
                                             this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                                         }
-    
+
                                         //update links_of_current_node
                                         tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
                                         if (tmp_idx == -1) {
@@ -190,7 +199,7 @@ class Mud_Network {
                                             current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
                                             current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                                         }
-    
+
                                     }
                                 }
                             }

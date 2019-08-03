@@ -213,6 +213,7 @@ class Mud_Network {
     update_mycontroller_links() {
         for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
             var current_mud = this.mud_with_promises_processed[mud_idx];
+            var current_protocol_data = current_mud.abstraction_protocols['my-controller'];
             for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
                 var current_promise_data = current_mud.promise.data[prom_idx];
                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
@@ -227,7 +228,7 @@ class Mud_Network {
                     this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
                 }
 
-                let link_router_to_mycontroller = { "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model] };
+                let link_router_to_mycontroller = { "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model], "protocol_data": current_protocol_data };
                 // update all_links
                 tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
                 if (tmp_idx == -1) {
@@ -235,6 +236,7 @@ class Mud_Network {
                 }
                 else {
                     this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                    this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, current_protocol_data);
                 }
 
                 //update links_of_current_node
@@ -244,6 +246,7 @@ class Mud_Network {
                 }
                 else {
                     current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                    current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, current_protocol_data);
                 }
             }
             if (!current_mud.node_is_in_allNodes()) {
@@ -508,7 +511,7 @@ class Mud {
             var abstract = this.get_abstract_types(ace);
             // add the abstraction to this mud instance if it's not there yet: 
             if (Object.keys(this.abstraction_protocols).includes(abstract)) {
-                this.abstraction_protocols[abstract] = this.abstraction_protocols[abstract].concat(protocol_data);
+                this.abstraction_protocols[abstract] = concat_if_not_exists(this.abstraction_protocols[abstract],protocol_data);
             }
             else {
                 this.abstraction_protocols[abstract] = [protocol_data]

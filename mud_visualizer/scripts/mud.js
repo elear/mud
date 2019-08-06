@@ -766,7 +766,7 @@ class Mud {
 
     get_abstract_types(ace) {
         var abstract_types = [];
-        var mud_acls = find_values_by_key(ace, "ietf-mud", true)
+        var mud_acls = find_values_by_key(ace, "ietf-mud:mud", true)
         if (mud_acls.length == 0) {
             abstract_types = abstract_types.concat("domain-names");
         }

@@ -116,7 +116,7 @@ function mud_drawer(inp_json) {
         case "3": // intenret logo x axis 
           return 5;
         case "4":
-          return -150;
+          return -(d.id.length*5);
         default:
           return 5;
       }

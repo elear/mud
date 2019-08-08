@@ -161,7 +161,7 @@ function protocols_match(src_protocols, dst_protocols) {
             if ((cur_src_p.transport == null || cur_dst_p.transport == null || cur_src_p.transport == cur_dst_p.transport) &&
                 (cur_src_p.protocol == null || cur_dst_p.protocol == null || cur_src_p.protocol[0] == cur_dst_p.protocol[0]) &&
                 (cur_src_p.source_port.length == 0 || cur_dst_p.destination_port.length == 0 || cur_src_p.source_port[0] == cur_dst_p.destination_port[0]) &&
-                (cur_src_p.destination_port.lenght == 0 || cur_dst_p.source_port.length == 0 || cur_src_p.destination_port[0] == cur_dst_p.source_port[0])
+                (cur_src_p.destination_port.length == 0 || cur_dst_p.source_port.length == 0 || cur_src_p.destination_port[0] == cur_dst_p.source_port[0])
             ) {
                 matched_protocols = matched_protocols.concat(cur_src_p);
             }
@@ -181,7 +181,7 @@ function find_trasport_layer(ace){
         return "ipv4";
     if (ace.type.includes("ipv6"))
         return "ipv6";
-    return "unknown";
+    return undefined;
 }
 
 function get_related_nodes(links){
@@ -192,4 +192,14 @@ function get_related_nodes(links){
         related_nodes = concat_if_not_exists(related_nodes,link.target);
     }
     return related_nodes;
+}
+
+function find_model_name(mudfile){
+    let model_name = find_values_by_key(mudfile, "model-name")[0];
+    if (model_name == null)
+        model_name = find_values_by_key(mudfile, "systeminfo")[0];
+    if (model_name == null)
+        return "unknown"
+    else
+        return model_name
 }

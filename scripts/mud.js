@@ -31,7 +31,7 @@ class Mud_Network {
 
     add_mudfile(mud_json) {
         this.all_mud_jsons = this.all_mud_jsons.concat({ 'data': mud_json, 'visible': true, 'processed': false });
-        let model_name = find_values_by_key(mud_json, "model-name")[0];
+        let model_name = find_model_name(mud_json);
         this.all_modelnames = this.all_modelnames.concat(model_name);
         this.update_non_unique_modelnames();
     }
@@ -467,7 +467,7 @@ class Mud {
     constructor(mudfile, non_unique_modelnames, allNodes, allLinks, allAbstractions, allMyControllers, allControllers) {
         this.mudfile = mudfile;
         this.mud_url = find_values_by_key(this.mudfile, 'mud-url')[0];
-        this.model = find_values_by_key(this.mudfile, "model-name")[0];
+        this.model = find_model_name(this.mudfile);
         for (var z = 0; z < non_unique_modelnames.length; z++) {
             if (non_unique_modelnames[z][0] == this.model) {
                 this.model = this.model + non_unique_modelnames[z][1];
@@ -567,6 +567,8 @@ class Mud {
     }
 
     extract_FromDevice_links() {
+        var unmached_abstract_found = false;
+        var unmatched_aces = [];
         for (var acl_idx = 0; acl_idx < this.FromDeviceAces.length; acl_idx++) {
             var ace = this.FromDeviceAces[acl_idx];
 
@@ -847,15 +849,31 @@ class Mud {
                     }
 
                     break
-                case "same-model":
-                    console.log("not implemented");
+                // case "same-model":
+                //     console.log("not implemented");
                 default:
+                    unmached_abstract_found = true;
                     abstract_matched = false;
+                    unmatched_aces.push(ace);
             }
             if (abstract_matched && abstract != "my-controller" && !this.node_is_in_allNodes()) {
                 this.index_in_allnodes = this.allNodes.length;
                 this.allNodes.push({ "group": String(1), "id": this.model, "abstraction_protocols": this.abstraction_protocols, "links": this.link_of_current_node, "manufacturer": this.manufacturer, "other_manufacturer": this.other_manufacturer, device: [this.model] });
             }
+        }
+        if (unmached_abstract_found == true){
+            let html_message = "<div style='text-align: left; padding: 5px;'>The abstraction of the following ACE(s) is not implemented yet:</div></br>";
+            for (var a_idx in unmatched_aces){
+                html_message += "<pre style='border: 1px solid #555555;text-align: left;'>" +  JSON.stringify(unmatched_aces[a_idx],undefined,2) + "</pre>"
+            }
+            // html_message += JSON.stringify(ace,undefined,2) + "</pre>";
+            Swal.fire({
+                type: 'error',
+                title: 'Oops...',
+                text: "MUD abstraction of the following ACE is not implemented yet:",
+                html: html_message
+                // footer: '<a href>"abstract "+ abstract + " not implemented"</a>'
+            })
         }
     }
 
@@ -906,8 +924,9 @@ class Mud {
 
     get_abstract_types(ace) {
         var abstract_types = [];
-        var mud_acls = find_values_by_key(ace, "ietf-mud:mud", true)
-        if (mud_acls.length == 0) {
+        var acldns = find_values_by_key(ace , 'ietf-acldns', true);
+        var mud_acls = find_values_by_key(ace, "ietf-mud:mud", true);
+        if (acldns.length > 0) {
             abstract_types = abstract_types.concat("domain-names");
         }
         else {

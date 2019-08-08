@@ -128,6 +128,10 @@ function mud_drawer(inp_json) {
     .attr("font-size", "0.8em")
     .attr("dx", function (d) {
       switch (d.group) {
+        case "0":
+          return -40 ;
+        case "1":
+          return -15;
         case "2": //router logo x axis 
           return -30;
         case "3": // intenret logo x axis 
@@ -242,9 +246,7 @@ function mud_drawer(inp_json) {
       d3.select(this).select('image').transition()
           .duration(500)
           .attr("width",60)
-          .attr("height",60)
-          // .attr("y",-30)
-          .attr("background-color", "red");
+          .attr("height",60);
       var current_node_links = d.links;
       var current_device = d.id
       d3.selectAll('path').each(function (d, i) {
@@ -290,21 +292,23 @@ function mud_drawer(inp_json) {
 
 
   node.on("mouseout", function (d) {
-    var current_related_nodes = d.related_nodes;
+    d3.select(this).select('image')
+        // .transition()
+        // .duration(500)
+        .attr('opacity',1);
     d3.selectAll('image').each(function(d) {
-      if (!current_related_nodes.includes(d.id)){
         d3.select(this)
             .transition()
             .duration(500)
-            .attr('opacity',1);
-      }
+            .attr('opacity',1)
+            .attr("width",50)
+            .attr("height",50);
     });
     if (d.links !== undefined) {
       d3.select(this).select('image').transition()
           .duration(500)
           .attr("width",50)
           .attr("height",50);
-          // .attr("y",-26);
 
       var current_node_links = d.links;
       d3.selectAll('path').each(function (d, i) {

@@ -243,8 +243,12 @@ class Mud_Network {
                 var current_promise_data = current_mud.promise.data[prom_idx];
                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
                 let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
+                tmp_idx = current_promise_data.keys.indexOf('my-controller-IP-address');
+                let my_controller_IP_Address = current_promise_data.values[tmp_idx];
+                let mud_uri = find_values_by_key(current_mud , 'mud-url')[0];
+                let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model] , "ip_address":my_controller_IP_Address, 'mud_url':mud_uri  };
+                this.my_controllers.push(node_controller);
 
-                let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model] };
                 tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
                 if (tmp_idx == -1) {
                     this.allNodes.push(node_controller);
@@ -301,6 +305,17 @@ class Mud_Network {
     fulfill_promises() {
         if (this.has_promise()) {
             var tmp_mud = this.mud_with_promises_raw[0];
+            let controller_found = false;
+            if (tmp_mud.promise.isfulfilled()){
+                controller_found = true;
+                var alert_message = {
+                    type: 'success',
+                    title: 'My-Controller Found!',
+                    showConfirmButton: true,
+                    // timer: 3000
+                };
+            }
+            else{
             var style =
                 '<style>  \
                         dynamic {color: brown; \
@@ -313,39 +328,50 @@ class Mud_Network {
                 '</dynamic> in this network needs its controller to be configured for <dynamic>egress</dynamic> traffic:</p>' +
                 '<div style="border: 1px solid #000000;">';
 
-            var ingress_html = style +
-                '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
-                '</dynamic> in this network needs its controller to be configured for <dynamic>ingress</dynamic> traffic:</p>';
-
+            // var ingress_html = style +
+            //     '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
+            //     '</dynamic> in this network needs its controller to be configured for <dynamic>ingress</dynamic> traffic:</p>';
 
             var ace_types = unique(find_values_by_key(tmp_mud.promise, 'type'));
-            for (var type_idx = 0; type_idx < ace_types.length; type_idx++) {
-                egress_html += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;"> ACL Type: <dynamic>' + ace_types[type_idx] + '</dynamic><div>';
-                var current_ace_type = ace_types[type_idx];
-                for (var promise_idx = 0; promise_idx < tmp_mud.promise.length(); promise_idx++) {
 
+                egress_html += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;"> ACL Type(s): <dynamic>'
+                for (var type_idx = 0; type_idx < ace_types.length; type_idx++) {
+                    egress_html +=  ace_types[type_idx];
+                    if (type_idx < ace_types.length-1){
+                        egress_html += '</dynamic>, <dynamic>'
+                    }
+                    var current_ace_type = ace_types[type_idx];
+                }
+                egress_html += '</dynamic><div>';
+                // this for loop is commented so to ask just for one of the aces , otherwise it might ask tens of times
+                // for (var promise_idx = 0; promise_idx < tmp_mud.promise.length(); promise_idx++) {
+                    let promise_idx = 0 ;
                     var tmp_promise = tmp_mud.promise.data[promise_idx];
-                    if (tmp_promise.ace.type == current_ace_type) {
+                    // if (tmp_promise.ace.type == current_ace_type) {
                         for (var key_idx = 0; key_idx < tmp_promise.keys.length; key_idx++) {
                             egress_html += tmp_promise.keys[key_idx] + ': <br><input id="' + tmp_promise.input_id[key_idx] + '" align="right"><br>';
                         }
-                    }
-                }
+                    // }
+                // }
                 egress_html += '</div></div>';
-            }
+            // }
             egress_html += '</div>';
-            ingress_html += '</div>';
-            Swal.fire({
+            // ingress_html += '</div>';
+            var alert_message = {
                 title: "Configuring My-Controller",
                 html: egress_html,
-                allowOutsideClick: false
-            }).then(() => {
-                // store the user input values in the mud objects
-                for (var dat_idx = 0; dat_idx < tmp_mud.promise.data.length; dat_idx++) {
-                    for (var key_idx = 0; key_idx < tmp_mud.promise.data[dat_idx].keys.length; key_idx++) {
-                        let tmp_input_id = tmp_mud.promise.data[dat_idx].input_id[key_idx];
-                        let tmp_input_value = document.getElementById(tmp_input_id).value;
-                        tmp_mud.promise.data[dat_idx].values = tmp_mud.promise.data[dat_idx].values.concat(tmp_input_value);
+                allowOutsideClick: false}
+            }
+            Swal.fire(alert_message).then(() => {
+                if (controller_found == false){
+                    // store the user input values in the mud objects
+                    for (var dat_idx = 0; dat_idx < tmp_mud.promise.data.length; dat_idx++) {
+                        for (var key_idx = 0; key_idx < tmp_mud.promise.data[dat_idx].keys.length; key_idx++) {
+                            // let tmp_input_id = tmp_mud.promise.data[dat_idx].input_id[key_idx];
+                            let tmp_input_id = tmp_mud.promise.data[0].input_id[key_idx];
+                            let tmp_input_value = document.getElementById(tmp_input_id).value;
+                            tmp_mud.promise.data[dat_idx].values = tmp_mud.promise.data[dat_idx].values.concat(tmp_input_value);
+                        }
                     }
                 }
                 // process the next mud object that has promise, otherwise update the links and draw
@@ -353,11 +379,14 @@ class Mud_Network {
                 this.mud_with_promises_raw.shift();
                 if (this.has_promise())
                     this.fulfill_promises();
-                else
+                else{
                     this.update_mycontroller_links();
+                    this.update_related_nodes();
+                }
             });
         }
         else {
+            this.update_mycontroller_links();
             this.ready_to_draw = true;
         }
     }
@@ -371,7 +400,7 @@ class Mud_Network {
     create_network() {
         for (var current_mud_name in this.all_mud_jsons) {
             if (!this.all_mud_jsons[current_mud_name].processed) {
-                var current_mud = new Mud(this.all_mud_jsons[current_mud_name].data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.promise);
+                var current_mud = new Mud(this.all_mud_jsons[current_mud_name].data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.my_controllers, this.controllers);
                 if (current_mud.has_promise()) {
                     this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
                 }
@@ -409,6 +438,14 @@ class Mud_Promise {
         return false;
     }
 
+    isfulfilled(){
+        for (var dat_idx in this.data){
+            if (this.data[dat_idx].values.length == 0)
+                return false;
+        }
+        return true;
+    }
+
     append(promise_data) {
         promise_data.input_id = []
         for (var dat_idx = 0; dat_idx < promise_data.keys.length; dat_idx++) {
@@ -427,8 +464,9 @@ class Mud_Promise {
 //////////////////////////////////////////
 
 class Mud {
-    constructor(mudfile, non_unique_modelnames, allNodes, allLinks, allAbstractions) {
+    constructor(mudfile, non_unique_modelnames, allNodes, allLinks, allAbstractions, allMyControllers, allControllers) {
         this.mudfile = mudfile;
+        this.mud_url = find_values_by_key(this.mudfile, 'mud-url')[0];
         this.model = find_values_by_key(this.mudfile, "model-name")[0];
         for (var z = 0; z < non_unique_modelnames.length; z++) {
             if (non_unique_modelnames[z][0] == this.model) {
@@ -443,6 +481,8 @@ class Mud {
         this.ToDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "to-device-policy")[0], "name");
         this.acls = this.extract_acls();
         this.allAbstractions = allAbstractions;
+        this.allMyControllers = allMyControllers;
+        this.allControllers = allControllers; 
         this.abstraction_protocols = {};
         this.FromDevicePolicies = [];
         this.FromDeviceAces = [];
@@ -690,9 +730,20 @@ class Mud {
                     break;
 
                 case "my-controller":
-                    this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
-
-                    this.tmp_dev = {}
+                    let existing_mycontroller ;
+                    for (var mycon_idx in this.allMyControllers){
+                        let tmp_mycont = this.allMyControllers[mycon_idx];
+                        if (tmp_mycont.mud_url == this.mud_url){
+                            existing_mycontroller = tmp_mycont;
+                        }
+                    }
+                    if (existing_mycontroller==null){
+                        this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
+                    }
+                    else{
+                        this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [existing_mycontroller.id.split(': ')[1], existing_mycontroller.ip_address] });
+                    }
+                    this.tmp_dev = {};
                     this.tmp_dev[this.model] = {"outgoing":"normal"}// this means for outgoing traffic in the object below, the source and target should be reversed
                     
                     let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };

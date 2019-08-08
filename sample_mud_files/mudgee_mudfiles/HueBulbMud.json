@@ -1,0 +1,717 @@
+{
+  "ietf-mud:mud" : {
+    "mud-version" : 1,
+    "mud-url" : "https://huebulb.com/huebulb",
+    "last-update" : "2018-09-30T03:25:44.358+10:00",
+    "cache-validity" : 100,
+    "is-supported" : true,
+    "systeminfo" : "HueBulb",
+    "from-device-policy" : {
+      "access-lists" : {
+        "access-list" : [ {
+          "name" : "from-ipv4-huebulb"
+        }, {
+          "name" : "from-ipv6-huebulb"
+        } ]
+      }
+    },
+    "to-device-policy" : {
+      "access-lists" : {
+        "access-list" : [ {
+          "name" : "to-ipv4-huebulb"
+        } ]
+      }
+    }
+  },
+  "ietf-access-control-list:access-lists" : {
+    "acl" : [ {
+      "name" : "from-ipv4-huebulb",
+      "type" : "ipv4-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ipv4-huebulb-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-1",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "www.ecdinterface.philips.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-2",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 2,
+              "destination-ipv4-network" : "224.0.0.22/32"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-3",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "www2.meethue.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-4",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 17,
+              "destination-ipv4-network" : "239.255.255.250/32"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 1900
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-5",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 17,
+              "destination-ipv4-network" : "255.255.255.255/32"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            },
+            "eth" : {
+              "destination-mac-address" : "ff:ff:ff:ff:ff:ff",
+              "ethertype" : "0x0800"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-6",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "time2.google.com"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-7",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "dcp.cpp.philips.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-8",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "time4.google.com"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-9",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 17,
+              "destination-ipv4-network" : "224.0.0.251/32"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 5353
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-10",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "time.meethue.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-11",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "diagnostics.meethue.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-12",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:dns"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-13",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "ws.meethue.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-14",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "time3.google.com"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-15",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "fds.cpp.philips.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-16",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "time1.google.com"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-17",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "bridge.meethue.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-huebulb-18",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 6
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "to-ipv4-huebulb",
+      "type" : "ipv4-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "to-ipv4-huebulb-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:dns"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-1",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "time4.google.com"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-2",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "ws.meethue.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-3",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "time2.google.com"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-4",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "diagnostics.meethue.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-5",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "dcp.cpp.philips.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-6",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "www.ecdinterface.philips.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-7",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "bridge.meethue.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-8",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "www2.meethue.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-9",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "time1.google.com"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-10",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "time3.google.com"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-11",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "time.meethue.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-12",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "fds.cpp.philips.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-13",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-huebulb-14",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 6
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "to-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "from-ipv6-huebulb",
+      "type" : "ipv6-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ipv6-huebulb-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 0,
+              "destination-ipv6-network" : "ff00::/8"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-huebulb-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv6" : {
+              "protocol" : 58
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-huebulb-2",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 17,
+              "destination-ipv6-network" : "ff00::/8"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 5353
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-huebulb-3",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 58,
+              "destination-ipv6-network" : "ff00::/8"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    } ]
+  }
+}

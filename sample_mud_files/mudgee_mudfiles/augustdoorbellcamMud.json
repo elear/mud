@@ -1,0 +1,1172 @@
+{
+  "ietf-mud:mud" : {
+    "mud-version" : 1,
+    "mud-url" : "https://augustdoorbellcam.com/augustdoorbellcam",
+    "last-update" : "2018-10-02T21:39:03.766+10:00",
+    "cache-validity" : 100,
+    "is-supported" : true,
+    "systeminfo" : "augustdoorbellcam",
+    "from-device-policy" : {
+      "access-lists" : {
+        "access-list" : [ {
+          "name" : "from-ipv4-augustdoorbellcam"
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam"
+        }, {
+          "name" : "from-ethernet-augustdoorbellcam"
+        } ]
+      }
+    },
+    "to-device-policy" : {
+      "access-lists" : {
+        "access-list" : [ {
+          "name" : "to-ipv4-augustdoorbellcam"
+        }, {
+          "name" : "to-ipv6-augustdoorbellcam"
+        } ]
+      }
+    }
+  },
+  "ietf-access-control-list:access-lists" : {
+    "acl" : [ {
+      "name" : "from-ipv4-augustdoorbellcam",
+      "type" : "ipv4-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ipv4-augustdoorbellcam-0",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "336971aac5bba454b967-3ec27f5c732731b07836c69a45967ad6.ssl.cf1.rackcdn.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 17,
+              "destination-ipv4-network" : "255.255.255.255/32"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            },
+            "eth" : {
+              "destination-mac-address" : "ff:ff:ff:ff:ff:ff",
+              "ethertype" : "0x0800"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-2",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv2.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-3",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "iconfig.august.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-4",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:dns"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-5",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv12.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-6",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "vcsv2.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-7",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "destination-ipv4-network" : "8.8.4.4/32"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-8",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv3.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-9",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "doorbells.august.com"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-10",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv7.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-11",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "v2servers.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-12",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "destination-ipv4-network" : "8.8.8.8/32"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-13",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-14",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv11.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-15",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv222.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-16",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "august.pubnub.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-17",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "logger.august.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-18",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "s3-us-west-2.amazonaws.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-19",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv4.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-20",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "doorbells.august.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-21",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rbs-sticky.august.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-22",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv1.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-23",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv10.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-24",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "rpsv5.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-25",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "dmsv2.video-cloud.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-augustdoorbellcam-26",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "destination-ipv4-network" : "8.8.8.8/32"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "to-ipv4-augustdoorbellcam",
+      "type" : "ipv4-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "to-ipv4-augustdoorbellcam-0",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv7.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-1",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "august.pubnub.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-2",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv2.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-3",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "s3-us-west-2.amazonaws.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-4",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "logger.august.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-5",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "336971aac5bba454b967-3ec27f5c732731b07836c69a45967ad6.ssl.cf1.rackcdn.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-6",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv11.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-7",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "dmsv2.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-8",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-9",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "doorbells.august.com"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-10",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "source-ipv4-network" : "8.8.8.8/32"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-11",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv1.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-12",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv4.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-13",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv3.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-14",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:dns"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-15",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "v2servers.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-16",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "iconfig.august.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-17",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv222.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-18",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv10.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-19",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "doorbells.august.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-20",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "vcsv2.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-21",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv5.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-22",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "source-ipv4-network" : "8.8.8.8/32"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-23",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "source-ipv4-network" : "8.8.4.4/32"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-24",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rbs-sticky.august.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-augustdoorbellcam-25",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "rpsv12.video-cloud.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "from-ipv6-augustdoorbellcam",
+      "type" : "ipv6-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ipv6-augustdoorbellcam-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 17,
+              "destination-ipv6-network" : "ff00::/8"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 547
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 58,
+              "destination-ipv6-network" : "ff00::/8"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam-2",
+          "matches" : {
+            "ipv6" : {
+              "protocol" : 58,
+              "destination-ipv6-network" : "192.168.1.1"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam-3",
+          "matches" : {
+            "ipv6" : {
+              "protocol" : 17,
+              "destination-ipv6-network" : "fdc1:1bdc:1e84:0:0:0:0:1"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam-4",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 0,
+              "destination-ipv6-network" : "ff00::/8"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam-5",
+          "matches" : {
+            "ipv6" : {
+              "protocol" : 17,
+              "destination-ipv6-network" : "fdc9:ace6:d6ec:4:0:0:0:1"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-augustdoorbellcam-6",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 58
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "to-ipv6-augustdoorbellcam",
+      "type" : "ipv6-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "to-ipv6-augustdoorbellcam-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv6" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 547
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv6-augustdoorbellcam-1",
+          "matches" : {
+            "ipv6" : {
+              "protocol" : 17,
+              "source-ipv6-network" : "fdc9:ace6:d6ec:4:0:0:0:1"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv6-augustdoorbellcam-2",
+          "matches" : {
+            "ipv6" : {
+              "protocol" : 17,
+              "source-ipv6-network" : "fdc1:1bdc:1e84:0:0:0:0:1"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "from-ethernet-augustdoorbellcam",
+      "type" : "ethernet-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ethernet-augustdoorbellcam-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "eth" : {
+              "ethertype" : "0x0006"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ethernet-augustdoorbellcam-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "eth" : {
+              "ethertype" : "0x888e"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    } ]
+  }
+}

@@ -21,7 +21,10 @@ function mud_drawer(inp_json) {
     .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
     .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
     .force("x", d3.forceX(function (d) {
-      if (d.group === "1" || d.group == "0") {
+      if (d.group == "0"){
+        return 3.2 * (width) / 5
+      }
+      else if (d.group === "1" ) {
         return 4 * (width) / 5
       } else if (d.group === "2") {
         return 2.5 * (width) / 5
@@ -33,7 +36,12 @@ function mud_drawer(inp_json) {
         return 0 * (width) / 5
       }
     }).strength(1))
-    .force("y", d3.forceY(height / 2))
+    .force("y", d3.forceY(function (d) {
+      if (d.group == "0"){
+        return 1.6 * (height) / 4
+      }
+      return height/2 ;
+    }).strength(0.05))
     // .force("center", d3.forceCenter((width) / 2, height / 2))
     .force("collision", d3.forceCollide().radius(35));
 

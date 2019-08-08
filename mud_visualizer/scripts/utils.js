@@ -169,3 +169,17 @@ function protocols_match(src_protocols, dst_protocols) {
     }
     return matched_protocols;
 }
+
+
+function find_trasport_layer(ace){
+    for (var k in ace.matches) {
+        if (k.includes("ip")) {
+            return k;
+        }
+    }
+    if (ace.type.includes("ipv4"))
+        return "ipv4";
+    if (ace.type.includes("ipv6"))
+        return "ipv6";
+    return "unknown";
+}

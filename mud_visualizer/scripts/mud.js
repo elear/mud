@@ -523,13 +523,7 @@ class Mud {
         for (var acl_idx = 0; acl_idx < this.FromDeviceAces.length; acl_idx++) {
             var ace = this.FromDeviceAces[acl_idx];
 
-            let transport;
-            for (var k in ace.matches) {
-                if (k.includes("ip")) {
-                    transport = k;
-                    break;
-                }
-            }
+            let transport = find_trasport_layer(ace);
 
             let protocol_num = find_values_by_key(ace, "protocol")[0];
             let protocol = this.number_protocol_mapping[protocol_num];

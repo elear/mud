@@ -84,8 +84,14 @@ function concat_if_not_exists(arr, val) {
         if (arr.indexOf(val) == -1)
             arr = arr.concat(val);
     }
+    else if (Object.prototype.toString.call( val ) === '[object Array]'){
+        for (var item_idx in val){
+            let tmp_item = val[item_idx];
+            arr = concat_if_not_exists(arr, tmp_item) ;
+        }
+    }
     else {
-        if (containsObject(arr, val))
+        if (!containsObject(arr, val))
             arr = arr.concat(val);
     }
     return arr;
@@ -95,11 +101,51 @@ function concat_if_not_exists(arr, val) {
 function containsObject(arr, obj) {
     var i;
     for (i = 0; i < arr.length; i++) {
-        if (arr[i] === obj) {
+        // if (arraysEqual(Object.keys(arr[i]), Object.keys(arr[i]) )
+        if (ObjsAreEqual(arr[i], obj)) {
             return true;
         }
     }
     return false;
+}
+
+function has_element_with_key(arr,key){
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        if (Object.keys(arr[i]).includes(key)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function arraysEqual(arr1, arr2) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+}
+
+function ObjsAreEqual(a, b) {
+    var aProps = Object.getOwnPropertyNames(a),
+        bProps = Object.getOwnPropertyNames(b);
+
+    if (aProps.length != bProps.length) {
+        return false;
+    }
+
+    for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+
+        if (a[propName] !== b[propName]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // check the two sets of protocols and returns the common working protocol

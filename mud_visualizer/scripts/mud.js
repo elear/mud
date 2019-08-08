@@ -24,6 +24,7 @@ class Mud_Network {
         this.mud_with_promises_processed = [];
         this.all_modelnames = [];
         this.non_unique_modelnames = [];
+        this.tmp_dev ; 
         this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [], "device": ['Router'] });
         this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [], "device": ['Internet'] });
     }
@@ -66,8 +67,8 @@ class Mud_Network {
                     if (current_mud.index_in_allnodes != n_idx &&  // don't connect to itself 
                         tmp_node.group == '1' // &&  // make sure the node is in local network group
                     ) {
-                        // a local-network node shold only connect to others under 3 conditions: 
-                        // the other node is also of local-network abstraction, 
+                        // a local-networks node shold only connect to others under 3 conditions:
+                        // the other node is also of local-networks abstraction,
                         // it's of same-manufacturer and their manufacturer match
                         // it's of manufacturer and their target manufacturers match
                         let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
@@ -82,14 +83,19 @@ class Mud_Network {
                                 }
                                 let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
                                 if (protocol_data.length > 0) {
-                                    let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
+                                    this.tmp_dev = {}
+                                    this.tmp_dev[current_mud.model] = {"outgoing":"reverse"} // this means for outgoing traffic in the object below, the source and target should be reversed
+
+                                    let tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device":[this.tmp_dev], "protocol_data": protocol_data };
 
                                     let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
                                     if (tmp_idx == -1) {
                                         this.allLinks.push(tmp_link);
                                     }
                                     else {
-                                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                                        if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)){
+                                            this.allLinks[tmp_idx].device.push(this.tmp_dev);
+                                        }
                                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                                     }
 
@@ -99,7 +105,9 @@ class Mud_Network {
                                         current_mud.link_of_current_node.push(tmp_link);
                                     }
                                     else {
-                                        current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                                        if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)){
+                                            current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+                                        }
                                         current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                                     }
                                 }
@@ -124,7 +132,7 @@ class Mud_Network {
                         current_mud.manufacturer == tmp_node.manufacturer
                     ) {
 
-                        let accepted_abstractions = ['local-network', 'same-manufacturer']
+                        let accepted_abstractions = ['local-networks', 'same-manufacturer']
                         for (var abs_idx in accepted_abstractions) {
                             let current_abstraction = accepted_abstractions[abs_idx];
                             if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
@@ -133,14 +141,20 @@ class Mud_Network {
                                 }
                                 let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
                                 if (protocol_data.length > 0) {
-                                    let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
+
+                                    this.tmp_dev = {}
+                                    this.tmp_dev[current_mud.model] = {"outgoing":"reverse"}// this means for outgoing traffic in the object below, the source and target should be reversed
+                            
+                                    let tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev] , "protocol_data": protocol_data };
 
                                     let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
                                     if (tmp_idx == -1) {
                                         this.allLinks.push(tmp_link);
                                     }
                                     else {
-                                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                                        if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)){
+                                            this.allLinks[tmp_idx].device.push(this.tmp_dev);
+                                        }
                                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                                     }
 
@@ -150,7 +164,9 @@ class Mud_Network {
                                         current_mud.link_of_current_node.push(tmp_link);
                                     }
                                     else {
-                                        current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                                        if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)){
+                                            current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+                                        }
                                         current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                                     }
                                 }
@@ -172,21 +188,27 @@ class Mud_Network {
                         tmp_node.group == '1' &&
                         current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
 
-                        let accepted_abstractions = ['local-network', 'manufacturer'];
+                        let accepted_abstractions = ['local-networks', 'manufacturer'];
                         for (var abs_idx in accepted_abstractions) {
                             let current_abstraction = accepted_abstractions[abs_idx];
                             if (Object.keys(tmp_node.abstraction_protocols).includes(current_abstraction)) {
                                 if (current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
-                                    let protocol_data = protocols_match(current_mud.abstraction_protocols[current_abstraction], tmp_node.abstraction_protocols[current_abstraction]);
+                                    let protocol_data = protocols_match(current_mud.abstraction_protocols["manufacturer"], tmp_node.abstraction_protocols[current_abstraction]);
                                     if (protocol_data.length > 0) {
-                                        let tmp_link = { "source": "Router", "target": tmp_node.id, "value": "10", "device": [current_mud.model], "protocol_data": protocol_data };
+
+                                        this.tmp_dev = {}
+                                        this.tmp_dev[current_mud.model] = {"outgoing":"reverse"}// this means for outgoing traffic in the object below, the source and target should be reversed
+
+                                        let tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": protocol_data };
 
                                         let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
                                         if (tmp_idx == -1) {
                                             this.allLinks.push(tmp_link);
                                         }
                                         else {
-                                            this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                                            if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)){
+                                                this.allLinks[tmp_idx].device.push(this.tmp_dev);
+                                            }
                                             this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                                         }
 
@@ -196,7 +218,10 @@ class Mud_Network {
                                             current_mud.link_of_current_node.push(tmp_link);
                                         }
                                         else {
-                                            current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                                            if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)){
+                                                current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+                                            }
+                                            // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
                                             current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                                         }
 
@@ -228,14 +253,20 @@ class Mud_Network {
                     this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
                 }
 
-                let link_router_to_mycontroller = { "source": "Router", "target": my_controller_name, "value": "10", "device": [current_mud.model], "protocol_data": current_protocol_data };
+                
+                this.tmp_dev = {}
+                this.tmp_dev[current_mud.model] = {"outgoing":"reverse"} // this means for outgoing traffic in the object below, the source and target should be reversed
+                
+                let link_router_to_mycontroller = { "source": my_controller_name, "target": "Router" , "value": "10", "device": [this.tmp_dev], "protocol_data": current_protocol_data };
                 // update all_links
                 tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
                 if (tmp_idx == -1) {
                     this.allLinks.push(link_router_to_mycontroller);
                 }
                 else {
-                    this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, current_mud.model);
+                    if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)){
+                        this.allLinks[tmp_idx].device.push(this.tmp_dev);
+                    }
                     this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, current_protocol_data);
                 }
 
@@ -245,7 +276,10 @@ class Mud_Network {
                     current_mud.link_of_current_node.push(link_router_to_mycontroller);
                 }
                 else {
-                    current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                    if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)){
+                        current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+                    }
+                    // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
                     current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, current_protocol_data);
                 }
             }
@@ -532,7 +566,10 @@ class Mud {
                         if (!this.allNodes[tmp_idx].device.includes(this.model))
                             this.allNodes[tmp_idx].device = this.allNodes[tmp_idx].device.concat(this.model);
                     }
-                    let link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"normal"}// this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device":[this.tmp_dev], "protocol_data": [protocol_data] };
 
                     // update all_links
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router, ['source', 'target']);
@@ -540,7 +577,9 @@ class Mud {
                         this.allLinks.push(link_device_to_router);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -550,11 +589,16 @@ class Mud {
                         this.link_of_current_node.push(link_device_to_router);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)){
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
-                    let link_internet_to_destination = { "source": "Internet", "target": destination, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"reverse"} // this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_internet_to_destination = { "source": destination, "target":"Internet" , "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };
 
                     // update all_links
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_internet_to_destination, ['source', 'target']);
@@ -562,7 +606,9 @@ class Mud {
                         this.allLinks.push(link_internet_to_destination);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -572,11 +618,16 @@ class Mud {
                         this.link_of_current_node.push(link_internet_to_destination);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)){
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
-                    let link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"normal"} // this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };
 
                     // update all_links
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_internet, ['source', 'target']);
@@ -584,7 +635,9 @@ class Mud {
                         this.allLinks.push(link_router_to_internet);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -594,7 +647,9 @@ class Mud {
                         this.link_of_current_node.push(link_router_to_internet);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)){
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -603,14 +658,20 @@ class Mud {
                 case "local-networks":
                 case "same-manufacturer":
                 case "manufacturer":
-                    let link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"normal"}// this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };
                     // update all_links
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_, ['source', 'target']);
                     if (tmp_idx == -1) {
                         this.allLinks.push(link_device_to_router_);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -620,14 +681,20 @@ class Mud {
                         this.link_of_current_node.push(link_device_to_router_);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)) {
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
                     break;
 
                 case "my-controller":
                     this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
-                    let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"normal"}// this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };
 
 
                     // update all_links
@@ -636,7 +703,9 @@ class Mud {
                         this.allLinks.push(link_device_to_router_my_cont);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -646,14 +715,20 @@ class Mud {
                         this.link_of_current_node.push(link_device_to_router_my_cont);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)){
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
                     break;
 
                 case "controller":
                     var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
-                    let link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"normal"}// this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };
 
                     // update all_links
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_device_to_router_cont, ['source', 'target']);
@@ -661,7 +736,9 @@ class Mud {
                         this.allLinks.push(link_device_to_router_cont);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -671,7 +748,9 @@ class Mud {
                         this.link_of_current_node.push(link_device_to_router_cont);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)){
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -684,7 +763,12 @@ class Mud {
                         this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model);
                     }
 
-                    let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+                    // let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+                    this.tmp_dev = {}
+                    this.tmp_dev[this.model] = {"outgoing":"reverse"}// this means for outgoing traffic in the object below, the source and target should be reversed
+                    
+                    let link_router_to_controller = { "source": controller_class, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": [protocol_data] };
+                    
 
                     // update all_links
                     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_controller, ['source', 'target']);
@@ -692,7 +776,9 @@ class Mud {
                         this.allLinks.push(link_router_to_controller);
                     }
                     else {
-                        this.allLinks[tmp_idx].device = concat_if_not_exists(this.allLinks[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)){
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, protocol_data);
                     }
 
@@ -702,7 +788,9 @@ class Mud {
                         this.link_of_current_node.push(link_router_to_controller);
                     }
                     else {
-                        this.link_of_current_node[tmp_idx].device = concat_if_not_exists(this.link_of_current_node[tmp_idx].device, this.model);
+                        if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)){
+                            this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
+                        }
                         this.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].protocol_data, protocol_data);
                     }
 

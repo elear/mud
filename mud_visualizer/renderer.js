@@ -24,9 +24,9 @@ function mud_drawer(inp_json) {
       if (d.group === "1" || d.group == "0") {
         return 4 * (width) / 5
       } else if (d.group === "2") {
-        return 3 * (width) / 5
+        return 2.5 * (width) / 5
       } else if (d.group === "3") {
-        return 2 * (width) / 5
+        return 1.8 * (width) / 5
       } else if (d.group === "4") {
         return 1 * (width) / 5
       } else {
@@ -64,7 +64,7 @@ function mud_drawer(inp_json) {
   var link = svg.append("g")
     .selectAll("path")
     .data(graph.links.filter(function (d) {
-      return (set_difference(d.device, excluded_models).length > 0 && // this filters the mudfile links that are deselected in the selection menu
+      return (set_difference(get_deviceIDs(d.device), excluded_models).length > 0 && // this filters the mudfile links that are deselected in the selection menu
         !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
         !excluded_models.includes(d.target))
     }))
@@ -74,13 +74,13 @@ function mud_drawer(inp_json) {
     .attr("stroke-width", function (d) { return Math.sqrt(parseInt(1)); })
     .attr("src", function (d) { return d.source; })
     .attr("trg", function (d) { return d.target; })
-    .attr("dev", function (d) { return d.device; })
+    .attr("dev", function (d) { return JSON.stringify(d.device); });
 
   var node = svg.append("g")
     .attr("class", "nodes")
     .selectAll("a")
     .data(graph.nodes.filter(function (d) {
-      return set_difference(d.device, excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
+      return set_difference(get_deviceIDs( d.device), excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
 
     }))
     .enter().append("a")
@@ -148,11 +148,12 @@ function mud_drawer(inp_json) {
     .links(graph.links);
 
 
+
   function ticked() {
     link
       .attr("d", linkArc);
     node
-      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
+      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y  + ")" });
   }
 
   function linkArc(d) {
@@ -203,16 +204,28 @@ function mud_drawer(inp_json) {
         for (var ll = 0; ll < current_node_links.length; ll++) {
           if (d3.select(this).attr("src") == current_node_links[ll]["source"] &&
             d3.select(this).attr("trg") == current_node_links[ll]["target"] &&
-            d3.select(this).attr("dev").includes(current_device)
+            get_deviceIDs(JSON.parse(d3.select(this).attr("dev"))).includes(current_device)
           ) {
             d3.select(this)
               .style("stroke", link_hover_color)
               .style("stroke-width", 2);
 
             totalLength = 10;
+            devices = JSON.parse(d3.select(this).attr("dev"));
+            for (var dev_idx in devices){
+              if (Object.keys(devices[dev_idx]).includes(current_device)){
+                if (devices[dev_idx][current_device].outgoing == "normal"){
+                  var direction =  1; 
+                }
+                else{ 
+                  var direction =  -1; 
+                }
+              }
+            }
+
             d3.select(this)
               .attr("stroke-dasharray", totalLength + " " + totalLength / 2)
-              .attr("stroke-dashoffset", totalLength * 30)
+              .attr("stroke-dashoffset", direction * totalLength * 30)
               .transition()
               .duration(20000)
               .ease(d3.easeLinear)
@@ -243,14 +256,22 @@ function mud_drawer(inp_json) {
           for (var link_idx in d.links) {
 
             let current_link = d.links[link_idx];
-            if (current_link.target != "Router" &&
-              current_link.target != "Internet" &&
-              !excluded_models.includes(current_link.source) &&
-              !excluded_models.includes(current_link.target)) {
+            if (!excluded_models.includes(current_link.source) &&
+                !excluded_models.includes(current_link.target)) {
+
+              if (current_link.source == "Router" && current_link.target == "Internet") {
+                continue;
+              }
+              if (current_link.target == "Router" && current_link.source == d.id){
+                continue;
+              }
 
               for (var prot_idx in current_link.protocol_data) {
-                table += "<tr><td>" + current_link.target + "</td>";
+                let tmp_target ;
+                current_link.target == "Internet" || current_link.target == "Router" ? tmp_target=current_link.source : tmp_target=current_link.target;
+                table += "<tr><td>" + tmp_target + "</td>";
                 current_protocol = current_link.protocol_data[prot_idx];
+
                 if (current_protocol.transport != undefined) {
                   table += "<td>" + current_protocol.transport + "</td>";
                 }
@@ -319,6 +340,7 @@ function mud_drawer(inp_json) {
 
   link.on("mouseover", function () { d3.select(this).style("stroke", link_hover_color); });
   link.on("mouseout", function () { d3.select(this).style("stroke", link_color) });
+
 
 }
 
@@ -418,4 +440,12 @@ function opengithub() {
   const { shell } = require('electron');
   let url = "https://github.com/vafa-Andalibi/mudvisualizer";
   shell.openExternal(url);
+}
+
+function get_deviceIDs(arr){
+  let device_ids = [];
+  for (var s in arr){
+    device_ids.push(Object.keys(arr[s])[0]);
+  }
+  return device_ids;
 }

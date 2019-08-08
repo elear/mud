@@ -362,6 +362,12 @@ class Mud_Network {
         }
     }
 
+    update_related_nodes(){
+        for (var node_idx in this.allNodes){
+            this.allNodes[node_idx].related_nodes = get_related_nodes(this.allNodes[node_idx].links);
+        }
+    }
+
     create_network() {
         for (var current_mud_name in this.all_mud_jsons) {
             if (!this.all_mud_jsons[current_mud_name].processed) {
@@ -380,6 +386,7 @@ class Mud_Network {
         this.update_localnetworks_links();
         this.update_samemanufacturer_links();
         this.update_manufacturer_links();
+        this.update_related_nodes();
     }
 }
 

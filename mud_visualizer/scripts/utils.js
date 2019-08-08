@@ -183,3 +183,13 @@ function find_trasport_layer(ace){
         return "ipv6";
     return "unknown";
 }
+
+function get_related_nodes(links){
+    let related_nodes = []
+    for (var l_idx in links){
+        let link = links[l_idx];
+        related_nodes = concat_if_not_exists(related_nodes,link.source);
+        related_nodes = concat_if_not_exists(related_nodes,link.target);
+    }
+    return related_nodes;
+}

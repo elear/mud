@@ -88,7 +88,7 @@ function mud_drawer(inp_json) {
     .attr("class", "nodes")
     .selectAll("a")
     .data(graph.nodes.filter(function (d) {
-      return set_difference(get_deviceIDs( d.device), excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
+      return set_difference(d.device, excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
 
     }))
     .enter().append("a")
@@ -111,8 +111,17 @@ function mud_drawer(inp_json) {
     })
     .attr("width", 50)
     .attr("height", 50)
-    .attr("x", - 16)
-    .attr("y", - 16)
+    .attr("x", function(d){
+      switch(d.group){
+        case "3":
+          return -30;
+        case "4":
+          return -50;
+        default:
+          return -5;
+      }
+    })
+    .attr("y", -20)
     .attr("fill", function (d) { return color(d.group); });
 
   node.append("text")
@@ -124,7 +133,7 @@ function mud_drawer(inp_json) {
         case "3": // intenret logo x axis 
           return 5;
         case "4":
-          return -(d.id.length*5);
+          return -(d.id.length*7);
         default:
           return 5;
       }
@@ -139,7 +148,7 @@ function mud_drawer(inp_json) {
         case "4":
           return -25;
         default:
-          return -20;
+          return -26;
       }
     })
     .attr("x", +8)
@@ -172,6 +181,12 @@ function mud_drawer(inp_json) {
   }
 
   function dragstarted(d) {
+    if (d.group == '1' || d.group == '0'){
+      d3.select(this).select('image').transition()
+          .duration(100)
+          .attr("width",50)
+          .attr("height",50);
+    }
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
@@ -183,6 +198,12 @@ function mud_drawer(inp_json) {
   }
 
   function dragended(d) {
+    if (d.group == '1' || d.group == '0'){
+      d3.select(this).select('image').transition()
+          .duration(100)
+          .attr("width",60)
+          .attr("height",60);
+    }
     if (!d3.event.active) simulation.alphaTarget(0);
     // d.fx = null;
     // d.fy = null;
@@ -205,7 +226,25 @@ function mud_drawer(inp_json) {
 
 
   node.on("mouseover", function (d) {
+    var current_related_nodes = d.related_nodes;
+    if (d.group == 0 || d.group ==1){
+      d3.selectAll('image').each(function(d) {
+        if (!current_related_nodes.includes(d.id) && d.id != "Internet"){
+          d3.select(this)
+              .transition()
+              .duration(500)
+              .attr('opacity',0.3);
+        }
+      });
+    }
+
     if (d.links !== undefined) {
+      d3.select(this).select('image').transition()
+          .duration(500)
+          .attr("width",60)
+          .attr("height",60)
+          // .attr("y",-30)
+          .attr("background-color", "red");
       var current_node_links = d.links;
       var current_device = d.id
       d3.selectAll('path').each(function (d, i) {
@@ -239,8 +278,53 @@ function mud_drawer(inp_json) {
               .ease(d3.easeLinear)
               .attr("stroke-dashoffset", 0);
           }
+          else{
+            d3.select(this)
+                .attr('opacity',0.5);
+          }
         }
       }
+      )
+    }
+  });
+
+
+  node.on("mouseout", function (d) {
+    var current_related_nodes = d.related_nodes;
+    d3.selectAll('image').each(function(d) {
+      if (!current_related_nodes.includes(d.id)){
+        d3.select(this)
+            .transition()
+            .duration(500)
+            .attr('opacity',1);
+      }
+    });
+    if (d.links !== undefined) {
+      d3.select(this).select('image').transition()
+          .duration(500)
+          .attr("width",50)
+          .attr("height",50);
+          // .attr("y",-26);
+
+      var current_node_links = d.links;
+      d3.selectAll('path').each(function (d, i) {
+            for (var ll = 0; ll < current_node_links.length; ll++) {
+              if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"]) {
+                d3.select(this)
+                    .style("stroke", link_color)
+                    .style("stroke-width", 1);
+                totalLength = 0;
+                d3.select(this)
+                    .attr("stroke-dasharray", totalLength + " " + totalLength)
+                    .attr("stroke-dashoffset", totalLength);
+                d3.select(this).transition();
+              }
+              else{
+                d3.select(this)
+                    .attr('opacity',1);
+              }
+            }
+          }
       )
     }
   });
@@ -325,26 +409,7 @@ function mud_drawer(inp_json) {
     }
   });
 
-  node.on("mouseout", function (d) {
-    if (d.links !== undefined) {
-      var current_node_links = d.links;
-      d3.selectAll('path').each(function (d, i) {
-        for (var ll = 0; ll < current_node_links.length; ll++) {
-          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"]) {
-            d3.select(this)
-              .style("stroke", link_color)
-              .style("stroke-width", 1);
-            totalLength = 0;
-            d3.select(this)
-              .attr("stroke-dasharray", totalLength + " " + totalLength)
-              .attr("stroke-dashoffset", totalLength);
-            d3.select(this).transition();
-          }
-        }
-      }
-      )
-    }
-  });
+
 
   link.on("mouseover", function () { d3.select(this).style("stroke", link_hover_color); });
   link.on("mouseout", function () { d3.select(this).style("stroke", link_color) });

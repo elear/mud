@@ -231,7 +231,8 @@ function mud_drawer(inp_json) {
 
   node.on("mouseover", function (d) {
     var current_related_nodes = d.related_nodes;
-    if (d.group == 0 || d.group ==1){
+    // if (d.group == 0 || d.group ==1){
+    if (d.group ==1){
       d3.selectAll('image').each(function(d) {
         if (!current_related_nodes.includes(d.id) && d.id != "Internet"){
           d3.select(this)
@@ -407,8 +408,8 @@ function mud_drawer(inp_json) {
         //  .style("left", d.x - 600 + "px")
         .style("top", "10px")
         .style("left", "75px")
-        .style("height", "200px")
-        .style("width", "500px");
+        .style("height", "300px")
+        .style("width", "700px");
       tooltip_status = 'just-clicked';
     }
   });

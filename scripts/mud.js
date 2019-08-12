@@ -494,7 +494,7 @@ class Mud {
         this.allLinks = allLinks;
         this.link_of_current_node = [];
         this.index_in_allnodes = -1;
-        this.number_protocol_mapping = { "1": "ICMP", "6": "TCP", "17": "UDP" }
+        this.number_protocol_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" }
         this.manufacturer = this.extract_manufacturer()
         this.other_manufacturer = this.extract_others_manufacturer();
         this.extract_device_policies();

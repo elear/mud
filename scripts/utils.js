@@ -163,7 +163,7 @@ function protocols_match(src_protocols, dst_protocols) {
                 (cur_src_p.source_port.length == 0 || cur_dst_p.destination_port.length == 0 || cur_src_p.source_port[0] == cur_dst_p.destination_port[0]) &&
                 (cur_src_p.destination_port.length == 0 || cur_dst_p.source_port.length == 0 || cur_src_p.destination_port[0] == cur_dst_p.source_port[0])
             ) {
-                matched_protocols = matched_protocols.concat(cur_src_p);
+                matched_protocols = concat_if_not_exists(matched_protocols, cur_dst_p);
             }
         }
     }

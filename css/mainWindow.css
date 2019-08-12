@@ -94,12 +94,8 @@
     padding: 10px;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
     overflow-y: auto;
-    /* right:0;
-    bottom: 0px;
-    left: 0px;
-    height: 0px;
-    width: 0px; 
-    opacity: 0;  */
+    resize: both;
+
 }
 
 

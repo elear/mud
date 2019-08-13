@@ -87,13 +87,13 @@
                   "protocol": 6
                 },
                 "tcp": {
-                  "destination-port": {
-                    "operator": "eq",
-                    "port": 888
-                  },
                   "source-port": {
                     "operator": "eq",
                     "port": 777
+                  },
+                  "destination-port": {
+                    "operator": "eq",
+                    "port": 888
                   }
                 }
               },
@@ -155,13 +155,13 @@
                   "protocol": 6
                 },
                 "tcp": {
-                  "destination-port": {
-                    "operator": "eq",
-                    "port": 888
-                  },
                   "source-port": {
                     "operator": "eq",
                     "port": 777
+                  },
+                  "destination-port": {
+                    "operator": "eq",
+                    "port": 888
                   }
                 }
               },

@@ -320,68 +320,86 @@ class Mud_Network {
     }
 
     update_mycontroller_links() {
-        for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
-            var current_mud = this.mud_with_promises_processed[mud_idx];
-            var current_protocol_data = current_mud.from_device_abstraction_protocols['my-controller'];
-            for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
-                var current_promise_data = current_mud.promise.data[prom_idx];
-                let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
-                let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
-                tmp_idx = current_promise_data.keys.indexOf('my-controller-IP-address');
-                let my_controller_IP_Address = current_promise_data.values[tmp_idx];
-                let mud_uri = find_values_by_key(current_mud, 'mud-url')[0];
-                let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model], "ip_address": my_controller_IP_Address, 'mud_url': mud_uri };
-                this.my_controllers.push(node_controller);
+        var directions = ['outgoing', 'incoming'];
+        for (var direct_idx in directions) {
+            var direction = directions[direct_idx];
+            for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
+                var current_mud = this.mud_with_promises_processed[mud_idx];
+                var current_protocol_data = current_mud.from_device_abstraction_protocols['my-controller'];
+                for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
+                    var current_promise_data = current_mud.promise.data[prom_idx];
+                    let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
+                    let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
+                    tmp_idx = current_promise_data.keys.indexOf('my-controller-IP-address');
+                    let my_controller_IP_Address = current_promise_data.values[tmp_idx];
+                    let mud_uri = find_values_by_key(current_mud, 'mud-url')[0];
+                    let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model], "ip_address": my_controller_IP_Address, 'mud_url': mud_uri };
+                    this.my_controllers.push(node_controller);
 
-                tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
-                if (tmp_idx == -1) {
-                    this.allNodes.push(node_controller);
-                }
-                else {
-                    this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
-                }
-
-
-                this.tmp_dev = {}
-                this.tmp_dev[current_mud.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
-
-                let link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "protocol_data": current_protocol_data };
-                // update all_links
-                tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
-                if (tmp_idx == -1) {
-                    this.allLinks.push(link_router_to_mycontroller);
-                }
-                else {
-                    if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-                        this.allLinks[tmp_idx].device.push(this.tmp_dev);
+                    tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
+                    if (tmp_idx == -1) {
+                        this.allNodes.push(node_controller);
                     }
-                    this.allLinks[tmp_idx].protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].protocol_data, current_protocol_data);
-                }
-
-                //update links_of_current_node
-                tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller, ['source', 'target']);
-                if (tmp_idx == -1) {
-                    current_mud.link_of_current_node.push(link_router_to_mycontroller);
-                }
-                else {
-                    if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-                        current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+                    else {
+                        this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
                     }
-                    // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
-                    current_mud.link_of_current_node[tmp_idx].protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].protocol_data, current_protocol_data);
+
+
+                    this.tmp_dev = {}
+                    this.tmp_dev[current_mud.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
+                    if (direction == 'outgoing') {
+                        var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": current_protocol_data };
+                    }
+                    else if (direction == 'incoming') {
+                        var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": current_protocol_data };
+                    }
+                    // update all_links
+                    tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        this.allLinks.push(link_router_to_mycontroller);
+                    }
+                    else {
+                        if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
+                            this.allLinks[tmp_idx].device.push(this.tmp_dev);
+                        }
+                        if (direction == 'outgoing') {
+                            this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, current_protocol_data);
+                        }
+                        else if (direction == 'incoming') {
+                            this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, current_protocol_data);
+                        }
+                    }
+
+                    //update links_of_current_node
+                    tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller, ['source', 'target']);
+                    if (tmp_idx == -1) {
+                        current_mud.link_of_current_node.push(link_router_to_mycontroller);
+                    }
+                    else {
+                        if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
+                            current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+                        }
+                        // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+                        if (direction == 'outgoing') {
+                            current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, current_protocol_data);
+                        }
+                        else if (direction == 'incoming') {
+                            current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, current_protocol_data);
+                        }
+                    }
                 }
-            }
-            if (!current_mud.node_is_in_allNodes()) {
-                current_mud.index_in_allnodes = this.allNodes.length;
-                this.allNodes.push({
-                    "group": String(1),
-                    "id": current_mud.model,
-                    "from_device_abstraction_protocols": current_mud.from_device_abstraction_protocols,
-                    "to_device_abstraction_protocols": current_mud.to_device_abstraction_protocols,
-                    "links": current_mud.link_of_current_node,
-                    "manufacturer": current_mud.manufacturer,
-                    "device": [current_mud.model]
-                });
+                if (!current_mud.node_is_in_allNodes()) {
+                    current_mud.index_in_allnodes = this.allNodes.length;
+                    this.allNodes.push({
+                        "group": String(1),
+                        "id": current_mud.model,
+                        "from_device_abstraction_protocols": current_mud.from_device_abstraction_protocols,
+                        "to_device_abstraction_protocols": current_mud.to_device_abstraction_protocols,
+                        "links": current_mud.link_of_current_node,
+                        "manufacturer": current_mud.manufacturer,
+                        "device": [current_mud.model]
+                    });
+                }
             }
         }
         this.ready_to_draw = true;

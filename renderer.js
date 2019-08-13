@@ -436,6 +436,13 @@ function mud_drawer(inp_json) {
         .style("opacity", .9);
       tooltip_status = 'just-clicked';
     }
+    // require('floatthead');
+    // $(() => $('ace_protocols').floatThead(
+    //   {
+    //     position: 'absolute',
+    //     scrollContainer: true
+    // }
+    // ));
   });
 
 
@@ -573,4 +580,5 @@ function get_deviceIDs(arr) {
   }
   return device_ids;
 }
+
 

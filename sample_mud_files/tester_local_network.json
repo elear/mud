@@ -55,11 +55,11 @@
                 "tcp": {
                   "source-port": {
                     "operator": "eq",
-                    "port": 225
+                    "port": 123
                   },
                   "destination-port": {
                     "operator": "eq",
-                    "port": 123
+                    "port": 456
                   }
                 }
               },
@@ -89,11 +89,11 @@
                 "tcp": {
                   "destination-port": {
                     "operator": "eq",
-                    "port": 225
+                    "port": 888
                   },
                   "source-port": {
                     "operator": "eq",
-                    "port": 123
+                    "port": 777
                   }
                 }
               },
@@ -123,11 +123,11 @@
                 "tcp": {
                   "source-port": {
                     "operator": "eq",
-                    "port": 225
+                    "port": 123
                   },
                   "destination-port": {
                     "operator": "eq",
-                    "port": 123
+                    "port": 456
                   }
                 }
               },
@@ -157,11 +157,11 @@
                 "tcp": {
                   "destination-port": {
                     "operator": "eq",
-                    "port": 225
+                    "port": 888
                   },
                   "source-port": {
                     "operator": "eq",
-                    "port": 123
+                    "port": 777
                   }
                 }
               },

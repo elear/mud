@@ -89,11 +89,11 @@
                 "tcp": {
                   "destination-port": {
                     "operator": "eq",
-                    "port": 123
+                    "port": 456
                   },
                   "source-port": {
                     "operator": "eq",
-                    "port": 225
+                    "port": 123
                   }
                 }
               },

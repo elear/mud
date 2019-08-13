@@ -1,3 +1,4 @@
+var traffic_direction = "incoming";
 var excluded_models = [];
 var tooltip_status;
 function mud_drawer(inp_json) {
@@ -21,10 +22,10 @@ function mud_drawer(inp_json) {
     .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(100).strength(0.001))
     .force("charge", d3.forceManyBody().strength(-200).distanceMax(500).distanceMin(50))
     .force("x", d3.forceX(function (d) {
-      if (d.group == "0"){
+      if (d.group == "0") {
         return 3.2 * (width) / 5
       }
-      else if (d.group === "1" ) {
+      else if (d.group === "1") {
         return 4 * (width) / 5
       } else if (d.group === "2") {
         return 2.5 * (width) / 5
@@ -37,10 +38,10 @@ function mud_drawer(inp_json) {
       }
     }).strength(1))
     .force("y", d3.forceY(function (d) {
-      if (d.group == "0"){
+      if (d.group == "0") {
         return 1.6 * (height) / 4
       }
-      return height/2 ;
+      return height / 2;
     }).strength(0.05))
     // .force("center", d3.forceCenter((width) / 2, height / 2))
     .force("collision", d3.forceCollide().radius(35));
@@ -111,8 +112,8 @@ function mud_drawer(inp_json) {
     })
     .attr("width", 50)
     .attr("height", 50)
-    .attr("x", function(d){
-      switch(d.group){
+    .attr("x", function (d) {
+      switch (d.group) {
         case "3":
           return -30;
         case "4":
@@ -129,7 +130,7 @@ function mud_drawer(inp_json) {
     .attr("dx", function (d) {
       switch (d.group) {
         case "0":
-          return -40 ;
+          return -40;
         case "1":
           return -15;
         case "2": //router logo x axis 
@@ -137,7 +138,7 @@ function mud_drawer(inp_json) {
         case "3": // intenret logo x axis 
           return 5;
         case "4":
-          return -(d.id.length*7);
+          return -(d.id.length * 7);
         default:
           return 5;
       }
@@ -174,7 +175,7 @@ function mud_drawer(inp_json) {
     link
       .attr("d", linkArc);
     node
-      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y  + ")" });
+      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
   }
 
   function linkArc(d) {
@@ -185,11 +186,11 @@ function mud_drawer(inp_json) {
   }
 
   function dragstarted(d) {
-    if (d.group == '1' || d.group == '0'){
+    if (d.group == '1' || d.group == '0') {
       d3.select(this).select('image').transition()
-          .duration(100)
-          .attr("width",50)
-          .attr("height",50);
+        .duration(100)
+        .attr("width", 50)
+        .attr("height", 50);
     }
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
@@ -202,11 +203,11 @@ function mud_drawer(inp_json) {
   }
 
   function dragended(d) {
-    if (d.group == '1' || d.group == '0'){
+    if (d.group == '1' || d.group == '0') {
       d3.select(this).select('image').transition()
-          .duration(100)
-          .attr("width",60)
-          .attr("height",60);
+        .duration(100)
+        .attr("width", 60)
+        .attr("height", 60);
     }
     if (!d3.event.active) simulation.alphaTarget(0);
     // d.fx = null;
@@ -232,22 +233,31 @@ function mud_drawer(inp_json) {
   node.on("mouseover", function (d) {
     var current_related_nodes = d.related_nodes;
     // if (d.group == 0 || d.group ==1){
-    if (d.group ==1){
-      d3.selectAll('image').each(function(d) {
-        if (!current_related_nodes.includes(d.id) && d.id != "Internet"){
+    if (d.group == 1) {
+      d3.selectAll('image').each(function (d) {
+        if (!current_related_nodes.includes(d.id) && d.id != "Internet") {
           d3.select(this)
-              .transition()
-              .duration(500)
-              .attr('opacity',0.3);
+            .transition()
+            .duration(500)
+            .attr('opacity', 0.3);
         }
       });
     }
 
     if (d.links !== undefined) {
       d3.select(this).select('image').transition()
-          .duration(500)
-          .attr("width",60)
-          .attr("height",60);
+        .duration(500)
+        .attr("width", 60)
+        .attr("height", 60);
+      if (traffic_direction == "incoming") {
+        var traffic_direction_coefficient = -1;
+        link_hover_color = 'red';
+      }
+      else if (traffic_direction == "outgoing") {
+        var traffic_direction_coefficient = 1;
+        link_hover_color = 'green';
+      }
+
       var current_node_links = d.links;
       var current_device = d.id
       d3.selectAll('path').each(function (d, i) {
@@ -262,28 +272,29 @@ function mud_drawer(inp_json) {
 
             totalLength = 10;
             devices = JSON.parse(d3.select(this).attr("dev"));
-            for (var dev_idx in devices){
-              if (Object.keys(devices[dev_idx]).includes(current_device)){
-                if (devices[dev_idx][current_device].outgoing == "normal"){
-                  var direction =  1; 
+            for (var dev_idx in devices) {
+              if (Object.keys(devices[dev_idx]).includes(current_device)) {
+                if (devices[dev_idx][current_device].outgoing == "normal") {
+                  var link_direction_coefficient = 1;
                 }
-                else{ 
-                  var direction =  -1; 
+                else if (devices[dev_idx][current_device].outgoing == "reverse") {
+                  var link_direction_coefficient = -1;
                 }
               }
             }
 
+
             d3.select(this)
               .attr("stroke-dasharray", totalLength + " " + totalLength / 2)
-              .attr("stroke-dashoffset", direction * totalLength * 30)
+              .attr("stroke-dashoffset", traffic_direction_coefficient * link_direction_coefficient * totalLength * 30)
               .transition()
               .duration(20000)
               .ease(d3.easeLinear)
               .attr("stroke-dashoffset", 0);
           }
-          else{
+          else {
             d3.select(this)
-                .attr('opacity',0.5);
+              .attr('opacity', 0.5);
           }
         }
       }
@@ -294,42 +305,42 @@ function mud_drawer(inp_json) {
 
   node.on("mouseout", function (d) {
     d3.select(this).select('image')
-        // .transition()
-        // .duration(500)
-        .attr('opacity',1);
-    d3.selectAll('image').each(function(d) {
-        d3.select(this)
-            .transition()
-            .duration(500)
-            .attr('opacity',1)
-            .attr("width",50)
-            .attr("height",50);
+      // .transition()
+      // .duration(500)
+      .attr('opacity', 1);
+    d3.selectAll('image').each(function (d) {
+      d3.select(this)
+        .transition()
+        .duration(500)
+        .attr('opacity', 1)
+        .attr("width", 50)
+        .attr("height", 50);
     });
     if (d.links !== undefined) {
       d3.select(this).select('image').transition()
-          .duration(500)
-          .attr("width",50)
-          .attr("height",50);
+        .duration(500)
+        .attr("width", 50)
+        .attr("height", 50);
 
       var current_node_links = d.links;
       d3.selectAll('path').each(function (d, i) {
-            for (var ll = 0; ll < current_node_links.length; ll++) {
-              if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"]) {
-                d3.select(this)
-                    .style("stroke", link_color)
-                    .style("stroke-width", 1);
-                totalLength = 0;
-                d3.select(this)
-                    .attr("stroke-dasharray", totalLength + " " + totalLength)
-                    .attr("stroke-dashoffset", totalLength);
-                d3.select(this).transition();
-              }
-              else{
-                d3.select(this)
-                    .attr('opacity',1);
-              }
-            }
+        for (var ll = 0; ll < current_node_links.length; ll++) {
+          if (d3.select(this).attr("src") == current_node_links[ll]["source"] && d3.select(this).attr("trg") == current_node_links[ll]["target"]) {
+            d3.select(this)
+              .style("stroke", link_color)
+              .style("stroke-width", 1);
+            totalLength = 0;
+            d3.select(this)
+              .attr("stroke-dasharray", totalLength + " " + totalLength)
+              .attr("stroke-dashoffset", totalLength);
+            d3.select(this).transition();
           }
+          else {
+            d3.select(this)
+              .attr('opacity', 1);
+          }
+        }
+      }
       )
     }
   });
@@ -337,37 +348,47 @@ function mud_drawer(inp_json) {
   node.on("click", function (d) {
     if (d.group == "1" || d.group == "0") {
       // for showing the information:
-      div.transition()
-        .duration(500)
-        .style("opacity", .9);
+
       div
         .html(function () {
           let table = '<table id="ace_protocols">'
-          table += "<tr>\
-            <th>Destination</th>\
-            <th>Transport</th>\
-            <th>Protocol</th>\
-            <th>Src Port</th>\
-            <th>Dst Port</th>\
-          </tr>"
+          if (traffic_direction == "outgoing"){
+            table += "<tr>\
+            <th>Destination</th>";
+          }
+          else if (traffic_direction == "incoming"){
+            table += "<tr>\
+            <th>Source</th>";
+          }
+          table += "<th>Transport</th>\
+                    <th>Protocol</th>\
+                    <th>Src Port</th>\
+                    <th>Dst Port</th>\
+                    </tr>"
+
           for (var link_idx in d.links) {
 
             let current_link = d.links[link_idx];
             if (!excluded_models.includes(current_link.source) &&
-                !excluded_models.includes(current_link.target)) {
+              !excluded_models.includes(current_link.target)) {
 
               if (current_link.source == "Router" && current_link.target == "Internet") {
                 continue;
               }
-              if (current_link.target == "Router" && current_link.source == d.id){
+              if (current_link.target == "Router" && current_link.source == d.id) {
                 continue;
               }
-
-              for (var prot_idx in current_link.protocol_data) {
-                let tmp_target ;
-                current_link.target == "Internet" || current_link.target == "Router" ? tmp_target=current_link.source : tmp_target=current_link.target;
+              if (traffic_direction == "outgoing") {
+                var tmp_protocol_data = current_link.from_dev_protocol_data;
+              }
+              if (traffic_direction == "incoming") {
+                var tmp_protocol_data = current_link.to_dev_protocol_data;
+              }
+              for (var prot_idx in tmp_protocol_data) {
+                let tmp_target;
+                current_link.target == "Internet" || current_link.target == "Router" ? tmp_target = current_link.source : tmp_target = current_link.target;
                 table += "<tr><td>" + tmp_target + "</td>";
-                current_protocol = current_link.protocol_data[prot_idx];
+                current_protocol = tmp_protocol_data[prot_idx];
 
                 if (current_protocol.transport != undefined) {
                   table += "<td>" + current_protocol.transport + "</td>";
@@ -410,6 +431,9 @@ function mud_drawer(inp_json) {
         .style("left", "75px")
         .style("height", "300px")
         .style("width", "700px");
+      div.transition()
+        .duration(200)
+        .style("opacity", .9);
       tooltip_status = 'just-clicked';
     }
   });
@@ -431,8 +455,8 @@ require('electron').ipcRenderer.on('draw', (event, message) => {
 
   network.ready_to_draw = false;
   // let data = remote.getGlobal('sharedObj');
-  let sharedobj = JSON.parse(remote.getGlobal('sharedObj')); 
-  for (var mudfile_idx in sharedobj){
+  let sharedobj = JSON.parse(remote.getGlobal('sharedObj'));
+  for (var mudfile_idx in sharedobj) {
     network.add_mudfile(JSON.parse(sharedobj[mudfile_idx]));
   }
   // network.add_mudfile(JSON.parse(data));
@@ -485,11 +509,11 @@ $("div:not(#mudSelectionDiv)").click(function () {
 $("div:not(#nodestooltip)").click(function () {
   if (tooltip_status == 'ready-to-hide') {
     $("div[id='nodestooltip']").each(function () {
-      $(this).animate({ opacity: 0 })
+      $(this).animate({ opacity: 0},{ duration: 100 })
         .animate({ bottom: "0px", left: "0px", height: "0px", width: "0px" })
     });
   }
-  else {
+  else if (tooltip_status = 'just-clicked') {
     tooltip_status = 'ready-to-hide';
   }
 });
@@ -513,6 +537,28 @@ function drawer() {
   mud_drawer(network_data);
 }
 
+
+// used in mainWindow.html in refresh button
+function set_incoming() {
+  traffic_direction = "incoming";
+
+  $("#button_outgoing").removeClass("outgoing-down");
+  if (!$("#button_incoming").hasClass("incoming-down")) {
+    $("#button_incoming").toggleClass("incoming-down");
+  }
+}
+
+// used in mainWindow.html in refresh button
+function set_outgoing() {
+  traffic_direction = "outgoing";
+  $("#button_incoming").removeClass("incoming-down");
+  if (!$("#button_outgoing").hasClass("outgoing-down")) {
+    $("#button_outgoing").toggleClass("outgoing-down");
+  }
+}
+
+set_outgoing();
+
 // used in about.html page
 function opengithub() {
   const { shell } = require('electron');
@@ -520,10 +566,11 @@ function opengithub() {
   shell.openExternal(url);
 }
 
-function get_deviceIDs(arr){
+function get_deviceIDs(arr) {
   let device_ids = [];
-  for (var s in arr){
+  for (var s in arr) {
     device_ids.push(Object.keys(arr[s])[0]);
   }
   return device_ids;
 }
+

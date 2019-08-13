@@ -56,6 +56,14 @@
     background-color: #33170D;
 }
 
+.incoming-down {
+    background-color: red !important;
+}
+
+.outgoing-down {
+    background-color: green !important;
+}
+
 
 .select-deselect-muds {
     display: block;

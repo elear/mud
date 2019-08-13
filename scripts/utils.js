@@ -80,6 +80,9 @@ function index_of_object_in_array_based_on_keys(arr, obj, keys) {
 
 // will concat the object or element to an array only if it doesn't exists
 function concat_if_not_exists(arr, val) {
+    if (arr == null){
+        arr = [];
+    }
     if (typeof (val) != "object") {
         if (arr.indexOf(val) == -1)
             arr = arr.concat(val);
@@ -160,8 +163,8 @@ function protocols_match(src_protocols, dst_protocols) {
             cur_dst_p = dst_protocols[dp_idx];
             if ((cur_src_p.transport == null || cur_dst_p.transport == null || cur_src_p.transport == cur_dst_p.transport) &&
                 (cur_src_p.protocol == null || cur_dst_p.protocol == null || cur_src_p.protocol[0] == cur_dst_p.protocol[0]) &&
-                (cur_src_p.source_port.length == 0 || cur_dst_p.destination_port.length == 0 || cur_src_p.source_port[0] == cur_dst_p.destination_port[0]) &&
-                (cur_src_p.destination_port.length == 0 || cur_dst_p.source_port.length == 0 || cur_src_p.destination_port[0] == cur_dst_p.source_port[0])
+                (cur_src_p.source_port.length == 0 || cur_dst_p.source_port.length == 0 || cur_src_p.source_port[0] == cur_dst_p.source_port[0]) &&
+                (cur_src_p.destination_port.length == 0 || cur_dst_p.destination_port.length == 0 || cur_src_p.destination_port[0] == cur_dst_p.destination_port[0])
             ) {
                 matched_protocols = concat_if_not_exists(matched_protocols, cur_dst_p);
             }

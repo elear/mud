@@ -80,22 +80,22 @@ function index_of_object_in_array_based_on_keys(arr, obj, keys) {
 
 // will concat the object or element to an array only if it doesn't exists
 function concat_if_not_exists(arr, val) {
-    if (arr == null){
+    if (arr == null) {
         arr = [];
     }
     if (typeof (val) != "object") {
         if (arr.indexOf(val) == -1)
-            arr = arr.concat(val);
+            arr.push(val);
     }
-    else if (Object.prototype.toString.call( val ) === '[object Array]'){
-        for (var item_idx in val){
+    else if (Object.prototype.toString.call(val) === '[object Array]') { // val is array itself
+        for (var item_idx in val) {
             let tmp_item = val[item_idx];
-            arr = concat_if_not_exists(arr, tmp_item) ;
+            concat_if_not_exists(arr, tmp_item);
         }
     }
-    else {
+    else { // val is object 
         if (!containsObject(arr, val))
-            arr = arr.concat(val);
+            arr.push(val);
     }
     return arr;
 }
@@ -112,7 +112,7 @@ function containsObject(arr, obj) {
     return false;
 }
 
-function has_element_with_key(arr,key){
+function has_element_with_key(arr, key) {
     var i;
     for (i = 0; i < arr.length; i++) {
         if (Object.keys(arr[i]).includes(key)) {
@@ -123,10 +123,10 @@ function has_element_with_key(arr,key){
 }
 
 function arraysEqual(arr1, arr2) {
-    if(arr1.length !== arr2.length)
+    if (arr1.length !== arr2.length)
         return false;
-    for(var i = arr1.length; i--;) {
-        if(arr1[i] !== arr2[i])
+    for (var i = arr1.length; i--;) {
+        if (arr1[i] !== arr2[i])
             return false;
     }
 
@@ -174,7 +174,7 @@ function protocols_match(src_protocols, dst_protocols) {
 }
 
 
-function find_trasport_layer(ace){
+function find_networking_protocol(ace) {
     for (var k in ace.matches) {
         if (k.includes("ip")) {
             return k;
@@ -187,17 +187,58 @@ function find_trasport_layer(ace){
     return undefined;
 }
 
-function get_related_nodes(links){
-    let related_nodes = []
-    for (var l_idx in links){
-        let link = links[l_idx];
-        related_nodes = concat_if_not_exists(related_nodes,link.source);
-        related_nodes = concat_if_not_exists(related_nodes,link.target);
-    }
-    return related_nodes;
+function extract_protocol_from_ace(ace){
+    let number_to_transport_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" }; 
+
+    let protocol_num = find_values_by_key(ace, "protocol")[0];
+    let transport = number_to_transport_mapping[protocol_num];
+
+    let networking = find_networking_protocol(ace);
+
+    let src_port_info = find_values_by_key(ace, "source-port");
+    let src_port = find_values_by_key(src_port_info, "port");
+
+    let dst_port_info = find_values_by_key(ace, "destination-port");
+    let dst_port = find_values_by_key(dst_port_info, "port");
+
+    return new Protocol(transport, networking, src_port, dst_port);
 }
 
-function find_model_name(mudfile){
+function get_outgoing_related_nodes(model_name, links) {
+    let outgoing_related_nodes = []
+    for (var l_idx in links) {
+        let link = links[l_idx];
+        for (var dev_i in link.device) {
+            if (link.device[dev_i][model_name] != null) {
+                let direction_arr = Object.keys(link.device[dev_i][model_name]);
+                if (direction_arr.includes('outgoing')) {
+                    outgoing_related_nodes = concat_if_not_exists(outgoing_related_nodes, link.source);
+                    outgoing_related_nodes = concat_if_not_exists(outgoing_related_nodes, link.target);
+                }
+            }
+        }
+    }
+    return outgoing_related_nodes;
+}
+
+function get_incoming_related_nodes(model_name, links) {
+    let incoming_related_nodes = []
+    for (var l_idx in links) {
+        let link = links[l_idx];
+        for (var dev_i in link.device) {
+            if (link.device[dev_i][model_name] != null) {
+                let direction_arr = Object.keys(link.device[0][model_name]);
+                if (direction_arr.includes('incoming')) {
+                    incoming_related_nodes = concat_if_not_exists(incoming_related_nodes, link.source);
+                    incoming_related_nodes = concat_if_not_exists(incoming_related_nodes, link.target);
+                }
+            }
+        }
+    }
+    return incoming_related_nodes;
+}
+
+function find_model_name(mudfile) {
     let model_name = find_values_by_key(mudfile, "model-name")[0];
     if (model_name == null)
         model_name = find_values_by_key(mudfile, "systeminfo")[0];
@@ -205,4 +246,16 @@ function find_model_name(mudfile){
         return "unknown"
     else
         return model_name
+}
+
+function hasKey(obj,key){
+    return Object.keys(obj).includes(key); 
+}
+
+function getKey(obj){ // assumes object has only one key/value
+    return Object.keys(obj)[0];
+}
+
+function getValue(obj){ // assumes object has only one key/value
+    return Object.values(obj)[0];
 }

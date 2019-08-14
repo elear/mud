@@ -1,9 +1,18 @@
-// This file contains the main two class for building the network of mud nodes: MUD_Network, MUD_Promise and MUD
+// This file contains the main two class for building the network of mud nodes: MUD_Network and MUD
+
 
 const uuidv4 = require('uuid/v4');
 const Swal = require('sweetalert2');
+var incoming = "incoming";
+var outgoing = "outgoing";
 
 
+var allNodesObj = new AllNodes();
+var allLinksObj = new AllLinks();
+var router_node = new Node("2", "Router"); 
+var internet_node = new Node("3", "Internet"); 
+allNodesObj.add_node_if_not_exists(router_node);
+allNodesObj.add_node_if_not_exists(internet_node);
 /////////////////////////////////////////////
 //////////////// MUD NETWORK ////////////////
 /////////////////////////////////////////////
@@ -27,6 +36,7 @@ class Mud_Network {
         this.tmp_dev;
         this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [], "device": ['Router'] });
         this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [], "device": ['Internet'] });
+
     }
 
     add_mudfile(mud_json) {
@@ -55,355 +65,375 @@ class Mud_Network {
 
 
     get_nodes_links_json() {
-        return { "nodes": this.allNodes, "links": this.allLinks };
-    }
-
-    update_localnetworks_links() {
-        var directions = ['outgoing', 'incoming'];
-        for (var direct_idx in directions) {
-            var direction = directions[direct_idx];
-            for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
-                var current_mud = this.all_mud_objects[mud_idx];
-                if ((direction == 'outgoing' && Object.keys(current_mud.from_device_abstraction_protocols).includes("local-networks")) ||
-                    (direction == 'incoming' && Object.keys(current_mud.to_device_abstraction_protocols).includes("local-networks"))) {
-                    for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-                        var tmp_node = this.allNodes[n_idx];
-                        if (current_mud.index_in_allnodes != n_idx &&  // don't connect to itself 
-                            tmp_node.group == '1' // &&  // make sure the node is in local network group
-                        ) {
-                            // a local-networks node shold only connect to others under 3 conditions:
-                            // the other node is also of local-networks abstraction,
-                            // it's of same-manufacturer and their manufacturer match
-                            // it's of manufacturer and their target manufacturers match
-                            let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
-                            for (var abs_idx in accepted_abstractions) {
-                                let current_abstraction = accepted_abstractions[abs_idx];
-                                if ((direction == 'outgoing' && Object.keys(tmp_node.to_device_abstraction_protocols).includes(current_abstraction)) ||
-                                    (direction == 'incoming' && Object.keys(tmp_node.from_device_abstraction_protocols).includes(current_abstraction))) {
-                                    // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
-                                    // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
-                                    if ((current_abstraction == "same-manufacturer" && tmp_node.manufacturer != current_mud.manufacturer) ||
-                                        (current_abstraction == "manufacturer" && !tmp_node.other_manufacturer.includes(current_mud.manufacturer))) {
-                                        continue;
-                                    }
-                                    if (direction == 'outgoing') {
-                                        var protocol_data = protocols_match(current_mud.from_device_abstraction_protocols[current_abstraction], tmp_node.to_device_abstraction_protocols[current_abstraction]);
-                                    }
-                                    else if (direction == 'incoming') {
-                                        var protocol_data = protocols_match(current_mud.to_device_abstraction_protocols[current_abstraction], tmp_node.from_device_abstraction_protocols[current_abstraction]);
-                                    }
-                                    if (protocol_data.length > 0) {
-                                        this.tmp_dev = {}
-
-
-                                        this.tmp_dev[current_mud.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
-
-                                        if (direction == 'outgoing') {
-                                            var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
-                                        }
-                                        else if (direction == 'incoming') {
-                                            // this.tmp_dev[current_mud.model] = { "outgoing": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
-                                            var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
-                                        }
-
-
-                                        let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
-                                        if (tmp_idx == -1) {
-                                            this.allLinks.push(tmp_link);
-                                        }
-                                        else {
-                                            if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-                                                this.allLinks[tmp_idx].device.push(this.tmp_dev);
-                                            }
-                                            if (direction == 'outgoing') {
-                                                this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
-                                            }
-                                            else if (direction == 'incoming') {
-                                                this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
-                                            }
-                                        }
-
-                                        //update links_of_current_node
-                                        tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
-                                        if (tmp_idx == -1) {
-                                            current_mud.link_of_current_node.push(tmp_link);
-                                        }
-                                        else {
-                                            if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-                                                current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-                                            }
-                                            if (direction == 'outgoing') {
-                                                current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
-                                            }
-                                            else if (direction == 'incoming') {
-                                                current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
-                                            }
-                                        }
-                                    }
-
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        var nodes = [];
+        var links = []; 
+        for (var n in allNodesObj.all_nodes){
+            // let tmp_obj = {};
+            // tmp_obj[n] = allNodesObj.all_nodes[n]; 
+            nodes.push(allNodesObj.all_nodes[n]);
         }
-    }
-
-    update_samemanufacturer_links() {
-        var directions = ['outgoing', 'incoming'];
-        for (var direct_idx in directions) {
-            var direction = directions[direct_idx];
-            for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
-                var current_mud = this.all_mud_objects[mud_idx];
-                if ((direction == 'outgoing' && Object.keys(current_mud.from_device_abstraction_protocols).includes("same-manufacturer")) ||
-                    (direction == 'incoming' && Object.keys(current_mud.to_device_abstraction_protocols).includes("same-manufacturer"))) {
-                    for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-                        var tmp_node = this.allNodes[n_idx];
-                        if (current_mud.index_in_allnodes != n_idx &&
-                            tmp_node.group == '1' &&
-                            current_mud.manufacturer == tmp_node.manufacturer
-                        ) {
-
-                            let accepted_abstractions = ['local-networks', 'same-manufacturer']
-                            for (var abs_idx in accepted_abstractions) {
-                                let current_abstraction = accepted_abstractions[abs_idx];
-                                if ((direction == 'outgoing' && Object.keys(tmp_node.to_device_abstraction_protocols).includes(current_abstraction)) ||
-                                    (direction == 'incoming' && Object.keys(tmp_node.from_device_abstraction_protocols).includes(current_abstraction))) {
-                                    if ((current_abstraction == "same-manufacturer") && tmp_node.manufacturer != current_mud.manufacturer) {
-                                        continue;
-                                    }
-                                    if (direction == 'outgoing') {
-                                        var protocol_data = protocols_match(current_mud.from_device_abstraction_protocols[current_abstraction], tmp_node.to_device_abstraction_protocols[current_abstraction]);
-                                    }
-                                    else if (direction == 'incoming') {
-                                        var protocol_data = protocols_match(current_mud.to_device_abstraction_protocols[current_abstraction], tmp_node.from_device_abstraction_protocols[current_abstraction]);
-                                    }
-                                    if (protocol_data.length > 0) {
-
-                                        this.tmp_dev = {}
-                                        this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-
-                                        if (direction == 'outgoing') {
-                                            var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
-                                        }
-                                        else if (direction == 'incoming') {
-                                            var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
-                                        }
-
-                                        let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
-                                        if (tmp_idx == -1) {
-                                            this.allLinks.push(tmp_link);
-                                        }
-                                        else {
-                                            if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-                                                this.allLinks[tmp_idx].device.push(this.tmp_dev);
-                                            }
-                                            if (direction == 'outgoing') {
-                                                this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
-                                            }
-                                            else if (direction == 'incoming') {
-                                                this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
-                                            }
-                                        }
-
-                                        //update links_of_current_node
-                                        tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
-                                        if (tmp_idx == -1) {
-                                            current_mud.link_of_current_node.push(tmp_link);
-                                        }
-                                        else {
-                                            if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-                                                current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-                                            }
-                                            if (direction == 'outgoing') {
-                                                current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
-                                            }
-                                            else if (direction == 'incoming') {
-                                                current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        for (var n in allLinksObj.all_links){
+            // let tmp_obj = {};
+            // tmp_obj[n] = allLinksObj.all_links[n]; 
+            links.push(allLinksObj.all_links[n]);
         }
+        return { "nodes": nodes, "links": links };
     }
 
-    update_manufacturer_links() {
-        var directions = ['outgoing', 'incoming'];
-        for (var direct_idx in directions) {
-            var direction = directions[direct_idx];
-            for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
-                var current_mud = this.all_mud_objects[mud_idx];
-                if ((direction == 'outgoing' && Object.keys(current_mud.from_device_abstraction_protocols).includes("manufacturer")) ||
-                    (direction == 'incoming' && Object.keys(current_mud.to_device_abstraction_protocols).includes("manufacturer"))) {
-                    for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-                        var tmp_node = this.allNodes[n_idx];
-                        if (current_mud.index_in_allnodes != n_idx &&
-                            tmp_node.group == '1' &&
-                            current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
-
-                            let accepted_abstractions = ['local-networks', 'manufacturer'];
-                            for (var abs_idx in accepted_abstractions) {
-                                let current_abstraction = accepted_abstractions[abs_idx];
-                                if ((direction == 'outgoing' && Object.keys(tmp_node.to_device_abstraction_protocols).includes(current_abstraction)) ||
-                                    (direction == 'incoming' && Object.keys(tmp_node.from_device_abstraction_protocols).includes(current_abstraction))) {
-                                    if (current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
-
-                                        if (direction == 'outgoing') {
-                                            var protocol_data = protocols_match(current_mud.from_device_abstraction_protocols["manufacturer"], tmp_node.to_device_abstraction_protocols[current_abstraction]);
-                                        }
-                                        if (direction == 'incoming') {
-                                            var protocol_data = protocols_match(current_mud.to_device_abstraction_protocols["manufacturer"], tmp_node.from_device_abstraction_protocols[current_abstraction]);
-                                        }
-                                        if (protocol_data.length > 0) {
-
-                                            this.tmp_dev = {}
-
-                                            this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-
-                                            if (direction == 'outgoing') {
-                                                var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
-                                            }
-                                            else if (direction == 'incoming') {
-                                                var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
-                                            }
-
-                                            let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
-                                            if (tmp_idx == -1) {
-                                                this.allLinks.push(tmp_link);
-                                            }
-                                            else {
-                                                if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-                                                    this.allLinks[tmp_idx].device.push(this.tmp_dev);
-                                                }
-                                                if (direction == 'outgoing') {
-                                                    this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
-                                                }
-                                                else if (direction == 'incoming') {
-                                                    this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
-                                                }
-                                            }
-
-                                            //update links_of_current_node
-                                            tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
-                                            if (tmp_idx == -1) {
-                                                current_mud.link_of_current_node.push(tmp_link);
-                                            }
-                                            else {
-                                                if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-                                                    current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-                                                }
-                                                // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
-                                                if (direction == 'outgoing') {
-                                                    current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
-                                                }
-                                                else if (direction == 'incoming') {
-                                                    current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    update_mycontroller_links() {
-        var directions = ['outgoing', 'incoming'];
-        for (var direct_idx in directions) {
-            var direction = directions[direct_idx];
-            for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
-                var current_mud = this.mud_with_promises_processed[mud_idx];
-                var current_protocol_data = current_mud.from_device_abstraction_protocols['my-controller'];
-                for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
-                    var current_promise_data = current_mud.promise.data[prom_idx];
-                    let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
-                    let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
-                    tmp_idx = current_promise_data.keys.indexOf('my-controller-IP-address');
-                    let my_controller_IP_Address = current_promise_data.values[tmp_idx];
-                    let mud_uri = find_values_by_key(current_mud, 'mud-url')[0];
-                    let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model], "ip_address": my_controller_IP_Address, 'mud_url': mud_uri };
-                    this.my_controllers.push(node_controller);
-
-                    tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
-                    if (tmp_idx == -1) {
-                        this.allNodes.push(node_controller);
-                    }
-                    else {
-                        this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
-                    }
+    // update_localnetworks_links() {
+    //     var directions = ['outgoing', 'incoming'];
+    //     for (var direct_idx in directions) {
+    //         var direction = directions[direct_idx];
+    //         for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+    //             var current_mud = this.all_mud_objects[mud_idx];
+    //             if ((direction == 'outgoing' && Object.keys(current_mud.outgoing_protocols_of_abstractions).includes("local-networks")) ||
+    //                 (direction == 'incoming' && Object.keys(current_mud.incoming_protocols_of_abstractions).includes("local-networks"))) {
+    //                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
+    //                     var tmp_node = this.allNodes[n_idx];
+    //                     if (current_mud.index_in_allnodes != n_idx &&  // don't connect to itself 
+    //                         tmp_node.group == '1' // &&  // make sure the node is in local network group
+    //                     ) {
+    //                         // a local-networks node shold only connect to others under 3 conditions:
+    //                         // the other node is also of local-networks abstraction,
+    //                         // it's of same-manufacturer and their manufacturer match
+    //                         // it's of manufacturer and their target manufacturers match
+    //                         let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
+    //                         for (var abs_idx in accepted_abstractions) {
+    //                             let current_abstraction = accepted_abstractions[abs_idx];
+    //                             if ((direction == 'outgoing' && Object.keys(tmp_node.incoming_protocols_of_abstractions).includes(current_abstraction)) ||
+    //                                 (direction == 'incoming' && Object.keys(tmp_node.outgoing_protocols_of_abstractions).includes(current_abstraction))) {
+    //                                 // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
+    //                                 // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
+    //                                 if ((current_abstraction == "same-manufacturer" && tmp_node.manufacturer != current_mud.manufacturer) ||
+    //                                     (current_abstraction == "manufacturer" && !tmp_node.other_manufacturer.includes(current_mud.manufacturer))) {
+    //                                     continue;
+    //                                 }
+    //                                 if (direction == 'outgoing') {
+    //                                     var protocol_data = protocols_match(current_mud.outgoing_protocols_of_abstractions[current_abstraction], tmp_node.incoming_protocols_of_abstractions[current_abstraction]);
+    //                                 }
+    //                                 else if (direction == 'incoming') {
+    //                                     var protocol_data = protocols_match(current_mud.incoming_protocols_of_abstractions[current_abstraction], tmp_node.outgoing_protocols_of_abstractions[current_abstraction]);
+    //                                 }
+    //                                 if (protocol_data.length > 0) {
+    //                                     this.tmp_dev = {}
 
 
-                    this.tmp_dev = {}
-                    this.tmp_dev[current_mud.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
-                    if (direction == 'outgoing') {
-                        var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": current_protocol_data };
-                    }
-                    else if (direction == 'incoming') {
-                        var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": current_protocol_data };
-                    }
-                    // update all_links
-                    tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
-                    if (tmp_idx == -1) {
-                        this.allLinks.push(link_router_to_mycontroller);
-                    }
-                    else {
-                        if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-                            this.allLinks[tmp_idx].device.push(this.tmp_dev);
-                        }
-                        if (direction == 'outgoing') {
-                            this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, current_protocol_data);
-                        }
-                        else if (direction == 'incoming') {
-                            this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, current_protocol_data);
-                        }
-                    }
+    //                                     // this means for outgoing traffic in the object below, the source and target should be reversed
 
-                    //update links_of_current_node
-                    tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller, ['source', 'target']);
-                    if (tmp_idx == -1) {
-                        current_mud.link_of_current_node.push(link_router_to_mycontroller);
-                    }
-                    else {
-                        if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-                            current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-                        }
-                        // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
-                        if (direction == 'outgoing') {
-                            current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, current_protocol_data);
-                        }
-                        else if (direction == 'incoming') {
-                            current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, current_protocol_data);
-                        }
-                    }
-                }
-                if (!current_mud.node_is_in_allNodes()) {
-                    current_mud.index_in_allnodes = this.allNodes.length;
-                    this.allNodes.push({
-                        "group": String(1),
-                        "id": current_mud.model,
-                        "from_device_abstraction_protocols": current_mud.from_device_abstraction_protocols,
-                        "to_device_abstraction_protocols": current_mud.to_device_abstraction_protocols,
-                        "links": current_mud.link_of_current_node,
-                        "manufacturer": current_mud.manufacturer,
-                        "device": [current_mud.model]
-                    });
-                }
-            }
-        }
-        this.ready_to_draw = true;
-    }
+    //                                     if (direction == 'outgoing') {
+    //                                         this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }
+    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
+    //                                     }
+    //                                     else if (direction == 'incoming') {
+    //                                         this.tmp_dev[current_mud.model] = { "incoming": "normal" }
+    //                                         // this.tmp_dev[current_mud.model] = { "outgoing": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
+    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
+    //                                     }
+
+
+    //                                     let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+    //                                     if (tmp_idx == -1) {
+    //                                         this.allLinks.push(tmp_link);
+    //                                     }
+    //                                     else {
+    //                                         if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
+    //                                             this.allLinks[tmp_idx].device.push(this.tmp_dev);
+    //                                         }
+    //                                         if (direction == 'outgoing') {
+    //                                             this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                         else if (direction == 'incoming') {
+    //                                             this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                     }
+
+    //                                     //update links_of_current_node
+    //                                     tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+    //                                     if (tmp_idx == -1) {
+    //                                         current_mud.link_of_current_node.push(tmp_link);
+    //                                     }
+    //                                     else {
+    //                                         if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
+    //                                             current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+    //                                         }
+    //                                         if (direction == 'outgoing') {
+    //                                             current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                         else if (direction == 'incoming') {
+    //                                             current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                     }
+    //                                 }
+
+
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    // update_samemanufacturer_links() {
+    //     var directions = ['outgoing', 'incoming'];
+    //     for (var direct_idx in directions) {
+    //         var direction = directions[direct_idx];
+    //         for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+    //             var current_mud = this.all_mud_objects[mud_idx];
+    //             if ((direction == 'outgoing' && Object.keys(current_mud.outgoing_protocols_of_abstractions).includes("same-manufacturer")) ||
+    //                 (direction == 'incoming' && Object.keys(current_mud.incoming_protocols_of_abstractions).includes("same-manufacturer"))) {
+    //                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
+    //                     var tmp_node = this.allNodes[n_idx];
+    //                     if (current_mud.index_in_allnodes != n_idx &&
+    //                         tmp_node.group == '1' &&
+    //                         current_mud.manufacturer == tmp_node.manufacturer
+    //                     ) {
+
+    //                         let accepted_abstractions = ['local-networks', 'same-manufacturer']
+    //                         for (var abs_idx in accepted_abstractions) {
+    //                             let current_abstraction = accepted_abstractions[abs_idx];
+    //                             if ((direction == 'outgoing' && Object.keys(tmp_node.incoming_protocols_of_abstractions).includes(current_abstraction)) ||
+    //                                 (direction == 'incoming' && Object.keys(tmp_node.outgoing_protocols_of_abstractions).includes(current_abstraction))) {
+    //                                 if ((current_abstraction == "same-manufacturer") && tmp_node.manufacturer != current_mud.manufacturer) {
+    //                                     continue;
+    //                                 }
+    //                                 if (direction == 'outgoing') {
+    //                                     var protocol_data = protocols_match(current_mud.outgoing_protocols_of_abstractions[current_abstraction], tmp_node.incoming_protocols_of_abstractions[current_abstraction]);
+    //                                 }
+    //                                 else if (direction == 'incoming') {
+    //                                     var protocol_data = protocols_match(current_mud.incoming_protocols_of_abstractions[current_abstraction], tmp_node.outgoing_protocols_of_abstractions[current_abstraction]);
+    //                                 }
+    //                                 if (protocol_data.length > 0) {
+
+    //                                     this.tmp_dev = {}
+
+
+    //                                     if (direction == 'outgoing') {
+    //                                         this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
+    //                                     }
+    //                                     else if (direction == 'incoming') {
+    //                                         this.tmp_dev[current_mud.model] = { "incoming": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
+    //                                     }
+
+    //                                     let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+    //                                     if (tmp_idx == -1) {
+    //                                         this.allLinks.push(tmp_link);
+    //                                     }
+    //                                     else {
+    //                                         if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
+    //                                             this.allLinks[tmp_idx].device.push(this.tmp_dev);
+    //                                         }
+    //                                         if (direction == 'outgoing') {
+    //                                             this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                         else if (direction == 'incoming') {
+    //                                             this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                     }
+
+    //                                     //update links_of_current_node
+    //                                     tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+    //                                     if (tmp_idx == -1) {
+    //                                         current_mud.link_of_current_node.push(tmp_link);
+    //                                     }
+    //                                     else {
+    //                                         if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
+    //                                             current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+    //                                         }
+    //                                         if (direction == 'outgoing') {
+    //                                             current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                         else if (direction == 'incoming') {
+    //                                             current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    // update_manufacturer_links() {
+    //     var directions = ['outgoing', 'incoming'];
+    //     for (var direct_idx in directions) {
+    //         var direction = directions[direct_idx];
+    //         for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+    //             var current_mud = this.all_mud_objects[mud_idx];
+    //             if ((direction == 'outgoing' && Object.keys(current_mud.outgoing_protocols_of_abstractions).includes("manufacturer")) ||
+    //                 (direction == 'incoming' && Object.keys(current_mud.incoming_protocols_of_abstractions).includes("manufacturer"))) {
+    //                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
+    //                     var tmp_node = this.allNodes[n_idx];
+    //                     if (current_mud.index_in_allnodes != n_idx &&
+    //                         tmp_node.group == '1' &&
+    //                         current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
+
+    //                         let accepted_abstractions = ['local-networks', 'manufacturer'];
+    //                         for (var abs_idx in accepted_abstractions) {
+    //                             let current_abstraction = accepted_abstractions[abs_idx];
+    //                             if ((direction == 'outgoing' && Object.keys(tmp_node.incoming_protocols_of_abstractions).includes(current_abstraction)) ||
+    //                                 (direction == 'incoming' && Object.keys(tmp_node.outgoing_protocols_of_abstractions).includes(current_abstraction))) {
+    //                                 if (current_mud.other_manufacturer.includes(tmp_node.manufacturer)) {
+
+    //                                     if (direction == 'outgoing') {
+    //                                         var protocol_data = protocols_match(current_mud.outgoing_protocols_of_abstractions["manufacturer"], tmp_node.incoming_protocols_of_abstractions[current_abstraction]);
+    //                                     }
+    //                                     if (direction == 'incoming') {
+    //                                         var protocol_data = protocols_match(current_mud.incoming_protocols_of_abstractions["manufacturer"], tmp_node.outgoing_protocols_of_abstractions[current_abstraction]);
+    //                                     }
+    //                                     if (protocol_data.length > 0) {
+
+    //                                         this.tmp_dev = {}
+
+
+
+    //                                         if (direction == 'outgoing') {
+    //                                             this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+    //                                             var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
+    //                                         }
+    //                                         else if (direction == 'incoming') {
+    //                                             this.tmp_dev[current_mud.model] = { "incoming": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+    //                                             var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
+    //                                         }
+
+    //                                         let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+    //                                         if (tmp_idx == -1) {
+    //                                             this.allLinks.push(tmp_link);
+    //                                         }
+    //                                         else {
+    //                                             if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
+    //                                                 this.allLinks[tmp_idx].device.push(this.tmp_dev);
+    //                                             }
+    //                                             if (direction == 'outgoing') {
+    //                                                 this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
+    //                                             }
+    //                                             else if (direction == 'incoming') {
+    //                                                 this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
+    //                                             }
+    //                                         }
+
+    //                                         //update links_of_current_node
+    //                                         tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+    //                                         if (tmp_idx == -1) {
+    //                                             current_mud.link_of_current_node.push(tmp_link);
+    //                                         }
+    //                                         else {
+    //                                             if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
+    //                                                 current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+    //                                             }
+    //                                             // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+    //                                             if (direction == 'outgoing') {
+    //                                                 current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
+    //                                             }
+    //                                             else if (direction == 'incoming') {
+    //                                                 current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
+    //                                             }
+    //                                         }
+
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    // update_mycontroller_links() {
+    //     var directions = ['outgoing', 'incoming'];
+    //     for (var direct_idx in directions) {
+    //         var direction = directions[direct_idx];
+    //         for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
+    //             var current_mud = this.mud_with_promises_processed[mud_idx];
+    //             var current_protocol_data = current_mud.outgoing_protocols_of_abstractions['my-controller'];
+    //             for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
+    //                 var current_promise_data = current_mud.promise.data[prom_idx];
+    //                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
+    //                 let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
+    //                 tmp_idx = current_promise_data.keys.indexOf('my-controller-IP-address');
+    //                 let my_controller_IP_Address = current_promise_data.values[tmp_idx];
+    //                 let mud_uri = find_values_by_key(current_mud, 'mud-url')[0];
+    //                 let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model], "ip_address": my_controller_IP_Address, 'mud_url': mud_uri };
+    //                 this.my_controllers.push(node_controller);
+
+    //                 tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
+    //                 if (tmp_idx == -1) {
+    //                     this.allNodes.push(node_controller);
+    //                 }
+    //                 else {
+    //                     this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
+    //                 }
+
+
+    //                 this.tmp_dev = {}
+
+    //                 if (direction == 'outgoing') {
+    //                     this.tmp_dev[current_mud.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
+    //                     var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": current_protocol_data };
+    //                 }
+    //                 else if (direction == 'incoming') {
+    //                     this.tmp_dev[current_mud.model] = { "incoming": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
+    //                     var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": current_protocol_data };
+    //                 }
+    //                 // update all_links
+    //                 tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
+    //                 if (tmp_idx == -1) {
+    //                     this.allLinks.push(link_router_to_mycontroller);
+    //                 }
+    //                 else {
+    //                     if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
+    //                         this.allLinks[tmp_idx].device.push(this.tmp_dev);
+    //                     }
+    //                     if (direction == 'outgoing') {
+    //                         this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, current_protocol_data);
+    //                     }
+    //                     else if (direction == 'incoming') {
+    //                         this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, current_protocol_data);
+    //                     }
+    //                 }
+
+    //                 //update links_of_current_node
+    //                 tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller, ['source', 'target']);
+    //                 if (tmp_idx == -1) {
+    //                     current_mud.link_of_current_node.push(link_router_to_mycontroller);
+    //                 }
+    //                 else {
+    //                     if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
+    //                         current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+    //                     }
+    //                     // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
+    //                     if (direction == 'outgoing') {
+    //                         current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, current_protocol_data);
+    //                     }
+    //                     else if (direction == 'incoming') {
+    //                         current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, current_protocol_data);
+    //                     }
+    //                 }
+    //             }
+    //             if (!current_mud.node_is_in_allNodes()) {
+    //                 current_mud.index_in_allnodes = this.allNodes.length;
+    //                 this.allNodes.push({
+    //                     "group": String(1),
+    //                     "id": current_mud.model,
+    //                     "outgoing_protocols_of_abstractions": current_mud.outgoing_protocols_of_abstractions,
+    //                     "incoming_protocols_of_abstractions": current_mud.incoming_protocols_of_abstractions,
+    //                     "links": current_mud.link_of_current_node,
+    //                     "manufacturer": current_mud.manufacturer,
+    //                     "device": [current_mud.model]
+    //                 });
+    //             }
+    //         }
+    //     }
+    //     this.ready_to_draw = true;
+    // }
 
     has_promise() {
         if (this.mud_with_promises_raw.length > 0) {
@@ -504,71 +534,35 @@ class Mud_Network {
 
     update_related_nodes() {
         for (var node_idx in this.allNodes) {
-            this.allNodes[node_idx].related_nodes = get_related_nodes(this.allNodes[node_idx].links);
+            this.allNodes[node_idx].outgoing_related_nodes = get_outgoing_related_nodes(this.allNodes[node_idx].id, this.allNodes[node_idx].links);
+            this.allNodes[node_idx].incoming_related_nodes = get_incoming_related_nodes(this.allNodes[node_idx].id, this.allNodes[node_idx].links);
         }
     }
 
     create_network() {
-        for (var current_mud_name in this.all_mud_jsons) {
-            if (!this.all_mud_jsons[current_mud_name].processed) {
-                var current_mud = new Mud(this.all_mud_jsons[current_mud_name].data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.my_controllers, this.controllers);
+        for (var json_idx in this.all_mud_jsons) {
+            var current_mud_json = this.all_mud_jsons[json_idx]
+            if (!current_mud_json.processed) {
+                var current_mud = new Mud(current_mud_json.data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.my_controllers, this.controllers);
                 if (current_mud.has_promise()) {
                     this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
                 }
 
                 this.all_mud_objects = this.all_mud_objects.concat(current_mud);
-                this.all_mud_jsons[current_mud_name].processed = true;
+                current_mud_json.processed = true;
                 $("#fileNotLoaded").hide();
                 $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model + '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
             }
         }
-        this.fulfill_promises();
-        this.update_localnetworks_links();
-        this.update_samemanufacturer_links();
-        this.update_manufacturer_links();
-        this.update_related_nodes();
+        this.ready_to_draw = true; 
+        // this.fulfill_promises();
+        // this.update_localnetworks_links();
+        // this.update_samemanufacturer_links();
+        // this.update_manufacturer_links();
+        // this.update_related_nodes();
     }
 }
 
-
-///////////////////////////////////////
-//////////////// promise //////////////
-///////////////////////////////////////
-
-class Mud_Promise {
-    constructor(uuid, model) {
-        this.uuid = uuid;
-        this.model = model;
-        this.data = [];
-    }
-
-    isempty() {
-        if (this.data.length == 0) {
-            return true;
-        }
-        return false;
-    }
-
-    isfulfilled() {
-        for (var dat_idx in this.data) {
-            if (this.data[dat_idx].values.length == 0)
-                return false;
-        }
-        return true;
-    }
-
-    append(promise_data) {
-        promise_data.input_id = []
-        for (var dat_idx = 0; dat_idx < promise_data.keys.length; dat_idx++) {
-            promise_data.input_id = promise_data.input_id.concat(uuidv4());
-        }
-        this.data = this.data.concat(promise_data);
-    }
-
-    length() {
-        return this.data.length;
-    }
-}
 
 //////////////////////////////////////////
 //////////////// MUD Node ////////////////
@@ -586,31 +580,34 @@ class Mud {
                 break;
             }
         }
+        // this.node = new Node(); 
         this.uuid = uuidv4();
-        this.promise = new Mud_Promise(this.uuid, this.model);
+        this.promise = new MudPromise(this.uuid, this.model);
         this.FromDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "from-device-policy")[0], "name");
         this.ToDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "to-device-policy")[0], "name");
         this.acls = this.extract_acls();
         this.allAbstractions = allAbstractions;
         this.allMyControllers = allMyControllers;
         this.allControllers = allControllers;
-        this.from_device_abstraction_protocols = {};
-        this.to_device_abstraction_protocols = {};
+        this.outgoing_protocols_of_abstractions = {};
+        this.incoming_protocols_of_abstractions = {};
         this.FromDevicePolicies = [];
         this.FromDeviceAces = [];
         this.FromDeviceControllers = [];
         this.ToDevicePolicies = [];
         this.ToDeviceAces = [];
         this.ToDeviceControllers = [];
+        this.outgoing_related_nodes = [];
+        this.incoming_related_nodes = [];
         this.allNodes = allNodes;
         this.allLinks = allLinks;
         this.link_of_current_node = [];
         this.index_in_allnodes = -1;
-        this.number_protocol_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" }
+        this.number_to_transport_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" }
         this.manufacturer = this.extract_manufacturer()
         this.other_manufacturer = this.extract_others_manufacturer();
         this.extract_device_policies();
-        this.extract_FromDevice_links();
+        this.extract_mud_links();
     }
 
     has_promise() {
@@ -678,198 +675,155 @@ class Mud {
         return false;
     }
 
-    extract_FromDevice_links() {
-        let ace_types = { 'from': this.FromDeviceAces, 'to': this.ToDeviceAces }
+    extract_mud_links() {
+        
+        var new_node = new Node(String(1), this.model); 
+
+        let ace_types = { outgoing: this.FromDeviceAces, incoming: this.ToDeviceAces };
         for (var direction in ace_types) {
-            // if (direction === 'to') { continue; }
             var aceList = ace_types[direction];
             var unmached_abstract_found = false;
             var unmatched_aces = [];
             for (var acl_idx = 0; acl_idx < aceList.length; acl_idx++) {
                 var ace = aceList[acl_idx];
 
-                let transport = find_trasport_layer(ace);
+                var ace_protocol = extract_protocol_from_ace(ace);
+                var ace_abstraction = this.get_abstraction_types(ace);
 
-                let protocol_num = find_values_by_key(ace, "protocol")[0];
-                let protocol = this.number_protocol_mapping[protocol_num];
+                
 
-                let source_port = find_values_by_key(ace, "source-port");
-                let source_port_number = find_values_by_key(source_port, "port");
-
-                let destination_port = find_values_by_key(ace, "destination-port");
-                let destination_port_number = find_values_by_key(destination_port, "port");
-
-                let protocol_data = { "transport": transport, "protocol": protocol, "source_port": source_port_number, "destination_port": destination_port_number };
-
-                var abstract = this.get_abstract_types(ace);
-
-                if (direction === 'from') {
-                    // add the abstraction to this mud instance if it's not there yet: 
-                    if (Object.keys(this.from_device_abstraction_protocols).includes(abstract)) {
-                        this.from_device_abstraction_protocols[abstract] = concat_if_not_exists(this.from_device_abstraction_protocols[abstract], protocol_data);
-                    }
-                    else {
-                        this.from_device_abstraction_protocols[abstract] = [protocol_data]
-                    }
-                    if (!this.allAbstractions.includes(abstract)) {
-                        this.allAbstractions = this.allAbstractions.concat(abstract);
-                    }
-                }
-                else if (direction === 'to') {
-                    // add the abstraction to this mud instance if it's not there yet: 
-                    if (Object.keys(this.to_device_abstraction_protocols).includes(abstract)) {
-                        this.to_device_abstraction_protocols[abstract] = concat_if_not_exists(this.to_device_abstraction_protocols[abstract], protocol_data);
-                    }
-                    else {
-                        this.to_device_abstraction_protocols[abstract] = [protocol_data]
-                    }
-                    if (!this.allAbstractions.includes(abstract)) {
-                        this.allAbstractions = this.allAbstractions.concat(abstract);
-                    }
-
-                }
-
+                // each node has a "device" element which indicates which device is linked with that link 
                 var abstract_matched = true;
                 var new_links = [];
-                switch (abstract) {
+                switch (ace_abstraction) {
                     case "domain-names":
-                        if (direction == 'from') {
-                            var destination = find_values_by_key(ace, "ietf-acldns:dst-dnsname")[0];
+                        var device_to_router_flow = {};  // flow is either "normal" or "reverse"
+                        var router_to_internet_flow = {};
+                        var dest_to_internet_flow = {};
+                        if (direction == 'outgoing') {
+                            var destination_name = find_values_by_key(ace, "ietf-acldns:dst-dnsname")[0];
+                            device_to_router_flow[this.model] = "normal";
+                            router_to_internet_flow[this.model] = "normal";
+                            dest_to_internet_flow[this.model] = "reverse";
                         }
-                        else if (direction == 'to') {
-                            var destination = find_values_by_key(ace, "ietf-acldns:src-dnsname")[0];
+                        else if (direction == 'incoming') {
+                            var destination_name = find_values_by_key(ace, "ietf-acldns:src-dnsname")[0];
+                            dest_to_internet_flow[this.model] = "normal";
+                            router_to_internet_flow[this.model] = "reverse";
+                            device_to_router_flow[this.model] = "reverse";
                         }
 
-                        if (!this.allNodes_includes(destination)) {
-                            this.allNodes.push({ "group": String(4), "id": destination, "abstractions": ["domain-names"], device: [this.model] });
+                        var dest_node = new Node( "4",  destination_name) ;
+                        if (!allNodesObj.add_node_if_not_exists(dest_node)){ // if false is returned, it means node already exists 
+                            allNodesObj.getNode(destination_name).add_device_if_not_exists(direction, this.model); 
                         }
-                        else {
-                            let tmp_idx = find_values_by_key(Object.values(this.allNodes), 'id').indexOf(destination);
-                            if (!this.allNodes[tmp_idx].device.includes(this.model))
-                                this.allNodes[tmp_idx].device = this.allNodes[tmp_idx].device.concat(this.model);
-                        }
-                        this.tmp_dev = {}
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                        }
+
+
+                        var link_device_to_router = new Link(this.model, "Router");
+                        link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
+
                         new_links.push(link_device_to_router);
+                        
 
+                        var link_internet_to_destination = new Link(destination_name, "Internet");
+                        link_internet_to_destination.add_deviceflow_if_not_exists(direction, dest_to_internet_flow);
 
-
-                        this.tmp_dev = {}
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_internet_to_destination = { "source": destination, "target": "Internet", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_internet_to_destination = { "source": destination, "target": "Internet", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                        }
                         new_links.push(link_internet_to_destination);
 
-                        this.tmp_dev = {}
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_router_to_internet = { "source": "Router", "target": "Internet", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                        }
+                        var link_router_to_internet = new Link("Router", "Internet");
+                        link_router_to_internet.add_deviceflow_if_not_exists(direction, router_to_internet_flow);
+
                         new_links.push(link_router_to_internet);
 
+                        ace_protocol.setTarget(destination_name);
+                        new_node.add_protocol(direction,ace_abstraction,ace_protocol);
 
                         break;
 
-                    case "local-networks":
-                    case "same-manufacturer":
-                    case "manufacturer":
+                    // case "local-networks":
+                    // case "same-manufacturer":
+                    // case "manufacturer":
 
-                        this.tmp_dev = {}
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                        }
-                        new_links.push(link_device_to_router_);
+                    //     this.tmp_dev = {}
+                    //     if (direction === 'from') {
+                    //         this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
+                    //     }
+                    //     else if (direction === 'to') {
+                    //         this.tmp_dev[this.model] = { "incoming": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
+                    //     }
+                    //     new_links.push(link_device_to_router_);
 
-                        break;
+                    //     break;
 
-                    case "my-controller":
-                        let existing_mycontroller;
-                        for (var mycon_idx in this.allMyControllers) {
-                            let tmp_mycont = this.allMyControllers[mycon_idx];
-                            if (tmp_mycont.mud_url == this.mud_url) {
-                                existing_mycontroller = tmp_mycont;
-                            }
-                        }
-                        if (existing_mycontroller == null) {
-                            this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
-                        }
-                        else {
-                            this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [existing_mycontroller.id.split(': ')[1], existing_mycontroller.ip_address] });
-                        }
-                        this.tmp_dev = {};
+                    // case "my-controller":
+                    //     let existing_mycontroller;
+                    //     for (var mycon_idx in this.allMyControllers) {
+                    //         let tmp_mycont = this.allMyControllers[mycon_idx];
+                    //         if (tmp_mycont.mud_url == this.mud_url) {
+                    //             existing_mycontroller = tmp_mycont;
+                    //         }
+                    //     }
+                    //     if (existing_mycontroller == null) {
+                    //         this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
+                    //     }
+                    //     else {
+                    //         this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [existing_mycontroller.id.split(': ')[1], existing_mycontroller.ip_address] });
+                    //     }
+                    //     this.tmp_dev = {};
 
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                        }
+                    //     if (direction === 'from') {
+                    //         this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
+                    //     }
+                    //     else if (direction === 'to') {
+                    //         this.tmp_dev[this.model] = { "incoming": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
+                    //     }
 
-                        new_links.push(link_device_to_router_my_cont);
+                    //     new_links.push(link_device_to_router_my_cont);
 
-                        break;
+                    //     break;
 
-                    case "controller":
-                        var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
+                    // case "controller":
+                    //     var controller_class = unique(find_values_by_key(ace, 'controller'))[0];
 
-                        this.tmp_dev = {}
+                    //     this.tmp_dev = {}
 
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
+                    //     if (direction === 'from') {
+                    //         this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
+                    //     }
+                    //     else if (direction === 'to') {
+                    //         this.tmp_dev[this.model] = { "incoming": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_device_to_router_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
 
-                        }
-                        new_links.push(link_device_to_router_cont);
+                    //     }
+                    //     new_links.push(link_device_to_router_cont);
 
-                        let node_controller = { "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model] } //, "protocol_data": [protocol_data] };
-                        var tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
-                        if (tmp_idx == -1) {
-                            this.allNodes.push(node_controller);
-                        }
-                        else {
-                            this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model);
-                        }
+                    //     let node_controller = { "group": String(0), "id": controller_class, "abstractions": ["controller"], "device": [this.model] } //, "protocol_data": [protocol_data] };
+                    //     var tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
+                    //     if (tmp_idx == -1) {
+                    //         this.allNodes.push(node_controller);
+                    //     }
+                    //     else {
+                    //         this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, this.model);
+                    //     }
 
-                        // let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
-                        this.tmp_dev = {}
-                        if (direction === 'from') {
-                            this.tmp_dev[this.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_router_to_controller = { "source": controller_class, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                        }
-                        else if (direction === 'to') {
-                            this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                            var link_router_to_controller = { "source": controller_class, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                        }
-                        new_links.push(link_router_to_controller);
+                    //     // let link_router_to_controller = { "source": "Router", "target": controller_class, "value": "10", "device": [this.model], "protocol_data": [protocol_data] };
+                    //     this.tmp_dev = {}
+                    //     if (direction === 'from') {
+                    //         this.tmp_dev[this.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_router_to_controller = { "source": controller_class, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
+                    //     }
+                    //     else if (direction === 'to') {
+                    //         this.tmp_dev[this.model] = { "incoming": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                    //         var link_router_to_controller = { "source": controller_class, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
+                    //     }
+                    //     new_links.push(link_router_to_controller);
 
-                        break
+                    //     break
                     // case "same-model":
                     //     console.log("not implemented");
                     default:
@@ -880,78 +834,77 @@ class Mud {
                 if (abstract_matched) {
                     for (var link_idx in new_links) {
                         var link_to_add = new_links[link_idx];
-                        // update all_links
-                        // if (direction === 'from') {
-                        var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_to_add, ['source', 'target']);
-                        if (tmp_idx == -1) {
-                            this.allLinks.push(link_to_add);
-                        }
-                        else {
-                            if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)) {
-                                this.allLinks[tmp_idx].device.push(this.tmp_dev)
-                            }
-                            if (direction === 'from') {
-                                this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, link_to_add.from_dev_protocol_data);
-                            }
-                            else if (direction === 'to') {
-                                this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, link_to_add.to_dev_protocol_data);
-                            }
-                        }
 
-                        //update links_of_current_node
-                        var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_to_add, ['source', 'target']);
-                        if (tmp_idx == -1) {
-                            this.link_of_current_node.push(link_to_add);
+                        if (!allLinksObj.add_link_if_not_exists(link_to_add)){ // returns false if it's already there
+                            let existing_link = allLinksObj.getLink(link_to_add);
+                            existing_link.add_deviceflow_if_not_exists(direction,link_to_add.get_deviceflows(direction)[0]);
                         }
-                        else {
-                            if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)) {
-                                this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
-                            }
-                            if (direction === 'from') {
-                                this.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].from_dev_protocol_data, link_to_add.from_dev_protocol_data);
-                            }
-                            else if (direction === 'to') {
-                                this.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].to_dev_protocol_data, link_to_add.to_dev_protocol_data);
-                            }
-                        }
+                        
+                        new_node.add_link_if_not_exists(direction, link_to_add);
+
+
+                        // var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_to_add, ['source', 'target']);
+                        // if (tmp_idx == -1) {
+                        //     this.allLinks.push(link_to_add);
                         // }
-                        // else if (direction === 'to') {
-                        //     var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_to_add, ['source', 'target']);
-                        //     if (tmp_idx == -1) {
-                        //         this.allLinks.push(link_to_add);
+                        // else {
+                        //     if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)) {
+                        //         this.allLinks[tmp_idx].device.push(link_to_add.device[0][this.model])
                         //     }
                         //     else {
-                        //         if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)) {
-                        //             this.allLinks[tmp_idx].device.push(this.tmp_dev)
+                        //         for (var dev_i in this.allLinks[tmp_idx].device) {
+                        //             var dev_element = this.allLinks[tmp_idx].device[dev_i];
+                        //             if (Object.keys(dev_element).includes(this.model)) {
+                        //                 dev_element[this.model] = { ...dev_element[this.model], ...link_to_add.device[0][this.model] };
+                        //             }
                         //         }
+                        //     }
+                        //     if (direction === 'from') {
+                        //         this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, link_to_add.from_dev_protocol_data);
+                        //         // this.allLinks[tmp_idx].device =
+                        //     }
+                        //     else if (direction === 'to') {
                         //         this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, link_to_add.to_dev_protocol_data);
                         //     }
+                        // }
 
-                        //     //update links_of_current_node
-                        //     var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_to_add, ['source', 'target']);
-                        //     if (tmp_idx == -1) {
-                        //         this.link_of_current_node.push(link_to_add);
+                        // //update links_of_current_node
+                        // var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_to_add, ['source', 'target']);
+                        // if (tmp_idx == -1) {
+                        //     this.link_of_current_node.push(link_to_add);
+                        // }
+                        // else {
+                        //     if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)) {
+                        //         this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
                         //     }
-                        //     else {
-                        //         if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)) {
-                        //             this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
-                        //         }
+                        //     if (direction === 'from') {
+                        //         this.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].from_dev_protocol_data, link_to_add.from_dev_protocol_data);
+                        //     }
+                        //     else if (direction === 'to') {
                         //         this.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].to_dev_protocol_data, link_to_add.to_dev_protocol_data);
                         //     }
                         // }
+
+
                     }
 
-                    if (abstract != "my-controller" && !this.node_is_in_allNodes()) {
-                        this.index_in_allnodes = this.allNodes.length;
-                        this.allNodes.push({
-                            "group": String(1),
-                            "id": this.model,
-                            "from_device_abstraction_protocols": this.from_device_abstraction_protocols,
-                            "to_device_abstraction_protocols": this.to_device_abstraction_protocols,
-                            "links": this.link_of_current_node,
-                            "manufacturer": this.manufacturer,
-                            "other_manufacturer": this.other_manufacturer, device: [this.model]
-                        });
+                    // if (abstraction != "my-controller" && !this.node_is_in_allNodes()) {
+                    //     this.index_in_allnodes = this.allNodes.length;
+                    //     this.allNodes.push({
+                    //         "group": String(1),
+                    //         "id": this.model,
+                    //         "outgoing_protocols_of_abstractions": this.outgoing_protocols_of_abstractions,
+                    //         "incoming_protocols_of_abstractions": this.incoming_protocols_of_abstractions,
+                    //         "links": this.link_of_current_node,
+                    //         "manufacturer": this.manufacturer,
+                    //         "other_manufacturer": this.other_manufacturer, device: [this.model]
+                    //     });
+                    // }
+
+                    if (ace_abstraction != "my-controller"){
+                        allNodesObj.add_node_if_not_exists(new_node) ; 
+                        router_node.add_device_if_not_exists(direction, new_node.name);
+                        internet_node.add_device_if_not_exists(direction, new_node.name);
                     }
                 }
             }
@@ -1017,24 +970,24 @@ class Mud {
         return (find_values_by_key(Object.values(this.allLinks), 'source').indexOf(this.model) != -1)
     }
 
-    get_abstract_types(ace) {
-        var abstract_types = [];
+    get_abstraction_types(ace) {
+        var abstraction = [];
         var acldns = find_values_by_key(ace, 'ietf-acldns', true);
         var mud_acls = find_values_by_key(ace, "ietf-mud:mud", true);
         if (acldns.length > 0) {
-            abstract_types = abstract_types.concat("domain-names");
+            abstraction = abstraction.concat("domain-names");
         }
         else {
             for (var j = 0; j < mud_acls.length; j++) {
                 var current_abstract = Object.keys(mud_acls[j])[0];
-                if (!abstract_types.includes(current_abstract)) {
-                    abstract_types = abstract_types.concat(Object.keys(mud_acls[j]))
+                if (!abstraction.includes(current_abstract)) {
+                    abstraction = abstraction.concat(Object.keys(mud_acls[j]))
                 }
             }
         }
-        if (abstract_types.length > 1) {
+        if (abstraction.length > 1) {
             console.warn("more than one absraction found in a ace");
         }
-        return abstract_types[0];
+        return abstraction[0];
     }
 }

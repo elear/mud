@@ -385,10 +385,10 @@ function mud_drawer(inp_json) {
 
             if (!excluded_models.includes(current_protocol.target) && current_protocol.target != null ) { // protocols with null targets are just template protocols and will be filled later with the updater methods
               table += "<tr><td>" + current_protocol.target + "</td>";
-              table += "<td>" + current_protocol.transport + "</td>";
-              table += "<td>" + current_protocol.network + "</td>";
-              table += "<td>" + current_protocol.src_port + "</td>";
-              table += "<td>" + current_protocol.dst_port + "</td>";
+              table += "<td>" + current_protocol.transport.join(', ') + "</td>";
+              table += "<td>" + current_protocol.network.join(', ') + "</td>";
+              table += "<td>" + current_protocol.src_port.join(', ') + "</td>";
+              table += "<td>" + current_protocol.dst_port.join(', ') + "</td>";
               table += "</tr>"
             }
           }

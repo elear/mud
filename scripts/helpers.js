@@ -269,11 +269,10 @@ class ProtocolSet {
                 break;
             }
             // the next if statements are to check if any of the current protocols is a superset of the new protocol. if so don't bother add the new one
-            if ( tmp_protocol.target == new_protocol.target && 
-                (tmp_protocol.transport == 'any' && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
-                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == 'any' && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
-                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port == 'any' && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
-                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port == 'any')) {
+            if (( tmp_protocol.target == new_protocol.target &&  tmp_protocol.transport == 'any' && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
+                ( tmp_protocol.target == new_protocol.target &&  tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == 'any' && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
+                ( tmp_protocol.target == new_protocol.target &&  tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port == 'any' && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
+                ( tmp_protocol.target == new_protocol.target && tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port == 'any')) {
                 close_match_found = true;
                 break;
             }
@@ -299,6 +298,7 @@ class Abstractions {
         this.mycontroller_protocols = new ProtocolSet();
         this.controller_protocols = new ProtocolSet();
         this.samemodel_protocols = new ProtocolSet();
+        this.all_protocols = [];
     }
     add_protocol(abstraction, protocol) {
         switch (abstraction) {
@@ -343,17 +343,48 @@ class Abstractions {
                 return this.samemodel_protocols.get_protocols();
         }
     }
+
     get_all_protocols(){
-        var all_protocols = [];
-        all_protocols = all_protocols.concat(this.domain_protocols.get_protocols());
-        all_protocols = all_protocols.concat(this.localnetworks_protocols.get_protocols());
-        all_protocols = all_protocols.concat(this.samemanufacturer_protocols.get_protocols());
-        all_protocols = all_protocols.concat(this.manufacturer_protocols.get_protocols());
-        all_protocols = all_protocols.concat(this.mycontroller_protocols.get_protocols());
-        all_protocols = all_protocols.concat(this.controller_protocols.get_protocols());
-        all_protocols = all_protocols.concat(this.samemodel_protocols.get_protocols());
-        return all_protocols;
+        this.all_protocols = this.all_protocols.concat(this.domain_protocols.get_protocols());
+        this.all_protocols = this.all_protocols.concat(this.localnetworks_protocols.get_protocols());
+        this.all_protocols = this.all_protocols.concat(this.samemanufacturer_protocols.get_protocols());
+        this.all_protocols = this.all_protocols.concat(this.manufacturer_protocols.get_protocols());
+        this.all_protocols = this.all_protocols.concat(this.mycontroller_protocols.get_protocols());
+        this.all_protocols = this.all_protocols.concat(this.controller_protocols.get_protocols());
+        this.all_protocols = this.all_protocols.concat(this.samemodel_protocols.get_protocols());
+        
+        var all_protocols_pruned = []; // this will prune all protocols: cases like 
+                                    // {transport: any, protocol: ipv4, src_port: any, dst_prot: any, target: "iot"} and 
+                                    // {transport: TCP, protocol: ipv4, src_port: 888, dst_prot: 777, target: "iot"} should be merged to the former
+        var targets = this.get_targets(); 
+        for (var tar_idx in targets){
+            var current_target = targets[tar_idx];
+            var target_protocols = this.get_protocols_by_target (current_target) ; 
+            var transport = find_values_by_key(target_protocols,'transport');
+            transport.indexOf('any') != -1 ? transport = ['any'] : transport = [...new Set(transport)];
+            var network = find_values_by_key(target_protocols,'network');
+            network.indexOf('any') != -1 ? network = ['any'] : network = [...new Set(network)];
+            var src_port = find_values_by_key(target_protocols,'src_port');
+            src_port.indexOf('any') != -1 ? src_port = ['any'] : src_port = [...new Set(src_port)];
+            var dst_port = find_values_by_key(target_protocols,'dst_port');
+            dst_port.indexOf('any') != -1 ? dst_port = ['any'] : dst_port = [...new Set(dst_port)];
+
+            var tmp_protocol = new Protocol(transport, network, src_port, dst_port);
+            tmp_protocol.setTarget(current_target);
+            all_protocols_pruned.push(tmp_protocol);
+        }
+        return all_protocols_pruned; 
     }
+
+    get_protocols_by_target (target){
+        return this.all_protocols.filter(prtc => prtc.target == target); 
+    }
+
+    get_targets(){
+        return [... new Set(find_values_by_key(this.all_protocols, 'target'))];
+    }
+    // matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
+
 }
 
 
@@ -395,3 +426,5 @@ class MudPromise {
         return this.data.length;
     }
 }
+
+

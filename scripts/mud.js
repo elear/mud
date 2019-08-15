@@ -105,24 +105,24 @@ class Mud_Network {
                                     }
 
                                     var matched_protocols = protocols_match(first_node.get_protocols_by_abstraction(direction, 'local-networks'),
-                                                                            second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
                                     if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
                                         matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
                                     }
 
                                     for (var prot_idx in matched_protocols) {
-                                        first_node.set_target_and_save_protocol(direction, 'local-networks', matched_protocols[prot_idx],second_node.name);
+                                        first_node.set_target_and_save_protocol(direction, 'local-networks', matched_protocols[prot_idx], second_node.name);
                                         var link_uid = allLinksObj.create_uid(second_node.name, "Router");
-                                        first_node.add_link_if_not_exists(direction,allLinksObj.getLink_by_uid(link_uid));
+                                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
-                                        deviceflow[first_node.name] = "reverse" ; 
+                                        deviceflow[first_node.name] = "reverse";
                                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
 
-                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx],first_node.name);
+                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx], first_node.name);
                                         var link_uid = allLinksObj.create_uid(first_node.name, "Router");
-                                        second_node.add_link_if_not_exists(opposite_direction,allLinksObj.getLink_by_uid(link_uid));
+                                        second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
-                                        deviceflow[second_node.name] = "normal" ; 
+                                        deviceflow[second_node.name] = "normal";
                                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
                                     }
                                 }
@@ -134,90 +134,200 @@ class Mud_Network {
         }
     }
 
-    // update_samemanufacturer_links() {
-    //     var directions = ['outgoing', 'incoming'];
-    //     for (var direct_idx in directions) {
-    //         var direction = directions[direct_idx];
-    //         for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
-    //             var current_mud = this.all_mud_objects[mud_idx];
-    //             if ((direction == 'outgoing' && Object.keys(current_mud.outgoing_protocols_of_abstractions).includes("same-manufacturer")) ||
-    //                 (direction == 'incoming' && Object.keys(current_mud.incoming_protocols_of_abstractions).includes("same-manufacturer"))) {
-    //                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-    //                     var tmp_node = this.allNodes[n_idx];
-    //                     if (current_mud.index_in_allnodes != n_idx &&
-    //                         tmp_node.group == '1' &&
-    //                         current_mud.manufacturer == tmp_node.manufacturer
-    //                     ) {
+    update_localnetworks_links() {
+        var directions = ['outgoing', 'incoming'];
+        for (var direct_idx in directions) {
+            var direction = directions[direct_idx];
+            var opposite_direction = directions[directions.length - direct_idx - 1];
+            for (var node_idx in allNodesObj.getAllNodes()) {
+                var first_node = allNodesObj.getAllNodes()[node_idx];
+                if (first_node.get_protocols_by_abstraction(direction, 'local-networks').length > 0) {
+                    var g1_nodes = allNodesObj.getNodesByGroup('1');
+                    for (var node_idx2 in g1_nodes) {
+                        var second_node = g1_nodes[node_idx2];
+                        if (second_node.name != first_node.name) {
+                            // a local-networks node shold only connect to others under 3 conditions:
+                            // the other node is also of local-networks abstraction,
+                            // it's of same-manufacturer and their manufacturer match
+                            // it's of manufacturer and their target manufacturers match
+                            var accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
+                            for (var abs_idx in accepted_abstractions) {
+                                var current_abstraction = accepted_abstractions[abs_idx];
+                                if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
+                                    if (current_abstraction == "same-manufacturer" && second_node.manufacturer != first_node.manufacturer) {
+                                        continue;
+                                    }
 
-    //                         let accepted_abstractions = ['local-networks', 'same-manufacturer']
-    //                         for (var abs_idx in accepted_abstractions) {
-    //                             let current_abstraction = accepted_abstractions[abs_idx];
-    //                             if ((direction == 'outgoing' && Object.keys(tmp_node.incoming_protocols_of_abstractions).includes(current_abstraction)) ||
-    //                                 (direction == 'incoming' && Object.keys(tmp_node.outgoing_protocols_of_abstractions).includes(current_abstraction))) {
-    //                                 if ((current_abstraction == "same-manufacturer") && tmp_node.manufacturer != current_mud.manufacturer) {
-    //                                     continue;
-    //                                 }
-    //                                 if (direction == 'outgoing') {
-    //                                     var protocol_data = protocols_match(current_mud.outgoing_protocols_of_abstractions[current_abstraction], tmp_node.incoming_protocols_of_abstractions[current_abstraction]);
-    //                                 }
-    //                                 else if (direction == 'incoming') {
-    //                                     var protocol_data = protocols_match(current_mud.incoming_protocols_of_abstractions[current_abstraction], tmp_node.outgoing_protocols_of_abstractions[current_abstraction]);
-    //                                 }
-    //                                 if (protocol_data.length > 0) {
+                                    var matched_protocols = protocols_match(
+                                        first_node.get_protocols_by_abstraction(direction, 'local-networks'),
+                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                    if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
+                                        matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
+                                    }
 
-    //                                     this.tmp_dev = {}
+                                    for (var prot_idx in matched_protocols) {
+                                        first_node.set_target_and_save_protocol(direction, 'local-networks', matched_protocols[prot_idx], second_node.name);
+                                        var link_uid = allLinksObj.create_uid(second_node.name, "Router");
+                                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        if (direction == "outgoing"){
+                                            deviceflow[first_node.name] = "reverse";
+                                        }
+                                        else {
+                                            deviceflow[first_node.name] = "normal";
+                                        }
+                                        
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
+
+                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx], first_node.name);
+                                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
+                                        second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        if (direction == "outgoing"){
+                                            deviceflow[second_node.name] = "normal";
+                                        }
+                                        else {
+                                            deviceflow[second_node.name] = "reverse";
+                                        }
+                                        
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 
-    //                                     if (direction == 'outgoing') {
-    //                                         this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
-    //                                     }
-    //                                     else if (direction == 'incoming') {
-    //                                         this.tmp_dev[current_mud.model] = { "incoming": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
-    //                                     }
+    update_samemanufacturer_links() {
+        var directions = ['outgoing', 'incoming'];
+        for (var direct_idx in directions) {
+            var direction = directions[direct_idx];
+            var opposite_direction = directions[directions.length - direct_idx - 1];
+            for (var node_idx in allNodesObj.getAllNodes()) {
+                var first_node = allNodesObj.getAllNodes()[node_idx];
+                if (first_node.get_protocols_by_abstraction(direction, 'same-manufacturer').length > 0) {
+                    var g1_nodes = allNodesObj.getNodesByGroup('1');
+                    for (var node_idx2 in g1_nodes) {
+                        var second_node = g1_nodes[node_idx2];
+                        if (second_node.name != first_node.name) {
+                            // a local-networks node shold only connect to others under 3 conditions:
+                            // the other node is also of local-networks abstraction,
+                            // it's of same-manufacturer and their manufacturer match
+                            // it's of manufacturer and their target manufacturers match
+                            var accepted_abstractions = ['local-networks', "same-manufacturer"];
+                            for (var abs_idx in accepted_abstractions) {
+                                var current_abstraction = accepted_abstractions[abs_idx];
+                                if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
+                                    if (current_abstraction == "same-manufacturer" && second_node.manufacturer != first_node.manufacturer) {
+                                        continue;
+                                    }
 
-    //                                     let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
-    //                                     if (tmp_idx == -1) {
-    //                                         this.allLinks.push(tmp_link);
-    //                                     }
-    //                                     else {
-    //                                         if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-    //                                             this.allLinks[tmp_idx].device.push(this.tmp_dev);
-    //                                         }
-    //                                         if (direction == 'outgoing') {
-    //                                             this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                         else if (direction == 'incoming') {
-    //                                             this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                     }
+                                    var matched_protocols = protocols_match(
+                                        first_node.get_protocols_by_abstraction(direction, 'same-manufacturer'),
+                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
 
-    //                                     //update links_of_current_node
-    //                                     tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
-    //                                     if (tmp_idx == -1) {
-    //                                         current_mud.link_of_current_node.push(tmp_link);
-    //                                     }
-    //                                     else {
-    //                                         if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-    //                                             current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-    //                                         }
-    //                                         if (direction == 'outgoing') {
-    //                                             current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                         else if (direction == 'incoming') {
-    //                                             current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                     }
-    //                                 }
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+                                    for (var prot_idx in matched_protocols) {
+                                        first_node.set_target_and_save_protocol(direction, 'same-manufacturer', matched_protocols[prot_idx], second_node.name);
+                                        var link_uid = allLinksObj.create_uid(second_node.name, "Router");
+                                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        // deviceflow[first_node.name] = "reverse";
+                                        if (direction == "outgoing"){
+                                            deviceflow[first_node.name] = "reverse";
+                                        }
+                                        else {
+                                            deviceflow[first_node.name] = "normal";
+                                        }
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
+
+                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx], first_node.name);
+                                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
+                                        second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        // deviceflow[second_node.name] = "normal";
+                                        if (direction == "outgoing"){
+                                            deviceflow[second_node.name] = "normal";
+                                        }
+                                        else {
+                                            deviceflow[second_node.name] = "reverse";
+                                        }
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    update_manufacturer_links() {
+        var directions = ['outgoing', 'incoming'];
+        for (var direct_idx in directions) {
+            var direction = directions[direct_idx];
+            var opposite_direction = directions[directions.length - direct_idx - 1];
+            for (var node_idx in allNodesObj.getAllNodes()) {
+                var first_node = allNodesObj.getAllNodes()[node_idx];
+                if (first_node.get_protocols_by_abstraction(direction, 'manufacturer').length > 0) {
+                    var g1_nodes = allNodesObj.getNodesByGroup('1');
+                    for (var node_idx2 in g1_nodes) {
+                        var second_node = g1_nodes[node_idx2];
+                        if (second_node.name != first_node.name) {
+                            // a local-networks node shold only connect to others under 3 conditions:
+                            // the other node is also of local-networks abstraction,
+                            // it's of same-manufacturer and their manufacturer match
+                            // it's of manufacturer and their target manufacturers match
+                            var accepted_abstractions = ['local-networks', "manufacturer"];
+                            for (var abs_idx in accepted_abstractions) {
+                                var current_abstraction = accepted_abstractions[abs_idx];
+                                if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
+
+                                    var matched_protocols = protocols_match(
+                                        first_node.get_protocols_by_abstraction(direction, 'manufacturer'),
+                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                    if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
+                                        matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
+                                    }
+                                    for (var prot_idx in matched_protocols) {
+                                        first_node.set_target_and_save_protocol(direction, 'manufacturer', matched_protocols[prot_idx], second_node.name);
+                                        var link_uid = allLinksObj.create_uid(second_node.name, "Router");
+                                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        if (direction == "outgoing"){
+                                            deviceflow[first_node.name] = "reverse";
+                                        }
+                                        else {
+                                            deviceflow[first_node.name] = "normal";
+                                        }
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
+
+                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx], first_node.name);
+                                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
+                                        second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        if (direction == "outgoing"){
+                                            deviceflow[second_node.name] = "normal";
+                                        }
+                                        else {
+                                            deviceflow[second_node.name] = "reverse";
+                                        }
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 
     // update_manufacturer_links() {
     //     var directions = ['outgoing', 'incoming'];
@@ -513,11 +623,13 @@ class Mud_Network {
                 $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model + '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
             }
         }
-        this.ready_to_draw = true;
+
         // this.fulfill_promises();
         this.update_localnetworks_links();
-        // this.update_samemanufacturer_links();
-        // this.update_manufacturer_links();
+        this.update_samemanufacturer_links();
+        this.update_manufacturer_links();
+        this.ready_to_draw = true;
+        
         // this.update_related_nodes();
     }
 }

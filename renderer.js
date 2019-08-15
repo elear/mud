@@ -383,7 +383,7 @@ function mud_drawer(inp_json) {
           for (var protocol_idx in clicked_node_protocols) {
             let current_protocol = clicked_node_protocols[protocol_idx];
 
-            if (!excluded_models.includes(current_protocol.target)) {
+            if (!excluded_models.includes(current_protocol.target) && current_protocol.target != null ) { // protocols with null targets are just template protocols and will be filled later with the updater methods
               table += "<tr><td>" + current_protocol.target + "</td>";
               table += "<td>" + current_protocol.transport + "</td>";
               table += "<td>" + current_protocol.network + "</td>";

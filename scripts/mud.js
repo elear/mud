@@ -9,8 +9,8 @@ var outgoing = "outgoing";
 
 var allNodesObj = new AllNodes();
 var allLinksObj = new AllLinks();
-var router_node = new Node("2", "Router"); 
-var internet_node = new Node("3", "Internet"); 
+var router_node = new Node("2", "Router");
+var internet_node = new Node("3", "Internet");
 allNodesObj.add_node_if_not_exists(router_node);
 allNodesObj.add_node_if_not_exists(internet_node);
 /////////////////////////////////////////////
@@ -66,13 +66,13 @@ class Mud_Network {
 
     get_nodes_links_json() {
         var nodes = [];
-        var links = []; 
-        for (var n in allNodesObj.all_nodes){
+        var links = [];
+        for (var n in allNodesObj.all_nodes) {
             // let tmp_obj = {};
             // tmp_obj[n] = allNodesObj.all_nodes[n]; 
             nodes.push(allNodesObj.all_nodes[n]);
         }
-        for (var n in allLinksObj.all_links){
+        for (var n in allLinksObj.all_links) {
             // let tmp_obj = {};
             // tmp_obj[n] = allLinksObj.all_links[n]; 
             links.push(allLinksObj.all_links[n]);
@@ -80,100 +80,158 @@ class Mud_Network {
         return { "nodes": nodes, "links": links };
     }
 
-    // update_localnetworks_links() {
-    //     var directions = ['outgoing', 'incoming'];
-    //     for (var direct_idx in directions) {
-    //         var direction = directions[direct_idx];
-    //         for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
-    //             var current_mud = this.all_mud_objects[mud_idx];
-    //             if ((direction == 'outgoing' && Object.keys(current_mud.outgoing_protocols_of_abstractions).includes("local-networks")) ||
-    //                 (direction == 'incoming' && Object.keys(current_mud.incoming_protocols_of_abstractions).includes("local-networks"))) {
-    //                 for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
-    //                     var tmp_node = this.allNodes[n_idx];
-    //                     if (current_mud.index_in_allnodes != n_idx &&  // don't connect to itself 
-    //                         tmp_node.group == '1' // &&  // make sure the node is in local network group
-    //                     ) {
-    //                         // a local-networks node shold only connect to others under 3 conditions:
-    //                         // the other node is also of local-networks abstraction,
-    //                         // it's of same-manufacturer and their manufacturer match
-    //                         // it's of manufacturer and their target manufacturers match
-    //                         let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
-    //                         for (var abs_idx in accepted_abstractions) {
-    //                             let current_abstraction = accepted_abstractions[abs_idx];
-    //                             if ((direction == 'outgoing' && Object.keys(tmp_node.incoming_protocols_of_abstractions).includes(current_abstraction)) ||
-    //                                 (direction == 'incoming' && Object.keys(tmp_node.outgoing_protocols_of_abstractions).includes(current_abstraction))) {
-    //                                 // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
-    //                                 // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
-    //                                 if ((current_abstraction == "same-manufacturer" && tmp_node.manufacturer != current_mud.manufacturer) ||
-    //                                     (current_abstraction == "manufacturer" && !tmp_node.other_manufacturer.includes(current_mud.manufacturer))) {
-    //                                     continue;
-    //                                 }
-    //                                 if (direction == 'outgoing') {
-    //                                     var protocol_data = protocols_match(current_mud.outgoing_protocols_of_abstractions[current_abstraction], tmp_node.incoming_protocols_of_abstractions[current_abstraction]);
-    //                                 }
-    //                                 else if (direction == 'incoming') {
-    //                                     var protocol_data = protocols_match(current_mud.incoming_protocols_of_abstractions[current_abstraction], tmp_node.outgoing_protocols_of_abstractions[current_abstraction]);
-    //                                 }
-    //                                 if (protocol_data.length > 0) {
-    //                                     this.tmp_dev = {}
+    update_localnetworks_links() {
+        var directions = ['outgoing', 'incoming'];
+        for (var direct_idx in directions) {
+            var direction = directions[direct_idx];
+            var opposite_direction = directions[directions.length - direct_idx - 1];
+            for (var node_idx in allNodesObj.getAllNodes()) {
+                var first_node = allNodesObj.getAllNodes()[node_idx];
+                if (first_node.get_protocols_by_abstraction(direction, 'local-networks').length > 0) {
+                    var g1_nodes = allNodesObj.getNodesByGroup('1');
+                    for (var node_idx2 in g1_nodes) {
+                        var second_node = g1_nodes[node_idx2];
+                        if (second_node.name != first_node.name) {
+                            // a local-networks node shold only connect to others under 3 conditions:
+                            // the other node is also of local-networks abstraction,
+                            // it's of same-manufacturer and their manufacturer match
+                            // it's of manufacturer and their target manufacturers match
+                            let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
+                            for (var abs_idx in accepted_abstractions) {
+                                let current_abstraction = accepted_abstractions[abs_idx];
+                                if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
+                                    if (current_abstraction == "same-manufacturer" && second_node.manufacturer != first_node.manufacturer) {
+                                        continue;
+                                    }
+
+                                    var matched_protocols = protocols_match(first_node.get_protocols_by_abstraction(direction, 'local-networks'),
+                                                                            second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                    if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
+                                        matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
+                                    }
+
+                                    for (var prot_idx in matched_protocols) {
+                                        first_node.set_target_and_save_protocol(direction, 'local-networks', matched_protocols[prot_idx],second_node.name);
+                                        var link_uid = allLinksObj.create_uid(second_node.name, "Router");
+                                        first_node.add_link_if_not_exists(direction,allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        deviceflow[first_node.name] = "reverse" ; 
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
+
+                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx],first_node.name);
+                                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
+                                        second_node.add_link_if_not_exists(opposite_direction,allLinksObj.getLink_by_uid(link_uid));
+                                        var deviceflow = {};
+                                        deviceflow[second_node.name] = "normal" ; 
+                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
 
-    //                                     // this means for outgoing traffic in the object below, the source and target should be reversed
-
-    //                                     if (direction == 'outgoing') {
-    //                                         this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }
-    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
-    //                                     }
-    //                                     else if (direction == 'incoming') {
-    //                                         this.tmp_dev[current_mud.model] = { "incoming": "normal" }
-    //                                         // this.tmp_dev[current_mud.model] = { "outgoing": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
-    //                                         var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
-    //                                     }
 
 
-    //                                     let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
-    //                                     if (tmp_idx == -1) {
-    //                                         this.allLinks.push(tmp_link);
-    //                                     }
-    //                                     else {
-    //                                         if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-    //                                             this.allLinks[tmp_idx].device.push(this.tmp_dev);
-    //                                         }
-    //                                         if (direction == 'outgoing') {
-    //                                             this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                         else if (direction == 'incoming') {
-    //                                             this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                     }
-
-    //                                     //update links_of_current_node
-    //                                     tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
-    //                                     if (tmp_idx == -1) {
-    //                                         current_mud.link_of_current_node.push(tmp_link);
-    //                                     }
-    //                                     else {
-    //                                         if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-    //                                             current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-    //                                         }
-    //                                         if (direction == 'outgoing') {
-    //                                             current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                         else if (direction == 'incoming') {
-    //                                             current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
-    //                                         }
-    //                                     }
-    //                                 }
+            // for (var mud_idx = 0; mud_idx < this.all_mud_objects.length; mud_idx++) {
+            //     var current_mud = this.all_mud_objects[mud_idx];
+            //     if ((direction == 'outgoing' && Object.keys(current_mud.outgoing_protocols_of_abstractions).includes("local-networks")) ||
+            //         (direction == 'incoming' && Object.keys(current_mud.incoming_protocols_of_abstractions).includes("local-networks"))) {
+            //         for (var n_idx = 0; n_idx < this.allNodes.length; n_idx++) {
+            //             var tmp_node = this.allNodes[n_idx];
+            //             if (current_mud.index_in_allnodes != n_idx &&  // don't connect to itself 
+            //                 tmp_node.group == '1' // &&  // make sure the node is in local network group
+            //             ) {
+            //                 // a local-networks node shold only connect to others under 3 conditions:
+            //                 // the other node is also of local-networks abstraction,
+            //                 // it's of same-manufacturer and their manufacturer match
+            //                 // it's of manufacturer and their target manufacturers match
+            //                 let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
+            // for (var abs_idx in accepted_abstractions) {
 
 
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+
+            //     let current_abstraction = accepted_abstractions[abs_idx];
+            //     if ((direction == 'outgoing' && Object.keys(tmp_node.incoming_protocols_of_abstractions).includes(current_abstraction)) ||
+            //         (direction == 'incoming' && Object.keys(tmp_node.outgoing_protocols_of_abstractions).includes(current_abstraction))) {
+            //         // protocols_match(current_mud.abstraction_protocols[current_abstraction],tmp_node.abstraction_protocols[current_abstraction])){
+            //         // let protocol_data = current_mud.abstraction_protocols[current_abstraction] ; 
+            //         if ((current_abstraction == "same-manufacturer" && tmp_node.manufacturer != current_mud.manufacturer) ||
+            //             (current_abstraction == "manufacturer" && !tmp_node.other_manufacturer.includes(current_mud.manufacturer))) {
+            //             continue;
+            //         }
+            //         if (direction == 'outgoing') {
+            //             var protocol_data = protocols_match(current_mud.outgoing_protocols_of_abstractions[current_abstraction], tmp_node.incoming_protocols_of_abstractions[current_abstraction]);
+            //         }
+            //         else if (direction == 'incoming') {
+            //             var protocol_data = protocols_match(current_mud.incoming_protocols_of_abstractions[current_abstraction], tmp_node.outgoing_protocols_of_abstractions[current_abstraction]);
+            //         }
+            //         if (protocol_data.length > 0) {
+            //             this.tmp_dev = {}
+
+
+            //             // this means for outgoing traffic in the object below, the source and target should be reversed
+
+            //             if (direction == 'outgoing') {
+            //                 this.tmp_dev[current_mud.model] = { "outgoing": "reverse" }
+            //                 var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": protocol_data };
+            //             }
+            //             else if (direction == 'incoming') {
+            //                 this.tmp_dev[current_mud.model] = { "incoming": "normal" }
+            //                 // this.tmp_dev[current_mud.model] = { "outgoing": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
+            //                 var tmp_link = { "source": tmp_node.id, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": protocol_data };
+            //             }
+
+
+            //             let tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, tmp_link, ['source', 'target']);
+            //             if (tmp_idx == -1) {
+            //                 this.allLinks.push(tmp_link);
+            //             }
+            //             else {
+            //                 if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
+            //                     this.allLinks[tmp_idx].device.push(this.tmp_dev);
+            //                 }
+            //                 if (direction == 'outgoing') {
+            //                     this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, protocol_data);
+            //                 }
+            //                 else if (direction == 'incoming') {
+            //                     this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, protocol_data);
+            //                 }
+            //             }
+
+            //             //update links_of_current_node
+            //             tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, tmp_link, ['source', 'target']);
+            //             if (tmp_idx == -1) {
+            //                 current_mud.link_of_current_node.push(tmp_link);
+            //             }
+            //             else {
+            //                 if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
+            //                     current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
+            //                 }
+            //                 if (direction == 'outgoing') {
+            //                     current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, protocol_data);
+            //                 }
+            //                 else if (direction == 'incoming') {
+            //                     current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, protocol_data);
+            //                 }
+            //             }
+            //         }
+
+
+            //     }
+            // }
+
+
+
+
+            // }
+            //         }
+            //     }
+            // }
+        }
+    }
 
     // update_samemanufacturer_links() {
     //     var directions = ['outgoing', 'incoming'];
@@ -554,9 +612,9 @@ class Mud_Network {
                 $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model + '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
             }
         }
-        this.ready_to_draw = true; 
+        this.ready_to_draw = true;
         // this.fulfill_promises();
-        // this.update_localnetworks_links();
+        this.update_localnetworks_links();
         // this.update_samemanufacturer_links();
         // this.update_manufacturer_links();
         // this.update_related_nodes();
@@ -676,8 +734,9 @@ class Mud {
     }
 
     extract_mud_links() {
-        
-        var new_node = new Node(String(1), this.model); 
+
+        var new_node = new Node(String(1), this.model);
+        new_node.set_manufacturer(this.manufacturer);
 
         let ace_types = { outgoing: this.FromDeviceAces, incoming: this.ToDeviceAces };
         for (var direction in ace_types) {
@@ -688,9 +747,10 @@ class Mud {
                 var ace = aceList[acl_idx];
 
                 var ace_protocol = extract_protocol_from_ace(ace);
+
                 var ace_abstraction = this.get_abstraction_types(ace);
 
-                
+
 
                 // each node has a "device" element which indicates which device is linked with that link 
                 var abstract_matched = true;
@@ -713,9 +773,9 @@ class Mud {
                             device_to_router_flow[this.model] = "reverse";
                         }
 
-                        var dest_node = new Node( "4",  destination_name) ;
-                        if (!allNodesObj.add_node_if_not_exists(dest_node)){ // if false is returned, it means node already exists 
-                            allNodesObj.getNode(destination_name).add_device_if_not_exists(direction, this.model); 
+                        var dest_node = new Node("4", destination_name);
+                        if (!allNodesObj.add_node_if_not_exists(dest_node)) { // if false is returned, it means node already exists 
+                            allNodesObj.getNode(destination_name).add_device_if_not_exists(direction, this.model);
                         }
 
 
@@ -723,7 +783,7 @@ class Mud {
                         link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
 
                         new_links.push(link_device_to_router);
-                        
+
 
                         var link_internet_to_destination = new Link(destination_name, "Internet");
                         link_internet_to_destination.add_deviceflow_if_not_exists(direction, dest_to_internet_flow);
@@ -736,26 +796,43 @@ class Mud {
                         new_links.push(link_router_to_internet);
 
                         ace_protocol.setTarget(destination_name);
-                        new_node.add_protocol(direction,ace_abstraction,ace_protocol);
+                        new_node.add_protocol(direction, ace_abstraction, ace_protocol);
 
                         break;
 
-                    // case "local-networks":
-                    // case "same-manufacturer":
-                    // case "manufacturer":
+                    case "local-networks":
+                    case "same-manufacturer":
+                    case "manufacturer":
+                        var device_to_router_flow = {};
+                        if (direction == 'outgoing') {
+                            device_to_router_flow[this.model] = "normal";
+                        }
+                        else if (direction == 'incoming') {
+                            device_to_router_flow[this.model] = "reverse";
+                        }
+                        var link_device_to_router = new Link(this.model, "Router");
+                        link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
 
-                    //     this.tmp_dev = {}
-                    //     if (direction === 'from') {
-                    //         this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                    //         var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                    //     }
-                    //     else if (direction === 'to') {
-                    //         this.tmp_dev[this.model] = { "incoming": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                    //         var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                    //     }
-                    //     new_links.push(link_device_to_router_);
+                        if (ace_abstraction == "manufacturer") {
+                            let other_manufacturer = extract_other_manufacturers_from_ace(ace);
+                            ace_protocol.set_other_manufacturers(other_manufacturer);
+                        }
 
-                    //     break;
+                        new_links.push(link_device_to_router);
+                        new_node.add_protocol(direction, ace_abstraction, ace_protocol);
+
+                        // this.tmp_dev = {}
+                        // if (direction === 'from') {
+                        //     this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                        //     var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
+                        // }
+                        // else if (direction === 'to') {
+                        //     this.tmp_dev[this.model] = { "incoming": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
+                        //     var link_device_to_router_ = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
+                        // }
+                        // new_links.push(link_device_to_router_);
+
+                        break;
 
                     // case "my-controller":
                     //     let existing_mycontroller;
@@ -835,57 +912,12 @@ class Mud {
                     for (var link_idx in new_links) {
                         var link_to_add = new_links[link_idx];
 
-                        if (!allLinksObj.add_link_if_not_exists(link_to_add)){ // returns false if it's already there
+                        if (!allLinksObj.add_link_if_not_exists(link_to_add)) { // returns false if it's already there
                             let existing_link = allLinksObj.getLink(link_to_add);
-                            existing_link.add_deviceflow_if_not_exists(direction,link_to_add.get_deviceflows(direction)[0]);
+                            existing_link.add_deviceflow_if_not_exists(direction, link_to_add.get_deviceflows(direction)[0]);
                         }
-                        
+
                         new_node.add_link_if_not_exists(direction, link_to_add);
-
-
-                        // var tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_to_add, ['source', 'target']);
-                        // if (tmp_idx == -1) {
-                        //     this.allLinks.push(link_to_add);
-                        // }
-                        // else {
-                        //     if (!has_element_with_key(this.allLinks[tmp_idx].device, this.model)) {
-                        //         this.allLinks[tmp_idx].device.push(link_to_add.device[0][this.model])
-                        //     }
-                        //     else {
-                        //         for (var dev_i in this.allLinks[tmp_idx].device) {
-                        //             var dev_element = this.allLinks[tmp_idx].device[dev_i];
-                        //             if (Object.keys(dev_element).includes(this.model)) {
-                        //                 dev_element[this.model] = { ...dev_element[this.model], ...link_to_add.device[0][this.model] };
-                        //             }
-                        //         }
-                        //     }
-                        //     if (direction === 'from') {
-                        //         this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, link_to_add.from_dev_protocol_data);
-                        //         // this.allLinks[tmp_idx].device =
-                        //     }
-                        //     else if (direction === 'to') {
-                        //         this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, link_to_add.to_dev_protocol_data);
-                        //     }
-                        // }
-
-                        // //update links_of_current_node
-                        // var tmp_idx = index_of_object_in_array_based_on_keys(this.link_of_current_node, link_to_add, ['source', 'target']);
-                        // if (tmp_idx == -1) {
-                        //     this.link_of_current_node.push(link_to_add);
-                        // }
-                        // else {
-                        //     if (!has_element_with_key(this.link_of_current_node[tmp_idx].device, this.model)) {
-                        //         this.link_of_current_node[tmp_idx].device.push(this.tmp_dev)
-                        //     }
-                        //     if (direction === 'from') {
-                        //         this.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].from_dev_protocol_data, link_to_add.from_dev_protocol_data);
-                        //     }
-                        //     else if (direction === 'to') {
-                        //         this.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.link_of_current_node[tmp_idx].to_dev_protocol_data, link_to_add.to_dev_protocol_data);
-                        //     }
-                        // }
-
-
                     }
 
                     // if (abstraction != "my-controller" && !this.node_is_in_allNodes()) {
@@ -901,8 +933,8 @@ class Mud {
                     //     });
                     // }
 
-                    if (ace_abstraction != "my-controller"){
-                        allNodesObj.add_node_if_not_exists(new_node) ; 
+                    if (ace_abstraction != "my-controller") {
+                        allNodesObj.add_node_if_not_exists(new_node);
                         router_node.add_device_if_not_exists(direction, new_node.name);
                         internet_node.add_device_if_not_exists(direction, new_node.name);
                     }
@@ -934,6 +966,7 @@ class Mud {
     extract_others_manufacturer() {
         return this.get_unique_values(find_values_by_key(this.mudfile, "manufacturer"));
     }
+
 
     get_unique_values(inp_list) {
         return [... new Set(inp_list)];

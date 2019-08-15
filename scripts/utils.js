@@ -161,10 +161,10 @@ function protocols_match(src_protocols, dst_protocols) {
         cur_src_p = src_protocols[sp_idx];
         for (var dp_idx in dst_protocols) {
             cur_dst_p = dst_protocols[dp_idx];
-            if ((cur_src_p.transport == null || cur_dst_p.transport == null || cur_src_p.transport == cur_dst_p.transport) &&
-                (cur_src_p.protocol == null || cur_dst_p.protocol == null || cur_src_p.protocol[0] == cur_dst_p.protocol[0]) &&
-                (cur_src_p.source_port.length == 0 || cur_dst_p.source_port.length == 0 || cur_src_p.source_port[0] == cur_dst_p.source_port[0]) &&
-                (cur_src_p.destination_port.length == 0 || cur_dst_p.destination_port.length == 0 || cur_src_p.destination_port[0] == cur_dst_p.destination_port[0])
+            if ((cur_src_p.transport == "any" || cur_dst_p.transport == "any" || cur_src_p.transport == cur_dst_p.transport) &&
+                (cur_src_p.network == "any" || cur_dst_p.network == "any" || cur_src_p.network == cur_dst_p.network) &&
+                (cur_src_p.src_port == "any" || cur_dst_p.src_port == "any" || cur_src_p.src_port[0] == cur_dst_p.src_port[0]) &&
+                (cur_src_p.dst_port == "any" || cur_dst_p.dst_port == "any" || cur_src_p.dst_port[0] == cur_dst_p.dst_port[0])
             ) {
                 matched_protocols = concat_if_not_exists(matched_protocols, cur_dst_p);
             }
@@ -202,6 +202,11 @@ function extract_protocol_from_ace(ace){
     let dst_port = find_values_by_key(dst_port_info, "port");
 
     return new Protocol(transport, networking, src_port, dst_port);
+}
+
+
+function extract_other_manufacturers_from_ace(ace){
+    return find_values_by_key(ace, "manufacturer");
 }
 
 function get_outgoing_related_nodes(model_name, links) {

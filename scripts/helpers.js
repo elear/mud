@@ -21,6 +21,18 @@ class AllNodes {
     getNode(name){
         return this.all_nodes[name];
     }
+    getAllNodes(){
+        return this.all_nodes;
+    }
+    getNodesByGroup(group){
+        var nodes = [];
+        for (var n_idx in this.all_nodes){
+            if (this.all_nodes[n_idx].group == group){
+                nodes.push(this.all_nodes[n_idx]);
+            }
+        }
+        return nodes; 
+    }
 }
 
 /////////////////////////////////////////////
@@ -61,6 +73,8 @@ class Node {
         this.group = group;
         this.id = name;
         this.name = name;
+        this.manufacturer; 
+        // this.other_manufacturers; 
         this.incoming = {
             'devices': [this.name], // indicates which nodes has relation with this node on incoming traffic
             'links': [],
@@ -81,11 +95,22 @@ class Node {
         concat_if_not_exists(this[traffic_direction].devices, link.target);
     }
     add_protocol(traffic_direction, abstraction, protocol){
-        if (protocol.target == null){
+        if (abstraction == 'domain-names' && protocol.target == null){
             console.error("protocol does not have a target");
         }
         this[traffic_direction].Abstractions.add_protocol(abstraction,protocol);
     }
+
+    set_manufacturer(manufacturer){
+        this.manufacturer = manufacturer;
+    }
+    set_target_and_save_protocol(traffic_direction,inp_abstraction, inp_protocol, target){
+        var tmp_protocol = new Protocol();
+        tmp_protocol.copy_from(inp_protocol); 
+        tmp_protocol.setTarget(target);
+        this.add_protocol(traffic_direction, inp_abstraction, tmp_protocol);
+    }
+
     get_devices(traffic_direction) {
         return this[traffic_direction].devices;
     }
@@ -94,6 +119,9 @@ class Node {
     }
     get_protocols(traffic_direction){
         return this[traffic_direction].Abstractions.get_all_protocols();
+    }
+    get_protocols_by_abstraction(traffic_direction,abstraction){
+        return this[traffic_direction].Abstractions.get_protocol_by_abstraction(abstraction);
     }
     get_group1_devices(traffic_direction){
         var group1_device_names = [];
@@ -146,14 +174,30 @@ class Protocol {
     constructor(transport, network, src_port, dst_port) {
         transport ? this.transport = transport : this.transport = "any";
         network ? this.network = network : this.network = "any";
-        src_port.length > 0 ? this.src_port = src_port : this.src_port = "any";
-        dst_port.length > 0 ? this.dst_port = dst_port : this.dst_port = "any";
+        !src_port || src_port.length == 0 ? this.src_port = "any" : this.src_port = src_port ;
+        !dst_port || dst_port.length == 0 ? this.dst_port = "any" : this.dst_port = dst_port ;
+        
     }
     toObject() {
         return { "transport": this.transport, "network": this.network, "src_port": this.src_port, "dst_port": this.dst_port };
     }
     setTarget(target) {
         this.target = target; 
+    }
+    set_other_manufacturers(other_manufacturers){
+        this.other_manufacturers = other_manufacturers;
+    }
+    matches_manufacturer(manufacturer){
+        if (this.other_manufacturers == manufacturer){
+            return true;
+        }
+        return false; 
+    }
+    copy_from(protocol){
+        this.transport = protocol.transport;
+        this.network = protocol.network;
+        this.src_port = protocol.src_port;
+        this.dst_port = protocol.dst_port;
     }
 }
 
@@ -167,9 +211,6 @@ class ProtocolSet {
         this.protocols = [];
     }
     merge_or_append(new_protocol) {
-        if (new_protocol.target == null){
-            console.error("protocol does not contain a target (destination)");
-        }
         var close_match_found = false;
         for (var pr_idx in this.protocols) {
             var tmp_protocol = this.protocols[pr_idx];
@@ -178,8 +219,8 @@ class ProtocolSet {
             if (tmp_protocol.target == new_protocol.target && 
                 tmp_protocol.transport == new_protocol.transport &&
                 tmp_protocol.network == new_protocol.network &&
-                tmp_protocol.src_port == new_protocol.src_port &&
-                tmp_protocol.dst_port == new_protocol.dst_port) {
+                tmp_protocol.src_port[0] == new_protocol.src_port[0] && // in case of "any" "a" would be the same
+                tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) {
 
                 close_match_found = true;
                 break;
@@ -190,8 +231,8 @@ class ProtocolSet {
                 tmp_protocol.target == new_protocol.target && 
                 new_protocol.transport == 'any' &&
                 tmp_protocol.network == new_protocol.network &&
-                tmp_protocol.src_port == new_protocol.src_port &&
-                tmp_protocol.dst_port == new_protocol.dst_port) {
+                tmp_protocol.src_port[0] == new_protocol.src_port[0] &&
+                tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) {
 
                 tmp_protocol.transport = 'any';
                 close_match_found = true;
@@ -200,8 +241,8 @@ class ProtocolSet {
             if (tmp_protocol.target == new_protocol.target && 
                 tmp_protocol.transport == new_protocol.transport &&
                 new_protocol.network == 'any' &&
-                tmp_protocol.src_port == new_protocol.src_port &&
-                tmp_protocol.dst_port == new_protocol.dst_port) {
+                tmp_protocol.src_port[0] == new_protocol.src_port[0] &&
+                tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) {
 
                 tmp_protocol.network = 'any';
                 close_match_found = true;
@@ -211,7 +252,7 @@ class ProtocolSet {
                 tmp_protocol.transport == new_protocol.transport &&
                 tmp_protocol.network == new_protocol.network &&
                 new_protocol.src_port == 'any' &&
-                tmp_protocol.dst_port == dst_port) {
+                tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) {
 
                 tmp_protocol.src_port = 'any';
                 close_match_found = true;
@@ -220,7 +261,7 @@ class ProtocolSet {
             if (tmp_protocol.target == new_protocol.target && 
                 tmp_protocol.transport == new_protocol.transport &&
                 tmp_protocol.network == new_protocol.network &&
-                tmp_protocol.src_port == new_protocol.src_port &&
+                tmp_protocol.src_port[0] == new_protocol.src_port[0] &&
                 new_protocol.dst_port == 'any') {
                     
                 tmp_protocol.transport = 'any';
@@ -229,10 +270,10 @@ class ProtocolSet {
             }
             // the next if statements are to check if any of the current protocols is a superset of the new protocol. if so don't bother add the new one
             if ( tmp_protocol.target == new_protocol.target && 
-                (tmp_protocol.transport == 'any' && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port == new_protocol.src_port && tmp_protocol.dst_port == new_protocol.dst_port) ||
-                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == 'any' && tmp_protocol.src_port == new_protocol.src_port && tmp_protocol.dst_port == new_protocol.dst_port) ||
-                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port == 'any' && tmp_protocol.dst_port == new_protocol.dst_port) ||
-                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port == new_protocol.src_port && tmp_protocol.dst_port == 'any')) {
+                (tmp_protocol.transport == 'any' && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
+                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == 'any' && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
+                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port == 'any' && tmp_protocol.dst_port[0] == new_protocol.dst_port[0]) ||
+                (tmp_protocol.transport == new_protocol.transport && tmp_protocol.network == new_protocol.network && tmp_protocol.src_port[0] == new_protocol.src_port[0] && tmp_protocol.dst_port == 'any')) {
                 close_match_found = true;
                 break;
             }
@@ -284,8 +325,23 @@ class Abstractions {
                 break;
         }
     }
-    get_protocol_by_abstraction(){
-
+    get_protocol_by_abstraction(abstraction){
+        switch (abstraction) {
+            case "domain-names":
+                return this.domain_protocols.get_protocols();
+            case "local-networks":
+                return this.localnetworks_protocols.get_protocols();
+            case "same-manufacturer":
+                return this.samemanufacturer_protocols.get_protocols();
+            case "manufacturer":
+                return this.manufacturer_protocols.get_protocols();
+            case "my-controller":
+                return this.mycontroller_protocols.get_protocols();
+            case "controller":
+                return this.controller_protocols.get_protocols();
+            case "same-model":
+                return this.samemodel_protocols.get_protocols();
+        }
     }
     get_all_protocols(){
         var all_protocols = [];

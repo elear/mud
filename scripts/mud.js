@@ -80,59 +80,6 @@ class Mud_Network {
         return { "nodes": nodes, "links": links };
     }
 
-    update_localnetworks_links() {
-        var directions = ['outgoing', 'incoming'];
-        for (var direct_idx in directions) {
-            var direction = directions[direct_idx];
-            var opposite_direction = directions[directions.length - direct_idx - 1];
-            for (var node_idx in allNodesObj.getAllNodes()) {
-                var first_node = allNodesObj.getAllNodes()[node_idx];
-                if (first_node.get_protocols_by_abstraction(direction, 'local-networks').length > 0) {
-                    var g1_nodes = allNodesObj.getNodesByGroup('1');
-                    for (var node_idx2 in g1_nodes) {
-                        var second_node = g1_nodes[node_idx2];
-                        if (second_node.name != first_node.name) {
-                            // a local-networks node shold only connect to others under 3 conditions:
-                            // the other node is also of local-networks abstraction,
-                            // it's of same-manufacturer and their manufacturer match
-                            // it's of manufacturer and their target manufacturers match
-                            let accepted_abstractions = ['local-networks', "same-manufacturer", 'manufacturer'];
-                            for (var abs_idx in accepted_abstractions) {
-                                let current_abstraction = accepted_abstractions[abs_idx];
-                                if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
-                                    if (current_abstraction == "same-manufacturer" && second_node.manufacturer != first_node.manufacturer) {
-                                        continue;
-                                    }
-
-                                    var matched_protocols = protocols_match(first_node.get_protocols_by_abstraction(direction, 'local-networks'),
-                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
-                                    if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
-                                        matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
-                                    }
-
-                                    for (var prot_idx in matched_protocols) {
-                                        first_node.set_target_and_save_protocol(direction, 'local-networks', matched_protocols[prot_idx], second_node.name);
-                                        var link_uid = allLinksObj.create_uid(second_node.name, "Router");
-                                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
-                                        var deviceflow = {};
-                                        deviceflow[first_node.name] = "reverse";
-                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
-
-                                        second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx], first_node.name);
-                                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
-                                        second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
-                                        var deviceflow = {};
-                                        deviceflow[second_node.name] = "normal";
-                                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     update_localnetworks_links() {
         var directions = ['outgoing', 'incoming'];
@@ -170,26 +117,26 @@ class Mud_Network {
                                         var link_uid = allLinksObj.create_uid(second_node.name, "Router");
                                         first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
-                                        if (direction == "outgoing"){
+                                        if (direction == "outgoing") {
                                             deviceflow[first_node.name] = "reverse";
                                         }
                                         else {
                                             deviceflow[first_node.name] = "normal";
                                         }
-                                        
+
                                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
 
                                         second_node.set_target_and_save_protocol(opposite_direction, current_abstraction, matched_protocols[prot_idx], first_node.name);
                                         var link_uid = allLinksObj.create_uid(first_node.name, "Router");
                                         second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
-                                        if (direction == "outgoing"){
+                                        if (direction == "outgoing") {
                                             deviceflow[second_node.name] = "normal";
                                         }
                                         else {
                                             deviceflow[second_node.name] = "reverse";
                                         }
-                                        
+
                                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
                                     }
                                 }
@@ -236,7 +183,7 @@ class Mud_Network {
                                         first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
                                         // deviceflow[first_node.name] = "reverse";
-                                        if (direction == "outgoing"){
+                                        if (direction == "outgoing") {
                                             deviceflow[first_node.name] = "reverse";
                                         }
                                         else {
@@ -249,7 +196,7 @@ class Mud_Network {
                                         second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
                                         // deviceflow[second_node.name] = "normal";
-                                        if (direction == "outgoing"){
+                                        if (direction == "outgoing") {
                                             deviceflow[second_node.name] = "normal";
                                         }
                                         else {
@@ -298,7 +245,7 @@ class Mud_Network {
                                         var link_uid = allLinksObj.create_uid(second_node.name, "Router");
                                         first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
-                                        if (direction == "outgoing"){
+                                        if (direction == "outgoing") {
                                             deviceflow[first_node.name] = "reverse";
                                         }
                                         else {
@@ -310,7 +257,7 @@ class Mud_Network {
                                         var link_uid = allLinksObj.create_uid(first_node.name, "Router");
                                         second_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
                                         var deviceflow = {};
-                                        if (direction == "outgoing"){
+                                        if (direction == "outgoing") {
                                             deviceflow[second_node.name] = "normal";
                                         }
                                         else {
@@ -541,7 +488,7 @@ class Mud_Network {
         this.update_samemanufacturer_links();
         this.update_manufacturer_links();
         this.ready_to_draw = true;
-        
+
         // this.update_related_nodes();
     }
 }
@@ -789,12 +736,12 @@ class Mud {
 
                     //     new_links.push(link_device_to_router);
 
-                        
+
                     //     break;
 
 
-                    case "controller": 
-                        
+                    case "controller":
+
                         var device_to_router_flow = {};
                         if (direction == 'outgoing') {
                             device_to_router_flow[this.model] = "normal";
@@ -810,13 +757,13 @@ class Mud {
 
 
                         var controller_class = unique(find_values_by_key(ace, 'controller'));
-                        for (var cont_idx in controller_class){
+                        for (var cont_idx in controller_class) {
                             var tmp_controller = controller_class[cont_idx];
                             var controller_node = new Node("0", tmp_controller);
                             if (!allNodesObj.add_node_if_not_exists(controller_node)) { // if false is returned, it means node already exists 
                                 allNodesObj.getNode(tmp_controller).add_device_if_not_exists(direction, this.model);
                             }
-    
+
                             var device_to_controller_flow = {};
                             if (direction == 'outgoing') {
                                 device_to_controller_flow[this.model] = "reverse";
@@ -827,15 +774,15 @@ class Mud {
 
                             var link_controller_to_router = new Link(tmp_controller, "Router");
                             link_controller_to_router.add_deviceflow_if_not_exists(direction, device_to_controller_flow);
-    
-                            new_links.push(link_controller_to_router);    
+
+                            new_links.push(link_controller_to_router);
 
                             ace_protocol.setTarget(tmp_controller);
                             new_node.add_protocol(direction, ace_abstraction, ace_protocol);
-    
+
                         }
 
-                        break; 
+                        break;
 
                     default:
                         unmached_abstract_found = true;

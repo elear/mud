@@ -1,6 +1,7 @@
 var traffic_direction = "incoming";
 var excluded_models = [];
 var tooltip_status;
+var hover_ready = true; 
 function mud_drawer(inp_json) {
   var graph = JSON.parse(JSON.stringify(inp_json));
   // var graph = inp_json;
@@ -248,23 +249,25 @@ function mud_drawer(inp_json) {
 
 
   node.on("mouseover", function (d) {
-    // d3.selectAll('image').each(function (d) {
-    //     d3.select(this)
-    //       .attr('opacity', 1)          
-    //       .attr("width", 50)
-    //       .attr("height", 50);
-    // });
-    // d3.selectAll('path').each(function (d, i) {
-    //   d3.select(this)
-    //   .attr('opacity', 1);
-    // });
+
+    d3.selectAll('*').interrupt();
+    d3.selectAll('image').each(function (d) {
+        d3.select(this)
+          .attr('opacity', 1)          
+          .attr("width", 50)
+          .attr("height", 50);
+    });
+    d3.selectAll('path').each(function (d) {
+      d3.select(this)
+      .attr('opacity', 1);
+    });
     var hovered_node = d;
     if (d.group == '1') {
       d3.selectAll('image').each(function (d) {
         if (!hovered_node[traffic_direction].devices.includes(d.id) && d.id != "Internet") {
           d3.select(this)
             .transition()
-            .duration(100)
+            // .duration(100)
             .attr('opacity', 0.3);
         }
       });
@@ -291,7 +294,7 @@ function mud_drawer(inp_json) {
               d.target.name == current_link["target"] &&
               get_devices_names(d[traffic_direction]["device:flow"]).includes(current_device)
             ) {
-              totalLength = 10;
+              totalLength = 20;
               devices = d[traffic_direction]["device:flow"];
               let direction = find_values_by_key(devices, current_device)[0];
               direction == "normal" ? link_direction_coefficient = 1 : link_direction_coefficient = -1;
@@ -299,8 +302,8 @@ function mud_drawer(inp_json) {
                 .style("stroke", link_hover_color)
                 .style("stroke-width", 2);
               d3.select(this)
-                .attr("stroke-dasharray", totalLength + " " + totalLength / 2)
-                .attr("stroke-dashoffset", link_direction_coefficient * totalLength * 30)
+                .attr("stroke-dasharray", totalLength/2 + " " + totalLength / 5)
+                .attr("stroke-dashoffset", link_direction_coefficient * totalLength * 50)
                 .transition()
                 .duration(20000)
                 .ease(d3.easeLinear)
@@ -316,16 +319,20 @@ function mud_drawer(inp_json) {
         })
       }
     }
+    
   });
 
 
   node.on("mouseout", function (d) {
 
+
     if (d[traffic_direction].links !== undefined) {
-      d3.select(this).select('image').transition()
+      d3.select(this).select('image')
+        .transition()
         .duration(500)
         .attr("width", 50)
-        .attr("height", 50);
+        .attr("height", 50)
+        .attr('opacity', 1);
 
       var current_node_links = d[traffic_direction].links;
       d3.selectAll('path').each(function (d, i) {
@@ -337,28 +344,34 @@ function mud_drawer(inp_json) {
           d3.select(this)
             .attr("stroke-dasharray", totalLength + " " + totalLength)
             .attr("stroke-dashoffset", totalLength);
-          d3.select(this).transition();
+          
+          // d3.select(this)
+          // .attr('opacity', 1);
+          //   .transition();
         }
         else {
           d3.select(this)
             .transition()
-            .duration(100)
+            // .duration(100)
             .attr('opacity', 1);
         }
       }
       )
     }
+
     d3.selectAll('image').each(function (d) {
       d3.select(this)
-        // .transition()
-        // .duration(500)
-        .attr('opacity', 1);
-        // .attr("width", 50)
-        // .attr("height", 50);
+        .transition()
+        .duration(500)
+        .attr('opacity', 1)
+        .attr("width", 50)
+        .attr("height", 50);
     });
+    
   });
 
   node.on("click", function (d) {
+
     if (d.group == "1" || d.group == "0") {
       // for showing the information:
       var clicked_node = allNodesObj.getNode(d.name);
@@ -407,7 +420,7 @@ function mud_drawer(inp_json) {
         .style("opacity", .9);
       tooltip_status = 'just-clicked';
     }
-
+    
   });
 
 

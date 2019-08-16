@@ -128,19 +128,40 @@ function mud_drawer(inp_json) {
           return ("img/group" + d.group + ".svg");
       }
     })
-    .attr("width", 50)
-    .attr("height", 50)
+    .attr("width", function (d) {
+      switch (d.group) {
+        case "3":
+          return 130;
+        default:
+          return 50;
+      }
+    })
+    .attr("height", function (d) {
+      switch (d.group) {
+        case "3":
+          return 130;
+        default:
+          return 50;
+      }
+    })
     .attr("x", function (d) {
       switch (d.group) {
         case "3":
-          return -30;
+          return -70;
         case "4":
           return -50;
         default:
           return -5;
       }
     })
-    .attr("y", -20)
+    .attr("y", function (d) {
+      switch (d.group) {
+        case "3":
+          return -50;
+        default:
+          return -20;
+      }
+    })
     .attr("fill", function (d) { return color(d.group); });
 
   node.append("text")
@@ -174,8 +195,17 @@ function mud_drawer(inp_json) {
           return -26;
       }
     })
-    .attr("x", +8)
-    .text(function (d) { return d.id });
+    .attr("x", 8)
+    .text(function (d) { 
+      switch (d.group) {
+        case "0":
+          return "My-Controller: " + d.id
+        case "3":
+          return ; // for internet logo we don't need text 
+        default: 
+          return d.id;
+      }
+    });
 
   node.append("title")
     .text(function (d) { return d.id; });
@@ -252,10 +282,12 @@ function mud_drawer(inp_json) {
 
     d3.selectAll('*').interrupt();
     d3.selectAll('image').each(function (d) {
+      if (d.group != "3" && d.group != "2"){
         d3.select(this)
           .attr('opacity', 1)          
           .attr("width", 50)
           .attr("height", 50);
+        }
     });
     d3.selectAll('path').each(function (d) {
       d3.select(this)
@@ -327,13 +359,7 @@ function mud_drawer(inp_json) {
 
 
     if (d[traffic_direction].links !== undefined) {
-      d3.select(this).select('image')
-        .transition()
-        .duration(500)
-        .attr("width", 50)
-        .attr("height", 50)
-        .attr('opacity', 1);
-
+      
       var current_node_links = d[traffic_direction].links;
       d3.selectAll('path').each(function (d, i) {
         if (current_node_links.indexOf(d.uid) != -1) {
@@ -352,7 +378,7 @@ function mud_drawer(inp_json) {
         else {
           d3.select(this)
             .transition()
-            // .duration(100)
+            .duration(500)
             .attr('opacity', 1);
         }
       }
@@ -360,12 +386,16 @@ function mud_drawer(inp_json) {
     }
 
     d3.selectAll('image').each(function (d) {
+      if (d.group != "3" && d.group != "2"){
+        
       d3.select(this)
         .transition()
         .duration(500)
         .attr('opacity', 1)
         .attr("width", 50)
         .attr("height", 50);
+        
+      }
     });
     
   });
@@ -414,7 +444,7 @@ function mud_drawer(inp_json) {
         .style("top", "10px")
         .style("left", "75px")
         .style("height", "300px")
-        .style("width", "700px");
+        .style("width", "600px");
       div.transition()
         .duration(200)
         .style("opacity", .9);

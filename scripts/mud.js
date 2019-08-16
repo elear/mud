@@ -21,25 +21,14 @@ class Mud_Network {
     constructor() {
         this.ready_to_draw = false;
         this.all_mud_jsons = [];
-        this.allNodes = [];
-        this.allLinks = [];
-        this.abstractions = [];
-        this.all_mud_objects = [];
-        this.allAbstractions = [];
-        this.muds_with_controller = 0;  // this includes my-controllers too 
-        this.controllers = [];
-        this.my_controllers = [];
         this.mud_with_promises_raw = [];
         this.mud_with_promises_processed = [];
         this.all_modelnames = [];
         this.non_unique_modelnames = [];
         this.tmp_dev;
-        this.allNodes.push({ "group": "2", "id": "Router", "abstractions": [], "device": ['Router'] });
-        this.allNodes.push({ "group": "3", "id": "Internet", "abstractions": [], "device": ['Internet'] });
-
     }
 
-    add_mudfile(mud_json) {
+    add_mudfile(mud_json) { // used in rendere process
         this.all_mud_jsons = this.all_mud_jsons.concat({ 'data': mud_json, 'visible': true, 'processed': false });
         let model_name = find_model_name(mud_json);
         this.all_modelnames = this.all_modelnames.concat(model_name);
@@ -64,17 +53,13 @@ class Mud_Network {
     }
 
 
-    get_nodes_links_json() {
+    get_nodes_links_json() { // used in rendere process
         var nodes = [];
         var links = [];
         for (var n in allNodesObj.all_nodes) {
-            // let tmp_obj = {};
-            // tmp_obj[n] = allNodesObj.all_nodes[n]; 
             nodes.push(allNodesObj.all_nodes[n]);
         }
         for (var n in allLinksObj.all_links) {
-            // let tmp_obj = {};
-            // tmp_obj[n] = allLinksObj.all_links[n]; 
             links.push(allLinksObj.all_links[n]);
         }
         return { "nodes": nodes, "links": links };
@@ -347,18 +332,6 @@ class Mud_Network {
                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
                     }
 
-                    // if (!current_mud.node_is_in_allNodes()) {
-                    //     current_mud.index_in_allnodes = this.allNodes.length;
-                    //     this.allNodes.push({
-                    //         "group": String(1),
-                    //         "id": current_mud.model,
-                    //         "outgoing_protocols_of_abstractions": current_mud.outgoing_protocols_of_abstractions,
-                    //         "incoming_protocols_of_abstractions": current_mud.incoming_protocols_of_abstractions,
-                    //         "links": current_mud.link_of_current_node,
-                    //         "manufacturer": current_mud.manufacturer,
-                    //         "device": [current_mud.model]
-                    //     });
-                    // }
                 }
             }
             this.ready_to_draw = true;
@@ -370,10 +343,7 @@ class Mud_Network {
         if (allNodesObj.has_awaiting_promises()) {
             var node_with_promise_name = allNodesObj.pop_node_with_awaiting_promise();
             var node_with_promise = allNodesObj.getNode(node_with_promise_name);
-            // var tmp_mud = this.mud_with_promises_raw[0];
-            // let controller_found = false;
             if (node_with_promise.get_controller_exists_flag()) {
-                // controller_found = true;
                 var alert_message = {
                     type: 'success',
                     title: 'My-Controller Found!',
@@ -394,7 +364,6 @@ class Mud_Network {
                     '<div style="border: 1px solid #000000;">';
 
                 var aclType_aclNames = node_with_promise.get_misc_data('acl_types_names');
-                // var ace_types = unique(find_values_by_key(tmp_mud.promise, 'type'));
 
                 my_controller_html_content += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;"> ACL Type(s): <dynamic>'
                 var counter = 1;
@@ -406,12 +375,9 @@ class Mud_Network {
                     counter += 1;
                 }
                 my_controller_html_content += '</dynamic><div>';
-                // this for loop is commented so to ask just for one of the aces , otherwise it might ask tens of times
-                // for (var promise_idx = 0; promise_idx < tmp_mud.promise.length(); promise_idx++) {
-                // let promise_idx = 0;
-                // var tmp_promise = tmp_mud.promise.data[promise_idx];
+
                 var tmp_promise = node_with_promise.get_promise();
-                // if (tmp_promise.ace.type == current_ace_type) {
+
                 var titles = tmp_promise.get_titles();
                 for (var key_idx = 0; key_idx < titles.length; key_idx++) {
                     my_controller_html_content += titles[key_idx] + ': <br><input id="' + titles[key_idx] + '" align="right"><br>';
@@ -420,7 +386,7 @@ class Mud_Network {
                 my_controller_html_content += '</div></div>';
 
                 my_controller_html_content += '</div>';
-                // ingress_html += '</div>';
+
                 var alert_message = {
                     title: "Configuring My-Controller",
                     html: my_controller_html_content,
@@ -429,19 +395,19 @@ class Mud_Network {
             }
             Swal.fire(alert_message).then(() => {
                 if (!node_with_promise.get_controller_exists_flag()) {
-                    // store the user input values in the mud objects
+
                     var titles = tmp_promise.get_titles();
                     for (var title_idx = 0; title_idx < titles.length; title_idx++) {
                         let tmp_input_value = document.getElementById(titles[title_idx]).value;
                         tmp_promise.set_value_by_key(titles[title_idx], tmp_input_value);
                     }
                 }
-                // process the next mud object that has promise, otherwise update the links and draw
+
                 if (allNodesObj.has_awaiting_promises())
                     this.fulfill_promises();
                 else {
                     this.update_mycontroller_links();
-                    // this.update_related_nodes();
+
                 }
             });
         }
@@ -451,23 +417,11 @@ class Mud_Network {
         }
     }
 
-    update_related_nodes() {
-        for (var node_idx in this.allNodes) {
-            this.allNodes[node_idx].outgoing_related_nodes = get_outgoing_related_nodes(this.allNodes[node_idx].id, this.allNodes[node_idx].links);
-            this.allNodes[node_idx].incoming_related_nodes = get_incoming_related_nodes(this.allNodes[node_idx].id, this.allNodes[node_idx].links);
-        }
-    }
-
     create_network() {
         for (var json_idx in this.all_mud_jsons) {
             var current_mud_json = this.all_mud_jsons[json_idx]
             if (!current_mud_json.processed) {
-                var current_mud = new Mud(current_mud_json.data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.my_controllers, this.controllers);
-                // if (current_mud.has_promise()) {
-                //     this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
-                // }
-
-                this.all_mud_objects = this.all_mud_objects.concat(current_mud);
+                var current_mud = new Mud(current_mud_json.data, this.non_unique_modelnames);
                 current_mud_json.processed = true;
                 $("#fileNotLoaded").hide();
                 $('#mudSelectionDiv').append('<input id="mudcheckbox"  type="checkbox" name="mudfile"  value="' + current_mud.model + '" checked /><label class="select-deselect-muds__text">' + current_mud.model + '</label><br>');
@@ -479,8 +433,6 @@ class Mud_Network {
         this.update_samemanufacturer_links();
         this.update_manufacturer_links();
 
-
-        // this.update_related_nodes();
     }
 }
 
@@ -490,7 +442,7 @@ class Mud_Network {
 //////////////////////////////////////////
 
 class Mud {
-    constructor(mudfile, non_unique_modelnames, allNodes, allLinks, allAbstractions, allMyControllers, allControllers) {
+    constructor(mudfile, non_unique_modelnames) {
         this.mudfile = mudfile;
         this.mud_url = find_values_by_key(this.mudfile, 'mud-url')[0];
         this.model = find_model_name(this.mudfile);
@@ -501,15 +453,10 @@ class Mud {
                 break;
             }
         }
-        // this.node = new Node(); 
-        this.uuid = uuidv4();
-        // this.promise = new MudPromise(this.uuid, this.model);
+
         this.FromDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "from-device-policy")[0], "name");
         this.ToDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "to-device-policy")[0], "name");
         this.acls = this.extract_acls();
-        this.allAbstractions = allAbstractions;
-        this.allMyControllers = allMyControllers;
-        this.allControllers = allControllers;
         this.outgoing_protocols_of_abstractions = {};
         this.incoming_protocols_of_abstractions = {};
         this.FromDevicePolicies = [];
@@ -517,26 +464,11 @@ class Mud {
         this.FromDeviceControllers = [];
         this.ToDevicePolicies = [];
         this.ToDeviceAces = [];
-        this.ToDeviceControllers = [];
-        this.outgoing_related_nodes = [];
-        this.incoming_related_nodes = [];
-        this.allNodes = allNodes;
-        this.allLinks = allLinks;
-        this.link_of_current_node = [];
-        this.index_in_allnodes = -1;
-        this.number_to_transport_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" }
         this.manufacturer = this.extract_manufacturer()
         this.other_manufacturer = this.extract_others_manufacturer();
         this.extract_device_policies();
         this.extract_mud_links();
     }
-
-    // has_promise() {
-    //     if (this.promise.isempty()) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
 
     extract_acls() {
         this.ietf_acl = find_values_by_key(this.mudfile, "ietf-access-control-list", true);
@@ -610,12 +542,8 @@ class Mud {
             var unmatched_aces = [];
             for (var acl_idx = 0; acl_idx < aceList.length; acl_idx++) {
                 var ace = aceList[acl_idx];
-
                 var ace_protocol = extract_protocol_from_ace(ace);
-
                 var ace_abstraction = this.get_abstraction_types(ace);
-
-
 
                 // each node has a "device" element which indicates which device is linked with that link 
                 var abstract_matched = true;
@@ -806,20 +734,6 @@ class Mud {
                         new_node.add_link_if_not_exists(direction, link_to_add);
                     }
 
-                    // if (abstraction != "my-controller" && !this.node_is_in_allNodes()) {
-                    //     this.index_in_allnodes = this.allNodes.length;
-                    //     this.allNodes.push({
-                    //         "group": String(1),
-                    //         "id": this.model,
-                    //         "outgoing_protocols_of_abstractions": this.outgoing_protocols_of_abstractions,
-                    //         "incoming_protocols_of_abstractions": this.incoming_protocols_of_abstractions,
-                    //         "links": this.link_of_current_node,
-                    //         "manufacturer": this.manufacturer,
-                    //         "other_manufacturer": this.other_manufacturer, device: [this.model]
-                    //     });
-                    // }
-
-                    // if (ace_abstraction != "my-controller") {
                     allNodesObj.add_node_if_not_exists(new_node);
                     router_node.add_device_if_not_exists(direction, new_node.name);
                     internet_node.add_device_if_not_exists(direction, new_node.name);
@@ -873,7 +787,6 @@ class Mud {
         return this.get_unique_values(find_values_by_key(this.mudfile, "manufacturer"));
     }
 
-
     get_unique_values(inp_list) {
         return [... new Set(inp_list)];
     }
@@ -896,19 +809,7 @@ class Mud {
 
         return hostname;
     }
-
-    node_is_in_allNodes() {
-        return (this.index_in_allnodes != -1)
-    }
-
-    allNodes_includes(node) {
-        return (find_values_by_key(Object.values(this.allNodes), 'id').indexOf(node) != -1)
-    }
-
-    is_connected_to_Router() {
-        return (find_values_by_key(Object.values(this.allLinks), 'source').indexOf(this.model) != -1)
-    }
-
+    
     get_abstraction_types(ace) {
         var abstraction = [];
         var acldns = find_values_by_key(ace, 'ietf-acldns', true);

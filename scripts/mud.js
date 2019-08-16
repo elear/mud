@@ -567,6 +567,7 @@ class Mud {
                         }
 
                         var dest_node = new Node("4", destination_name);
+                        dest_node.add_device_if_not_exists(direction, this.model);
                         if (!allNodesObj.add_node_if_not_exists(dest_node)) { // if false is returned, it means node already exists 
                             allNodesObj.getNode(destination_name).add_device_if_not_exists(direction, this.model);
                         }
@@ -680,6 +681,7 @@ class Mud {
                         for (var cont_idx in controller_class) {
                             var tmp_controller = controller_class[cont_idx];
                             var controller_node = new Node("0", tmp_controller);
+                            controller_node.add_device_if_not_exists(direction, this.model);
                             if (!allNodesObj.add_node_if_not_exists(controller_node)) { // if false is returned, it means node already exists 
 
                                 if (!controller_processed){

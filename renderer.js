@@ -149,7 +149,7 @@ function mud_drawer(inp_json) {
         case "3":
           return -70;
         case "4":
-          return -50;
+          return -40;
         default:
           return -5;
       }

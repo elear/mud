@@ -275,112 +275,109 @@ class Mud_Network {
     }
 
 
-    // update_mycontroller_links() {
-    //     var directions = ['outgoing', 'incoming'];
-    //     for (var direct_idx in directions) {
-    //         var direction = directions[direct_idx];
-    //         for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
-    //             var current_mud = this.mud_with_promises_processed[mud_idx];
-    //             var current_protocol_data = current_mud.outgoing_protocols_of_abstractions['my-controller'];
-    //             for (var prom_idx = 0; prom_idx < current_mud.promise.data.length; prom_idx++) {
-    //                 var current_promise_data = current_mud.promise.data[prom_idx];
-    //                 let tmp_idx = current_promise_data.keys.indexOf('my-controller-name');
-    //                 let my_controller_name = "my-controller: " + current_promise_data.values[tmp_idx];
-    //                 tmp_idx = current_promise_data.keys.indexOf('my-controller-IP-address');
-    //                 let my_controller_IP_Address = current_promise_data.values[tmp_idx];
-    //                 let mud_uri = find_values_by_key(current_mud, 'mud-url')[0];
-    //                 let node_controller = { "group": String(0), "id": my_controller_name, "abstractions": ["my-controller"], "device": [current_mud.model], "ip_address": my_controller_IP_Address, 'mud_url': mud_uri };
-    //                 this.my_controllers.push(node_controller);
+    update_mycontroller_links() {
+        var directions = ['outgoing', 'incoming'];
+        for (var direct_idx in directions) {
+            var direction = directions[direct_idx];
+            var opposite_direction = directions[directions.length - direct_idx - 1];
+            // for (var mud_idx = 0; mud_idx < this.mud_with_promises_processed.length; mud_idx++) {
+            for (var node_idx in allNodesObj.getAllNodes()) {
+                var first_node = allNodesObj.getAllNodes()[node_idx];
+                // var current_mud = this.mud_with_promises_processed[mud_idx];
+                // var current_protocol_data = current_mud.outgoing_protocols_of_abstractions['my-controller'];
+                if (!first_node.is_mycontroller_node() && first_node.get_protocols_by_abstraction(direction, 'my-controller').length > 0) {
+                    var current_promise = first_node.get_promise();
+                    var my_controller_name = current_promise.get_value_by_key('my-controller-name');
+                    var my_controller_IP_Address = current_promise.get_value_by_key('my-controller-IP-address');
 
-    //                 tmp_idx = index_of_object_in_array_based_on_keys(this.allNodes, node_controller, ['group', 'id']);
-    //                 if (tmp_idx == -1) {
-    //                     this.allNodes.push(node_controller);
-    //                 }
-    //                 else {
-    //                     this.allNodes[tmp_idx].device = concat_if_not_exists(this.allNodes[tmp_idx].device, current_mud.model);
-    //                 }
+                    var mycontroller_exists = allNodesObj.has_mycontroller_supporting_url(first_node.mud_url); 
 
+                    if (!mycontroller_exists) {  // we have to create the my-controller node
+                        var controller_node = new Node("0", my_controller_name);
+                        controller_node.mark_as_my_controller();
+                        controller_node.add_device_if_not_exists(direction, first_node.name);
+                        controller_node.add_misc_data('my-controller-IP-address', my_controller_IP_Address);
+                        controller_node.add_to_supported_mud_urls(first_node.mud_url);    
 
-    //                 this.tmp_dev = {}
+                        var controller_to_router_flow = {};
+                        if (direction == 'outgoing') {
+                            controller_to_router_flow[my_controller_name] = "normal";
+                        }
+                        else if (direction == 'incoming') {
+                            controller_to_router_flow[my_controller_name] = "reverse";
+                        }
+                        var link_controller_to_router = new Link(my_controller_name, "Router");
+                        
+                        if (!allLinksObj.add_link_if_not_exists(link_controller_to_router)) { // returns false if it's already there
+                            let existing_link = allLinksObj.getLink(link_controller_to_router);
+                            existing_link.add_deviceflow_if_not_exists(direction, link_controller_to_router.get_deviceflows(direction)[0]);
+                        }
+                        allNodesObj.add_node_if_not_exists(controller_node);
+                    }
+                    else{
+                        var controller_node = allNodesObj.get_controller_by_mud_url(first_node.mud_url);   
+                    }
 
-    //                 if (direction == 'outgoing') {
-    //                     this.tmp_dev[current_mud.model] = { "outgoing": "reverse" } // this means for outgoing traffic in the object below, the source and target should be reversed
-    //                     var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": current_protocol_data };
-    //                 }
-    //                 else if (direction == 'incoming') {
-    //                     this.tmp_dev[current_mud.model] = { "incoming": "normal" } // this means for outgoing traffic in the object below, the source and target should be reversed
-    //                     var link_router_to_mycontroller = { "source": my_controller_name, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": current_protocol_data };
-    //                 }
-    //                 // update all_links
-    //                 tmp_idx = index_of_object_in_array_based_on_keys(this.allLinks, link_router_to_mycontroller, ['source', 'target']);
-    //                 if (tmp_idx == -1) {
-    //                     this.allLinks.push(link_router_to_mycontroller);
-    //                 }
-    //                 else {
-    //                     if (!has_element_with_key(this.allLinks[tmp_idx].device, current_mud.model)) {
-    //                         this.allLinks[tmp_idx].device.push(this.tmp_dev);
-    //                     }
-    //                     if (direction == 'outgoing') {
-    //                         this.allLinks[tmp_idx].from_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].from_dev_protocol_data, current_protocol_data);
-    //                     }
-    //                     else if (direction == 'incoming') {
-    //                         this.allLinks[tmp_idx].to_dev_protocol_data = concat_if_not_exists(this.allLinks[tmp_idx].to_dev_protocol_data, current_protocol_data);
-    //                     }
-    //                 }
+                    var my_controller_protocols = first_node.get_protocols_by_abstraction(direction,'my-controller');
+                    for (var prot_idx in my_controller_protocols) {
+                        first_node.set_target_and_save_protocol(direction, 'my-controller', my_controller_protocols[prot_idx], my_controller_name);
+                        var link_uid = allLinksObj.create_uid(my_controller_name, "Router");
+                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
+                        var deviceflow = {};
+                        if (direction == "outgoing") {
+                            deviceflow[first_node.name] = "reverse";
+                        }
+                        else {
+                            deviceflow[first_node.name] = "normal";
+                        }
 
-    //                 //update links_of_current_node
-    //                 tmp_idx = index_of_object_in_array_based_on_keys(current_mud.link_of_current_node, link_router_to_mycontroller, ['source', 'target']);
-    //                 if (tmp_idx == -1) {
-    //                     current_mud.link_of_current_node.push(link_router_to_mycontroller);
-    //                 }
-    //                 else {
-    //                     if (!has_element_with_key(current_mud.link_of_current_node[tmp_idx].device, current_mud.model)) {
-    //                         current_mud.link_of_current_node[tmp_idx].device.push(this.tmp_dev);
-    //                     }
-    //                     // current_mud.link_of_current_node[tmp_idx].device = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].device, current_mud.model);
-    //                     if (direction == 'outgoing') {
-    //                         current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].from_dev_protocol_data, current_protocol_data);
-    //                     }
-    //                     else if (direction == 'incoming') {
-    //                         current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data = concat_if_not_exists(current_mud.link_of_current_node[tmp_idx].to_dev_protocol_data, current_protocol_data);
-    //                     }
-    //                 }
-    //             }
-    //             if (!current_mud.node_is_in_allNodes()) {
-    //                 current_mud.index_in_allnodes = this.allNodes.length;
-    //                 this.allNodes.push({
-    //                     "group": String(1),
-    //                     "id": current_mud.model,
-    //                     "outgoing_protocols_of_abstractions": current_mud.outgoing_protocols_of_abstractions,
-    //                     "incoming_protocols_of_abstractions": current_mud.incoming_protocols_of_abstractions,
-    //                     "links": current_mud.link_of_current_node,
-    //                     "manufacturer": current_mud.manufacturer,
-    //                     "device": [current_mud.model]
-    //                 });
-    //             }
-    //         }
-    //     }
-    //     this.ready_to_draw = true;
-    // }
+                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
 
-    has_promise() {
-        if (this.mud_with_promises_raw.length > 0) {
-            return true;
+                        controller_node.set_target_and_save_protocol(opposite_direction, 'my-controller', my_controller_protocols[prot_idx], first_node.name);
+                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
+                        controller_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
+                        var deviceflow = {};
+                        if (direction == "outgoing") {
+                            deviceflow[my_controller_name] = "normal";
+                        }
+                        else {
+                            deviceflow[my_controller_name] = "reverse";
+                        }
+
+                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                    }
+
+                    // if (!current_mud.node_is_in_allNodes()) {
+                    //     current_mud.index_in_allnodes = this.allNodes.length;
+                    //     this.allNodes.push({
+                    //         "group": String(1),
+                    //         "id": current_mud.model,
+                    //         "outgoing_protocols_of_abstractions": current_mud.outgoing_protocols_of_abstractions,
+                    //         "incoming_protocols_of_abstractions": current_mud.incoming_protocols_of_abstractions,
+                    //         "links": current_mud.link_of_current_node,
+                    //         "manufacturer": current_mud.manufacturer,
+                    //         "device": [current_mud.model]
+                    //     });
+                    // }
+                }
+            }
+            this.ready_to_draw = true;
         }
-        return false;
     }
 
+
     fulfill_promises() {
-        if (this.has_promise()) {
-            var tmp_mud = this.mud_with_promises_raw[0];
-            let controller_found = false;
-            if (tmp_mud.promise.isfulfilled()) {
-                controller_found = true;
+        if (allNodesObj.has_awaiting_promises()) {
+            var node_with_promise_name = allNodesObj.pop_node_with_awaiting_promise();
+            var node_with_promise = allNodesObj.getNode(node_with_promise_name);
+            // var tmp_mud = this.mud_with_promises_raw[0];
+            // let controller_found = false;
+            if (node_with_promise.get_controller_exists_flag()) {
+                // controller_found = true;
                 var alert_message = {
                     type: 'success',
                     title: 'My-Controller Found!',
-                    showConfirmButton: true,
-                    // timer: 3000
+                    showConfirmButton: true
                 };
             }
             else {
@@ -391,66 +388,60 @@ class Mud_Network {
                          input {  \
                                  width: 80%;} \
                  </style>'
-                var egress_html = style +
-                    '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
+                var my_controller_html_content = style +
+                    '<p style="border: 1px;"> The device <dynamic>' + node_with_promise.name +
                     '</dynamic> in this network needs its controller to be configured for <dynamic>egress</dynamic> traffic:</p>' +
                     '<div style="border: 1px solid #000000;">';
 
-                // var ingress_html = style +
-                //     '<p style="border: 1px;"> The device <dynamic>' + tmp_mud.model +
-                //     '</dynamic> in this network needs its controller to be configured for <dynamic>ingress</dynamic> traffic:</p>';
+                var aclType_aclNames = node_with_promise.get_misc_data('acl_types_names');
+                // var ace_types = unique(find_values_by_key(tmp_mud.promise, 'type'));
 
-                var ace_types = unique(find_values_by_key(tmp_mud.promise, 'type'));
-
-                egress_html += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;"> ACL Type(s): <dynamic>'
-                for (var type_idx = 0; type_idx < ace_types.length; type_idx++) {
-                    egress_html += ace_types[type_idx];
-                    if (type_idx < ace_types.length - 1) {
-                        egress_html += '</dynamic>, <dynamic>'
+                my_controller_html_content += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;"> ACL Type(s): <dynamic>'
+                var counter = 1;
+                for (var aclType in aclType_aclNames) {
+                    my_controller_html_content += aclType;
+                    if (counter < Object.keys(aclType_aclNames).length) {
+                        my_controller_html_content += '</dynamic>, <dynamic>';
                     }
-                    var current_ace_type = ace_types[type_idx];
+                    counter += 1;
                 }
-                egress_html += '</dynamic><div>';
+                my_controller_html_content += '</dynamic><div>';
                 // this for loop is commented so to ask just for one of the aces , otherwise it might ask tens of times
                 // for (var promise_idx = 0; promise_idx < tmp_mud.promise.length(); promise_idx++) {
-                let promise_idx = 0;
-                var tmp_promise = tmp_mud.promise.data[promise_idx];
+                // let promise_idx = 0;
+                // var tmp_promise = tmp_mud.promise.data[promise_idx];
+                var tmp_promise = node_with_promise.get_promise();
                 // if (tmp_promise.ace.type == current_ace_type) {
-                for (var key_idx = 0; key_idx < tmp_promise.keys.length; key_idx++) {
-                    egress_html += tmp_promise.keys[key_idx] + ': <br><input id="' + tmp_promise.input_id[key_idx] + '" align="right"><br>';
+                var titles = tmp_promise.get_titles();
+                for (var key_idx = 0; key_idx < titles.length; key_idx++) {
+                    my_controller_html_content += titles[key_idx] + ': <br><input id="' + titles[key_idx] + '" align="right"><br>';
                 }
-                // }
-                // }
-                egress_html += '</div></div>';
-                // }
-                egress_html += '</div>';
+
+                my_controller_html_content += '</div></div>';
+
+                my_controller_html_content += '</div>';
                 // ingress_html += '</div>';
                 var alert_message = {
                     title: "Configuring My-Controller",
-                    html: egress_html,
+                    html: my_controller_html_content,
                     allowOutsideClick: false
                 }
             }
             Swal.fire(alert_message).then(() => {
-                if (controller_found == false) {
+                if (!node_with_promise.get_controller_exists_flag()) {
                     // store the user input values in the mud objects
-                    for (var dat_idx = 0; dat_idx < tmp_mud.promise.data.length; dat_idx++) {
-                        for (var key_idx = 0; key_idx < tmp_mud.promise.data[dat_idx].keys.length; key_idx++) {
-                            // let tmp_input_id = tmp_mud.promise.data[dat_idx].input_id[key_idx];
-                            let tmp_input_id = tmp_mud.promise.data[0].input_id[key_idx];
-                            let tmp_input_value = document.getElementById(tmp_input_id).value;
-                            tmp_mud.promise.data[dat_idx].values = tmp_mud.promise.data[dat_idx].values.concat(tmp_input_value);
-                        }
+                    var titles = tmp_promise.get_titles();
+                    for (var title_idx = 0; title_idx < titles.length; title_idx++) {
+                        let tmp_input_value = document.getElementById(titles[title_idx]).value;
+                        tmp_promise.set_value_by_key(titles[title_idx], tmp_input_value);
                     }
                 }
                 // process the next mud object that has promise, otherwise update the links and draw
-                this.mud_with_promises_processed = this.mud_with_promises_processed.concat(this.mud_with_promises_raw[0]);
-                this.mud_with_promises_raw.shift();
-                if (this.has_promise())
+                if (allNodesObj.has_awaiting_promises())
                     this.fulfill_promises();
                 else {
                     this.update_mycontroller_links();
-                    this.update_related_nodes();
+                    // this.update_related_nodes();
                 }
             });
         }
@@ -472,9 +463,9 @@ class Mud_Network {
             var current_mud_json = this.all_mud_jsons[json_idx]
             if (!current_mud_json.processed) {
                 var current_mud = new Mud(current_mud_json.data, this.non_unique_modelnames, this.allNodes, this.allLinks, this.allAbstractions, this.my_controllers, this.controllers);
-                if (current_mud.has_promise()) {
-                    this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
-                }
+                // if (current_mud.has_promise()) {
+                //     this.mud_with_promises_raw = this.mud_with_promises_raw.concat(current_mud);
+                // }
 
                 this.all_mud_objects = this.all_mud_objects.concat(current_mud);
                 current_mud_json.processed = true;
@@ -483,11 +474,11 @@ class Mud_Network {
             }
         }
 
-        // this.fulfill_promises();
+        this.fulfill_promises();
         this.update_localnetworks_links();
         this.update_samemanufacturer_links();
         this.update_manufacturer_links();
-        this.ready_to_draw = true;
+
 
         // this.update_related_nodes();
     }
@@ -512,7 +503,7 @@ class Mud {
         }
         // this.node = new Node(); 
         this.uuid = uuidv4();
-        this.promise = new MudPromise(this.uuid, this.model);
+        // this.promise = new MudPromise(this.uuid, this.model);
         this.FromDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "from-device-policy")[0], "name");
         this.ToDevicePolicies_names = find_values_by_key(find_values_by_key(this.mudfile, "to-device-policy")[0], "name");
         this.acls = this.extract_acls();
@@ -540,12 +531,12 @@ class Mud {
         this.extract_mud_links();
     }
 
-    has_promise() {
-        if (this.promise.isempty()) {
-            return false;
-        }
-        return true;
-    }
+    // has_promise() {
+    //     if (this.promise.isempty()) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     extract_acls() {
         this.ietf_acl = find_values_by_key(this.mudfile, "ietf-access-control-list", true);
@@ -609,6 +600,8 @@ class Mud {
 
         var new_node = new Node(String(1), this.model);
         new_node.set_manufacturer(this.manufacturer);
+        new_node.set_mud_url(this.mud_url);
+        var my_controller_processed = false;
 
         let ace_types = { outgoing: this.FromDeviceAces, incoming: this.ToDeviceAces };
         for (var direction in ace_types) {
@@ -695,49 +688,48 @@ class Mud {
 
                         break;
 
-                    // case "my-controller":
-                    //     let existing_mycontroller;
-                    //     for (var mycon_idx in this.allMyControllers) {
-                    //         let tmp_mycont = this.allMyControllers[mycon_idx];
-                    //         if (tmp_mycont.mud_url == this.mud_url) {
-                    //             existing_mycontroller = tmp_mycont;
-                    //         }
-                    //     }
-                    //     if (existing_mycontroller == null) {
-                    //         this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
-                    //     }
-                    //     else {
-                    //         this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [existing_mycontroller.id.split(': ')[1], existing_mycontroller.ip_address] });
-                    //     }
-                    //     // this.tmp_dev = {};
+                    case "my-controller":
+                        if (!my_controller_processed) {
+                            allNodesObj.add_to_nodes_with_awaiting_promise(new_node.name);
 
-                    //     // if (direction === 'outgoing') {
-                    //     //     this.tmp_dev[this.model] = { "outgoing": "normal" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                    //     //     var link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "from_dev_protocol_data": [protocol_data] };
-                    //     // }
-                    //     // else if (direction === 'incoming') {
-                    //     //     this.tmp_dev[this.model] = { "incoming": "reverse" }// this means for outgoing traffic in the object below, the source and target should be reversed
-                    //     //     var link_device_to_router_my_cont = { "source": this.model, "target": "Router", "value": "10", "device": [this.tmp_dev], "to_dev_protocol_data": [protocol_data] };
-                    //     // }
+                            var aclType_aceNames = this.extract_aclType_aceName_dict();
+                            new_node.add_misc_data('acl_types_names', aclType_aceNames);
+                            var tmp_promise = new AcePromise('my-controller');
+                            if (allNodesObj.has_mycontroller_supporting_url(this.mud_url)) {
+                                // this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [existing_mycontroller.id.split(': ')[1], existing_mycontroller.ip_address] });
 
-                    //     // new_links.push(link_device_to_router_my_cont);
+                                new_node.set_controller_exists_flag();
+                                var existing_mycontroller = allNodesObj.get_controller_by_mud_url(this.mud_url);
+                                tmp_promise.set_value_by_key('my-controller-name',existing_mycontroller.name );
+                                tmp_promise.set_value_by_key('my-controller-IP-address',existing_mycontroller.get_misc_data('my-controller-IP-address') );
+                                new_node.set_promise(tmp_promise);
 
+                            }
+                            else {
+                                // this.promise.append({ 'direction': 'egress', 'ace': ace, 'abstraction': 'my-controller', 'keys': ['my-controller-name', 'my-controller-IP-address'], 'values': [] });
+                                new_node.set_promise(tmp_promise);
 
+                            }
 
-                    //     var device_to_router_flow = {};
-                    //     if (direction == 'outgoing') {
-                    //         device_to_router_flow[this.model] = "normal";
-                    //     }
-                    //     else if (direction == 'incoming') {
-                    //         device_to_router_flow[this.model] = "reverse";
-                    //     }
-                    //     var link_device_to_router = new Link(this.model, "Router");
-                    //     link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
+                           
+                            my_controller_processed = true;
+                        }
+                         var device_to_router_flow = {};
+                            if (direction == 'outgoing') {
+                                device_to_router_flow[this.model] = "normal";
+                            }
+                            else if (direction == 'incoming') {
+                                device_to_router_flow[this.model] = "reverse";
+                            }
+                            var link_device_to_router = new Link(this.model, "Router");
+                            link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
 
-                    //     new_links.push(link_device_to_router);
+                            new_links.push(link_device_to_router);
+                            new_node.add_protocol(direction, ace_abstraction, ace_protocol);
+                            
+                        
 
-
-                    //     break;
+                        break;
 
 
                     case "controller":
@@ -814,11 +806,11 @@ class Mud {
                     //     });
                     // }
 
-                    if (ace_abstraction != "my-controller") {
-                        allNodesObj.add_node_if_not_exists(new_node);
-                        router_node.add_device_if_not_exists(direction, new_node.name);
-                        internet_node.add_device_if_not_exists(direction, new_node.name);
-                    }
+                    // if (ace_abstraction != "my-controller") {
+                    allNodesObj.add_node_if_not_exists(new_node);
+                    router_node.add_device_if_not_exists(direction, new_node.name);
+                    internet_node.add_device_if_not_exists(direction, new_node.name);
+                    // }
                 }
             }
             if (unmached_abstract_found == true) {
@@ -836,6 +828,26 @@ class Mud {
                 })
             }
         }
+    }
+
+    extract_aclType_aceName_dict() {
+        // This is a dictionary in this format: {"ipv4-acl-type": ["from-ipv4-amazonecho-0","from-ipv4-amazonecho-1", ...], ... }
+        var type_names = {};
+        var acl_list = find_values_by_key(this.mudfile, "ietf-access-control-list", true);
+        for (var acl_i in acl_list) {
+            var current_acl_set = acl_list[acl_i]['acl'];
+            for (var item in current_acl_set) {
+                var current_acl = current_acl_set[item];
+                var current_type = current_acl.type;
+                var current_aces = current_acl.aces['ace'];
+                type_names[current_type] = [];
+                for (var ace_i in current_aces) {
+                    var currrent_ace = current_aces[ace_i];
+                    type_names[current_type].push(currrent_ace.name);
+                }
+            }
+        }
+        return type_names;
     }
 
     extract_manufacturer() {

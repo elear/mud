@@ -7,6 +7,8 @@
 class AllNodes {
     constructor() {
         this.all_nodes = {};
+        this.supporting_mycontroller_urls = [];
+        this.nodes_with_promise = [];
     }
     add_node_if_not_exists(node) {
         if (!this.hasNode(node.name)){
@@ -32,6 +34,46 @@ class AllNodes {
             }
         }
         return nodes; 
+    }
+    getNodesByMudURL(url){
+        var nodes = [];
+        for (var n_idx in this.all_nodes){
+            if (this.all_nodes[n_idx].get_mud_url() == url){
+                nodes.push(this.all_nodes[n_idx]);
+            }
+        }
+        return nodes; 
+    }
+    getNodesByMiscKeyValue(key,value){
+        var nodes = [];
+        for (var n_idx in this.all_nodes){
+            if (this.all_nodes[n_idx].get_misc_data(key) == value){
+                nodes.push(this.all_nodes[n_idx]);
+            }
+        }
+        return nodes; 
+    }
+    get_controller_by_mud_url(mud_url){
+        for (var n_idx in this.all_nodes){
+            if (this.all_nodes[n_idx].is_mycontroller_node() && this.all_nodes[n_idx].get_misc_data('supported_mud_urls').indexOf(mud_url) != -1){
+                return this.all_nodes[n_idx];
+            }
+        }
+    }
+    has_mycontroller_supporting_url(mud_url){
+        return this.supporting_mycontroller_urls.indexOf(mud_url) != -1;
+    }
+    add_supporting_my_controller_url(mud_url){
+        this.supporting_mycontroller_urls.push(mud_url);
+    }
+    add_to_nodes_with_awaiting_promise(node_name){
+        concat_if_not_exists(this.nodes_with_promise, node_name);
+    }
+    has_awaiting_promises(){
+        return this.nodes_with_promise.length > 0 ;
+    }
+    pop_node_with_awaiting_promise(){
+        return this.nodes_with_promise.pop();
     }
 }
 
@@ -75,16 +117,22 @@ class Node {
         this.name = name;
         this.manufacturer; 
         // this.other_manufacturers; 
+        this.is_mycontroller = false;
+        this.promise;
+        this.controller_exists = false; 
         this.incoming = {
             'devices': [this.name], // indicates which nodes has relation with this node on incoming traffic
             'links': [],
-            "Abstractions": new Abstractions()
+            "Abstractions": new Abstractions(),
+            "promises": []
         };
         this.outgoing = {
             'devices': [this.name], // indicates which nodes has relation with this node on outgoing traffic
             "links": [],
-            "Abstractions": new Abstractions()
+            "Abstractions": new Abstractions(),
+            "promises": []
         };
+        this.misc_data = [];
     }
     add_device_if_not_exists(traffic_direction, device) {
         concat_if_not_exists( this[traffic_direction].devices, device);
@@ -110,7 +158,12 @@ class Node {
         tmp_protocol.setTarget(target);
         this.add_protocol(traffic_direction, inp_abstraction, tmp_protocol);
     }
-
+    set_controller_exists_flag(){
+        this.controller_exists = true; 
+    }
+    get_controller_exists_flag(){
+        return this.controller_exists; 
+    }
     get_devices(traffic_direction) {
         return this[traffic_direction].devices;
     }
@@ -132,6 +185,41 @@ class Node {
             }
         }
         return group1_device_names;
+    }
+    set_promise(promise){
+        this.promises = promise;
+    }
+    get_promise(){
+        return this.promises;
+    }
+    add_directional_promise(traffic_direction, promise){
+        this[traffic_direction].promises.push(promise);
+    }
+    get_directional_promise(traffic_direction, promise){
+        return this[traffic_direction].promises.push(promise);
+    }
+    set_mud_url(url){
+        this.mud_url = url ;
+    }
+    get_mud_url(){
+        return this.mud_url;
+    }
+    add_misc_data(key,value){
+        this.misc_data[key] = value ; 
+    }
+    get_misc_data(key){
+        return this.misc_data[key];
+    }
+    add_to_supported_mud_urls(mud_url){
+        this.misc_data['supported_mud_urls'].push(mud_url);
+        allNodesObj.add_supporting_my_controller_url(mud_url);
+    }
+    mark_as_my_controller(){
+        this.is_mycontroller = true;
+        this.misc_data['supported_mud_urls'] = [];
+    }
+    is_mycontroller_node(){
+        return this.is_mycontroller == true ; 
     }
 }
 
@@ -392,39 +480,45 @@ class Abstractions {
 //////////////// promise //////////////
 ///////////////////////////////////////
 
-class MudPromise {
-    constructor(uuid, model) {
-        this.uuid = uuid;
-        this.model = model;
-        this.data = [];
+class AcePromise {
+    constructor(type) {
+        this.type = type; 
+        this.data = {}
+        switch (type){
+            case "my-controller":
+                this.data['my-controller-name'] = null;
+                this.data['my-controller-IP-address'] = null; 
+        }
+        
     }
 
-    isempty() {
-        if (this.data.length == 0) {
-            return true;
-        }
-        return false;
+    get_data_length(){
+        return Object.keys(this.data).length; 
     }
 
     isfulfilled() {
-        for (var dat_idx in this.data) {
-            if (this.data[dat_idx].values.length == 0)
-                return false;
+        if (Object.keys(this.data).indexOf(null) != -1) {
+            return false;
         }
         return true;
     }
 
-    append(promise_data) {
-        promise_data.input_id = []
-        for (var dat_idx = 0; dat_idx < promise_data.keys.length; dat_idx++) {
-            promise_data.input_id = promise_data.input_id.concat(uuidv4());
-        }
-        this.data = this.data.concat(promise_data);
+    get_type() {
+        return this.type; 
     }
 
-    length() {
-        return this.data.length;
+    set_value_by_key(key,value){
+        this.data[key] = value ; 
     }
+
+    get_titles(){
+        return Object.keys(this.data);
+    }
+
+    get_value_by_key(key){
+        return this.data[key];
+    }
+
 }
 
 

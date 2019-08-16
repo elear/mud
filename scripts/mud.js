@@ -602,7 +602,7 @@ class Mud {
         new_node.set_manufacturer(this.manufacturer);
         new_node.set_mud_url(this.mud_url);
         var my_controller_processed = false;
-
+        var controller_processed = false;  // the purpose of this is to prevent properly alert the "controller found"
         let ace_types = { outgoing: this.FromDeviceAces, incoming: this.ToDeviceAces };
         for (var direction in ace_types) {
             var aceList = ace_types[direction];
@@ -753,8 +753,21 @@ class Mud {
                             var tmp_controller = controller_class[cont_idx];
                             var controller_node = new Node("0", tmp_controller);
                             if (!allNodesObj.add_node_if_not_exists(controller_node)) { // if false is returned, it means node already exists 
+
+                                if (!controller_processed){
+                                    Swal.fire({
+                                        type: 'success',
+                                        title: 'Controller Found!',
+                                        showConfirmButton: true
+                                    });    
+                                }
+                                
                                 allNodesObj.getNode(tmp_controller).add_device_if_not_exists(direction, this.model);
                             }
+                            else{
+                                controller_processed = true ;
+                            }
+
 
                             var device_to_controller_flow = {};
                             if (direction == 'outgoing') {

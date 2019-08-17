@@ -100,6 +100,8 @@ class Mud_Network {
                                         matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
                                     }
 
+                                    first_node.add_device_if_not_exists(direction, second_node.name);
+                                    second_node.add_device_if_not_exists(direction, first_node.name);
                                     for (var prot_idx in matched_protocols) {
                                         first_node.set_target_and_save_protocol(direction, 'local-networks', matched_protocols[prot_idx], second_node.name);
                                         var link_uid = allLinksObj.create_uid(second_node.name, "Router");
@@ -169,10 +171,8 @@ class Mud_Network {
                                         first_protocols_raw,
                                         second_protocols_raw);
 
-                                    // var matched_protocols = protocols_match(
-                                    //     first_node.get_protocols_by_abstraction(direction, 'same-manufacturer'),
-                                    //     second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
-
+                                    first_node.add_device_if_not_exists(direction, second_node.name);
+                                    second_node.add_device_if_not_exists(direction, first_node.name);
                                     for (var prot_idx in matched_protocols) {
                                         first_node.set_target_and_save_protocol(direction, 'same-manufacturer', matched_protocols[prot_idx], second_node.name);
                                         var link_uid = allLinksObj.create_uid(second_node.name, "Router");
@@ -230,7 +230,8 @@ class Mud_Network {
                                 var current_abstraction = accepted_abstractions[abs_idx];
                                 if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
 
-
+                                    first_node.add_device_if_not_exists(direction, second_node.name);
+                                    second_node.add_device_if_not_exists(direction, first_node.name);
                                     var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'manufacturer').filter(prot=> prot.target == null); 
                                     var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
                                     var matched_protocols = protocols_match(

@@ -66,10 +66,11 @@
 
 
 .select-deselect-muds {
-    display: block;
+    /* display: block; */
     position:absolute;
+    resize: both;
     height:25%;
-    width:25%;
+    width:200px;
     bottom:0;
     top:0;
     left:0;

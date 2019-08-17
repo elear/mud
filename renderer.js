@@ -95,9 +95,6 @@ function mud_drawer(inp_json) {
     .attr("deviceflows", function (d) {
       return JSON.stringify(d[traffic_direction]["device:flow"]);
     });
-  // .attr("outgoing_deviceflows", function (d) { 
-  //   return JSON.stringify(d.outgoing["device:flow"]); 
-  // });
 
 
   var node = svg.append("g")
@@ -105,10 +102,8 @@ function mud_drawer(inp_json) {
     .selectAll("a")
     .data(graph.nodes.filter(function (d) {
       var this_node_obj = allNodesObj.getNode(d.name);
-      return set_difference(this_node_obj.get_group1_devices(traffic_direction), excluded_models).length > 0 // this filters the mudfile links that are deselected in the selection menu
-      // let devices = d[traffic_direction].devices; 
-      // let common_elements =  devices.filter(function(n) {return excluded_models.indexOf(n) !== -1;});
-      // return common_elements.length == 0; 
+      return !excluded_models.includes(this_node_obj.name) && 
+              set_difference(this_node_obj.get_group1_devices(traffic_direction), excluded_models).length > 0;
     }))
     .enter().append("a")
     .attr("destination", '_blank');

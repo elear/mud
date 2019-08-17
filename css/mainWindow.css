@@ -66,19 +66,12 @@
 
 
 .select-deselect-muds {
-    /* display: block; */
     position:absolute;
     resize: both;
-    height:25%;
-    width:200px;
-    bottom:0;
     top:0;
     left:0;
-    right:0;
     margin-top:20px;
     margin-left:80px;
-    margin-bottom:20%;
-    margin-right:60%;
     background-color: #555;
     border: 1px solid #555;
     padding: 10px;
@@ -96,7 +89,7 @@
 
 
 .node-tooltip {
-    display: block;
+    display: inline-block;
     position:absolute;
     background-color: #555;
     border: 1px solid #555;

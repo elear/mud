@@ -441,9 +441,14 @@ function mud_drawer(inp_json) {
         //  .style("top", d.y - 50 + "px")
         //  .style("left", d.x - 600 + "px")
         .style("top", "10px")
-        .style("left", "75px")
-        .style("height", "300px")
-        .style("width", "600px");
+        .style("left", "85px")
+        .style("display","inline-block")
+        .style("height", null)
+        .style("width", null)
+        .style("bottom", null);
+
+        // .style("height", "300px")
+        // .style("width", "600px");
       div.transition()
         .duration(200)
         .style("opacity", .9);
@@ -508,7 +513,7 @@ $("#SelectMudFiles").click(function () {
   if (mudfile_select_menu_open == false) {
     $("#mudSelectionDiv").fadeIn("slow", function () {
       mudfile_select_menu_open = true;
-    });
+    }).css("display","inline-block");;
   }
 });
 

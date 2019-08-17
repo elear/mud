@@ -14,10 +14,10 @@ app.on('ready',function(){
     //create new window 
     mainWindow = new BrowserWindow({
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
         }
     });
-    
+    mainWindow.setIcon(path.join(__dirname, 'img/other_icons/icon.png'))
     mainWindow.maximize()
     
     // openninng dev tools 

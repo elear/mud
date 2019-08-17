@@ -373,10 +373,23 @@ class Mud_Network {
                                font-weight: bold} \
                          input {  \
                                  width: 80%;} \
-                 </style>'
+                 </style>';
+                var mycontroller_direction = '';
+                var has_incoming_mycontroller = node_with_promise.get_protocols_by_abstraction('incoming', 'my-controller').length > 0 ;
+                var has_outgoing_mycontroller = node_with_promise.get_protocols_by_abstraction('outgoing', 'my-controller').length > 0 ;
+                if (has_incoming_mycontroller && has_outgoing_mycontroller){
+                    mycontroller_direction += 'incoming/outgoing'
+                }
+                else if (has_incoming_mycontroller){
+                    mycontroller_direction += 'incoming'
+                }
+                else if (has_outgoing_mycontroller){
+                    mycontroller_direction += 'outgoing'
+                }
+
                 var my_controller_html_content = style +
                     '<p style="border: 1px;"> The device <dynamic>' + node_with_promise.name +
-                    '</dynamic> in this network needs its controller to be configured for <dynamic>egress</dynamic> traffic:</p>' +
+                    '</dynamic> in this network needs its controller to be configured for <dynamic>'+ mycontroller_direction +'</dynamic> traffic:</p>' +
                     '<div style="border: 1px solid #000000;">';
 
                 var aclType_aclNames = node_with_promise.get_misc_data('acl_types_names');
@@ -384,7 +397,7 @@ class Mud_Network {
                 my_controller_html_content += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;">'
                 var counter = 1;
                 for (var aclType in aclType_aclNames) {
-                    my_controller_html_content += "<titr>ACL Type <dynamic>"
+                    my_controller_html_content += "<titr>ACL type <dynamic>"
                     my_controller_html_content += aclType;
                     var current_type_acls = aclType_aclNames[aclType]; 
                     my_controller_html_content += '</dynamic> has the following ACEs:</titr> </br> <dynamic>'
@@ -394,10 +407,10 @@ class Mud_Network {
                         if (acl_i < current_type_acls.length -1){
                             my_controller_html_content += '</dynamic>, <dynamic>';
                         }
-                        
+
                     }
                     if (counter < Object.keys(aclType_aclNames).length) {
-                        my_controller_html_content += '</dynamic>, <dynamic>';
+                        my_controller_html_content += '</dynamic> </br>';
                     }
                     counter += 1;
                 }

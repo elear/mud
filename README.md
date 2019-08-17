@@ -11,7 +11,7 @@
 
 This tool can be used to visualize the MUD files in JSON format.
 
-![Recordit Gif](http://g.recordit.co/ha61yqSk84.gif)
+![MUD-Visualizer](img/recordit/recordit.gif)
 
 ## Table of Contents 
 

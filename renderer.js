@@ -31,7 +31,7 @@ function mud_drawer(inp_json) {
       .distanceMax(500)
       .distanceMin(50))
     .force("x", d3.forceX(function (d) {
-      if (d.group == "0") {
+      if (d.group == "01" || d.group == "02") {
         return 3.2 * (width) / 5
       }
       else if (d.group === "1") {
@@ -47,7 +47,7 @@ function mud_drawer(inp_json) {
       }
     }).strength(1))
     .force("y", d3.forceY(function (d) {
-      if (d.group == "0") {
+      if (d.group == "01" || d.group == "02") {
         return 1.6 * (height) / 4
       }
       return height / 2;
@@ -122,7 +122,9 @@ function mud_drawer(inp_json) {
   node.append("image")
     .attr("xlink:href", function (d) {
       switch (d.group) {
-        case "0":
+        case "01":
+            return "img/controller.svg";
+        case "02":
           return "img/controller.svg";
         default:
           return ("img/group" + d.group + ".svg");
@@ -168,7 +170,9 @@ function mud_drawer(inp_json) {
     .attr("font-size", "0.8em")
     .attr("dx", function (d) {
       switch (d.group) {
-        case "0":
+        case "01":
+          return -40;
+        case "02":
           return -40;
         case "1":
           return -15;
@@ -198,7 +202,7 @@ function mud_drawer(inp_json) {
     .attr("x", 8)
     .text(function (d) { 
       switch (d.group) {
-        case "0":
+        case "02":
           return "My-Controller: " + d.id
         case "3":
           return ; // for internet logo we don't need text 
@@ -294,7 +298,7 @@ function mud_drawer(inp_json) {
       .attr('opacity', 1);
     });
     var hovered_node = d;
-    if (d.group == '1') {
+    if (d.group == '1' || d.group == '0') {
       d3.selectAll('image').each(function (d) {
         if (!hovered_node[traffic_direction].devices.includes(d.id) && d.id != "Internet") {
           d3.select(this)
@@ -402,7 +406,7 @@ function mud_drawer(inp_json) {
 
   node.on("click", function (d) {
 
-    if (d.group == "1" || d.group == "0") {
+    if (d.group == "1" || d.group == "01" || d.group == "02") {
       // for showing the information:
       var clicked_node = allNodesObj.getNode(d.name);
       var clicked_node_protocols = clicked_node.get_protocols(traffic_direction);

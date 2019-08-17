@@ -89,10 +89,13 @@ class Mud_Network {
                                     if (current_abstraction == "same-manufacturer" && second_node.manufacturer != first_node.manufacturer) {
                                         continue;
                                     }
-
+                                    // we have to filter the protocols that don't have target , i.e. the raw ace rules which should be processed and target will be applied to them
+                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'local-networks').filter(prot=> prot.target == null); 
+                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
                                     var matched_protocols = protocols_match(
-                                        first_node.get_protocols_by_abstraction(direction, 'local-networks'),
-                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                        first_protocols_raw,
+                                        second_protocols_raw);
+
                                     if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
                                         matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
                                     }
@@ -158,9 +161,17 @@ class Mud_Network {
                                         continue;
                                     }
 
+
+                                    // we have to filter the protocols that don't have target , i.e. the raw ace rules which should be processed and target will be applied to them
+                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'same-manufacturer').filter(prot=> prot.target == null); 
+                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
                                     var matched_protocols = protocols_match(
-                                        first_node.get_protocols_by_abstraction(direction, 'same-manufacturer'),
-                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                        first_protocols_raw,
+                                        second_protocols_raw);
+
+                                    // var matched_protocols = protocols_match(
+                                    //     first_node.get_protocols_by_abstraction(direction, 'same-manufacturer'),
+                                    //     second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
 
                                     for (var prot_idx in matched_protocols) {
                                         first_node.set_target_and_save_protocol(direction, 'same-manufacturer', matched_protocols[prot_idx], second_node.name);
@@ -219,9 +230,13 @@ class Mud_Network {
                                 var current_abstraction = accepted_abstractions[abs_idx];
                                 if (second_node.get_protocols_by_abstraction(direction, current_abstraction).length > 0) {
 
+
+                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'manufacturer').filter(prot=> prot.target == null); 
+                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
                                     var matched_protocols = protocols_match(
-                                        first_node.get_protocols_by_abstraction(direction, 'manufacturer'),
-                                        second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction));
+                                        first_protocols_raw,
+                                        second_protocols_raw);
+
                                     if (current_abstraction == "manufacturer") { // check if the other-manufacturer of the 'manufacturer' node matches the manufacturer of the local-networks node 
                                         matched_protocols = matched_protocols.filter(prtc => prtc.matches_manufacturer(first_node.manufacturer));
                                     }
@@ -278,7 +293,7 @@ class Mud_Network {
                     var mycontroller_exists = allNodesObj.has_mycontroller_supporting_url(first_node.mud_url); 
 
                     if (!mycontroller_exists) {  // we have to create the my-controller node
-                        var controller_node = new Node("0", my_controller_name);
+                        var controller_node = new Node("02", my_controller_name);
                         controller_node.mark_as_my_controller();
                         controller_node.add_device_if_not_exists(direction, first_node.name);
                         controller_node.add_misc_data('my-controller-IP-address', my_controller_IP_Address);
@@ -680,7 +695,7 @@ class Mud {
                         var controller_class = unique(find_values_by_key(ace, 'controller'));
                         for (var cont_idx in controller_class) {
                             var tmp_controller = controller_class[cont_idx];
-                            var controller_node = new Node("0", tmp_controller);
+                            var controller_node = new Node("01", tmp_controller);
                             controller_node.add_device_if_not_exists(direction, this.model);
                             if (!allNodesObj.add_node_if_not_exists(controller_node)) { // if false is returned, it means node already exists 
 

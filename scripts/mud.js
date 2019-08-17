@@ -368,6 +368,7 @@ class Mud_Network {
             else {
                 var style =
                     '<style>  \
+                        titr {font-weight: bold;}\
                         dynamic {color: brown; \
                                font-weight: bold} \
                          input {  \
@@ -380,10 +381,21 @@ class Mud_Network {
 
                 var aclType_aclNames = node_with_promise.get_misc_data('acl_types_names');
 
-                my_controller_html_content += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;"> ACL Type(s): <dynamic>'
+                my_controller_html_content += '<div style="border: 1px solid #000000; padding-top: 5px; padding-bottom: 10px;">'
                 var counter = 1;
                 for (var aclType in aclType_aclNames) {
+                    my_controller_html_content += "<titr>ACL Type <dynamic>"
                     my_controller_html_content += aclType;
+                    var current_type_acls = aclType_aclNames[aclType]; 
+                    my_controller_html_content += '</dynamic> has the following ACEs:</titr> </br> <dynamic>'
+                    for (var acl_i in current_type_acls){
+                        
+                        my_controller_html_content += current_type_acls[acl_i];
+                        if (acl_i < current_type_acls.length -1){
+                            my_controller_html_content += '</dynamic>, <dynamic>';
+                        }
+                        
+                    }
                     if (counter < Object.keys(aclType_aclNames).length) {
                         my_controller_html_content += '</dynamic>, <dynamic>';
                     }

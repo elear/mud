@@ -18,7 +18,7 @@ app.on('ready',function(){
         }
     });
     mainWindow.setIcon(path.join(__dirname, 'img/other_icons/icon.png'))
-    mainWindow.maximize()
+    // mainWindow.maximize()
     
     // openninng dev tools 
     // mainWindow.openDevTools();

@@ -446,9 +446,6 @@ function mud_drawer(inp_json) {
         .style("height", null)
         .style("width", null)
         .style("bottom", null);
-
-        // .style("height", "300px")
-        // .style("width", "600px");
       div.transition()
         .duration(200)
         .style("opacity", .9);

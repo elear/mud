@@ -1,7 +1,7 @@
 <a href="https://github.com/Vafa-Andalibi/MUD-Visualizer/blob/readme/README.md"><img src="https://github.com/Vafa-Andalibi/MUD-Visualizer/blob/readme/img/other_icons/github_logo.png?sanitize=true" width="60%"></a>
 
 # Manufacturer Usage Description (MUD) Visualizer
-> A tool to visualize MUD-files 
+> Warning: MUD-Visualizer is currently beta. Use at your own risk.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) 
 [![Github Issues](http://img.shields.io/github/issues/Vafa-Andalibi/MUD-Visualizer/bug.svg)](https://github.com/Vafa-Andalibi/MUD-Visualizer/issues)
@@ -10,6 +10,8 @@
 
 
 This tool can be used to visualize the MUD files in JSON format.
+
+![Recordit Gif](http://g.recordit.co/ha61yqSk84.gif)
 
 ## Table of Contents 
 

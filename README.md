@@ -1,4 +1,4 @@
-<a href="https://github.com/Vafa-Andalibi/MUD-Visualizer/blob/readme/README.md"><img src="https://github.com/Vafa-Andalibi/MUD-Visualizer/blob/readme/img/other_icons/github_logo.png?sanitize=true" width="60%"></a>
+<a href="https://github.com/Vafa-Andalibi/MUD-Visualizer/blob/master/README.md"><img src="https://github.com/Vafa-Andalibi/MUD-Visualizer/blob/master/img/other_icons/github_logo.png?sanitize=true" width="60%"></a>
 
 # Manufacturer Usage Description (MUD) Visualizer
 > Warning: MUD-Visualizer is currently beta. Use at your own risk.

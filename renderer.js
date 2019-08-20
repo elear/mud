@@ -51,7 +51,7 @@ function mud_drawer(inp_json) {
         return 1.6 * (height) / 4
       }
       return height / 2;
-    }).strength(0.05))
+    }).strength(0.1))
     // .force("center", d3.forceCenter((width) / 2, height / 2))
     .force("collision", d3.forceCollide().radius(35));
 

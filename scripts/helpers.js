@@ -470,14 +470,45 @@ class Abstractions {
         for (var tar_idx in targets){
             var current_target = targets[tar_idx];
             var target_protocols = this.get_protocols_by_target (current_target) ; 
+
             var transport = find_values_by_key(target_protocols,'transport');
-            transport.indexOf('any') != -1 ? transport = ['any'] : transport = [...new Set(transport)];
+            var transport_unique  = [...new Set(transport)]; 
+            if (transport_unique.includes('any') && transport_unique.length == 1 ){
+                transport = ['any'];
+            }
+            else {
+                transport = transport_unique.filter(p=>p!='any');
+            }
+            // transport.indexOf('any') != -1 ? transport = ['any'] : transport = [...new Set(transport)];
             var network = find_values_by_key(target_protocols,'network');
-            network.indexOf('any') != -1 ? network = ['any'] : network = [...new Set(network)];
+            var network_unique  = [...new Set(network)]; 
+            if (network_unique.includes('any') && network_unique.length == 1 ){
+                network = ['any'];
+            }
+            else {
+                network = network_unique.filter(p=>p!='any');
+            }
+            // network.indexOf('any') != -1 ? network = ['any'] : network = [...new Set(network)];
             var src_port = find_values_by_key(target_protocols,'src_port');
-            src_port.indexOf('any') != -1 ? src_port = ['any'] : src_port = [...new Set(src_port)];
+            var src_port_flattened = Array.prototype.concat.apply([], src_port);
+            var src_port_unique  = [...new Set(src_port_flattened)]; 
+            if (src_port_unique.includes('any') && src_port_unique.length == 1 ){
+                src_port = ['any'];
+            }
+            else {
+                src_port = src_port_unique.filter(p=>p!='any');
+            }
+            
+            // src_port.indexOf('any') != -1 ? src_port = ['any'] : src_port = [...new Set(src_port)];
             var dst_port = find_values_by_key(target_protocols,'dst_port');
-            dst_port.indexOf('any') != -1 ? dst_port = ['any'] : dst_port = [...new Set(dst_port)];
+            var dst_port_flattened = Array.prototype.concat.apply([], dst_port);
+            var dst_port_unique  = [...new Set(dst_port_flattened)]; 
+            if (dst_port_unique.includes('any') && dst_port_unique.length == 1 ){
+                dst_port = ['any'];
+            }
+            else {
+                dst_port = dst_port_unique.filter(p=>p!='any');
+            }
 
             var tmp_protocol = new Protocol(transport, network, src_port, dst_port);
             tmp_protocol.setTarget(current_target);

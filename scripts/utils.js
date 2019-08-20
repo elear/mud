@@ -90,7 +90,7 @@ function concat_if_not_exists(arr, val) {
     else if (Object.prototype.toString.call(val) === '[object Array]') { // val is array itself
         for (var item_idx in val) {
             let tmp_item = val[item_idx];
-            concat_if_not_exists(arr, tmp_item);
+            arr  = concat_if_not_exists(arr, tmp_item);
         }
     }
     else { // val is object 

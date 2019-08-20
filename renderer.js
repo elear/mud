@@ -82,7 +82,13 @@ function mud_drawer(inp_json) {
   var link = svg.append("g")
     .selectAll("path")
     .data(graph.links.filter(function (d) {
-      return (set_difference(get_devices_names(d[traffic_direction]['device:flow']), excluded_models).length > 0 && // this filters the mudfile links that are deselected in the selection menu
+      if (allNodesObj.getNode(d.source).is_controlle_or_mycontroller()){ // it's enought to check the source because in the design the target is alwasy router or internet
+          return (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
+          set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0); 
+      }
+      return (
+        (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
+        set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0) && // this filters the mudfile links that are deselected in the selection menu
         !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
         !excluded_models.includes(d.target))
     }))
@@ -102,8 +108,13 @@ function mud_drawer(inp_json) {
     .selectAll("a")
     .data(graph.nodes.filter(function (d) {
       var this_node_obj = allNodesObj.getNode(d.name);
+      if (this_node_obj.is_controlle_or_mycontroller()){ // if it's a mycontroller of controller, the name does not neccessarily need to be in the contorller node 
+        return (set_difference(this_node_obj.get_group1_devices('outgoing'), excluded_models).length > 0 ||
+              set_difference(this_node_obj.get_group1_devices('incoming'), excluded_models).length > 0);
+      }
       return !excluded_models.includes(this_node_obj.name) && 
-              set_difference(this_node_obj.get_group1_devices(traffic_direction), excluded_models).length > 0;
+              (set_difference(this_node_obj.get_group1_devices('outgoing'), excluded_models).length > 0 ||
+              set_difference(this_node_obj.get_group1_devices('incoming'), excluded_models).length > 0);
     }))
     .enter().append("a")
     .attr("destination", '_blank');
@@ -287,15 +298,21 @@ function mud_drawer(inp_json) {
           .attr("width", 50)
           .attr("height", 50);
         }
+        else{// this is for router and internet nodes
+          d3.select(this)
+          .transition()
+          .duration(500)
+          .attr('opacity', 1);
+        }
     });
     d3.selectAll('path').each(function (d) {
       d3.select(this)
       .attr('opacity', 1);
     });
     var hovered_node = d;
-    if (d.group == '1' || d.group == '0') {
+    if (d.group == '1' || d.group == '01' || d.group == '02') {
       d3.selectAll('image').each(function (d) {
-        if (!hovered_node[traffic_direction].devices.includes(d.id) && d.id != "Internet") {
+        if (!hovered_node[traffic_direction].devices.includes(d.id) ) {
           d3.select(this)
             .transition()
             // .duration(100)
@@ -394,6 +411,12 @@ function mud_drawer(inp_json) {
         .attr("width", 50)
         .attr("height", 50);
         
+      }
+      else { // this is for router and internet nodes
+        d3.select(this)
+        .transition()
+        .duration(500)
+        .attr('opacity', 1);
       }
     });
     
@@ -538,10 +561,37 @@ $("div:not(#nodestooltip)").click(function () {
 $('body').on('click', 'input[id="mudcheckbox"]', function () {
   if ($(this).prop("checked")) {
     let item_idx = excluded_models.indexOf($(this).val());
+    var checked_item_name = excluded_models[item_idx];
+    
     excluded_models.splice(item_idx, 1);
+
+    var checked_mud_controller = allNodesObj.getNode(checked_item_name).get_controller();
+    if(checked_mud_controller != null){
+      let controller_idx = excluded_models.indexOf(checked_mud_controller);
+      excluded_models.splice(controller_idx, 1);
+    }
+  
+    var checked_mud_mycontroller = allNodesObj.getNode(checked_item_name).get_mycontroller();
+    if(checked_mud_mycontroller != null){
+      let mycontroller_idx = excluded_models.indexOf(checked_mud_mycontroller);
+      excluded_models.splice(mycontroller_idx, 1);
+    }
+
+    
   }
   else {
-    excluded_models = excluded_models.concat($(this).val());
+    var unchecked_mud_name = $(this).val(); 
+    excluded_models.push(unchecked_mud_name);
+
+    var unchecked_mud_controller = allNodesObj.getNode(unchecked_mud_name).get_controller();
+    if(unchecked_mud_controller != null){
+      excluded_models.push(unchecked_mud_controller);
+    }
+    
+    var unchecked_mud_mycontroller = allNodesObj.getNode(unchecked_mud_name).get_mycontroller();
+    if(unchecked_mud_mycontroller != null){
+      excluded_models.push(unchecked_mud_mycontroller);
+    }
   }
   d3.selectAll("svg > *").remove();
   drawer();
@@ -571,6 +621,7 @@ function set_outgoing() {
   if (!$("#button_outgoing").hasClass("outgoing-down")) {
     $("#button_outgoing").toggleClass("outgoing-down");
   }
+
 }
 
 set_outgoing();

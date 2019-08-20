@@ -65,7 +65,7 @@ class AllNodes {
         this.supporting_mycontroller_urls.push(mud_url);
     }
     add_to_nodes_with_awaiting_promise(node_name){
-        concat_if_not_exists(this.nodes_with_promise, node_name);
+        this.nodes_with_promise = concat_if_not_exists(this.nodes_with_promise, node_name);
     }
     has_awaiting_promises(){
         return this.nodes_with_promise.length > 0 ;
@@ -133,12 +133,12 @@ class Node {
         this.misc_data = [];
     }
     add_device_if_not_exists(traffic_direction, device) {
-        concat_if_not_exists( this[traffic_direction].devices, device);
+        this[traffic_direction].devices = concat_if_not_exists( this[traffic_direction].devices, device);
     }
     add_link_if_not_exists(traffic_direction, link) {
-        concat_if_not_exists(this[traffic_direction].links, link.uid);
-        concat_if_not_exists(this[traffic_direction].devices, link.source);
-        concat_if_not_exists(this[traffic_direction].devices, link.target);
+        this[traffic_direction].links = concat_if_not_exists(this[traffic_direction].links, link.uid);
+        this[traffic_direction].devices = concat_if_not_exists(this[traffic_direction].devices, link.source);
+        this[traffic_direction].devices = concat_if_not_exists(this[traffic_direction].devices, link.target);
     }
     add_protocol(traffic_direction, abstraction, protocol){
         if (abstraction == 'domain-names' && protocol.target == null){
@@ -156,6 +156,19 @@ class Node {
         tmp_protocol.setTarget(target);
         this.add_protocol(traffic_direction, inp_abstraction, tmp_protocol);
     }
+    set_mycontroller(mycontroller_name){
+        this.mycontroller = mycontroller_name;
+    }
+    get_mycontroller(){
+        return this.mycontroller;
+    }
+    set_controller(controller_name){
+        this.controller = controller_name;
+    }
+    get_controller(){
+        return this.controller;
+    }
+
     set_controller_exists_flag(){
         this.controller_exists = true; 
     }
@@ -219,7 +232,17 @@ class Node {
     is_mycontroller_node(){
         return this.is_mycontroller == true ; 
     }
+    mark_as_controller(){
+        this.is_controller = true; 
+    }
+    is_controller_node(){
+        return this.is_controller == true; 
+    }
+    is_controlle_or_mycontroller(){
+        return this.is_controller == true || this.is_mycontroller == true; 
+    }
 }
+
 
 /////////////////////////////////////////////
 //////////////// link ///////////////////////
@@ -243,7 +266,7 @@ class Link {
         if (typeof(device) == "string"){
             console.error("the device:flow should be an object device:flowdirection")
         }
-        concat_if_not_exists(this[traffic_direction]['device:flow'], device_flow);
+        this[traffic_direction]['device:flow'] = concat_if_not_exists(this[traffic_direction]['device:flow'], device_flow);
     }
     get_deviceflows(traffic_direction) {
         return this[traffic_direction]['device:flow'];

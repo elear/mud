@@ -90,8 +90,8 @@ class Mud_Network {
                                         continue;
                                     }
                                     // we have to filter the protocols that don't have target , i.e. the raw ace rules which should be processed and target will be applied to them
-                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'local-networks').filter(prot=> prot.target == null); 
-                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
+                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'local-networks').filter(prot => prot.target == null);
+                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot => prot.target == null);
                                     var matched_protocols = protocols_match(
                                         first_protocols_raw,
                                         second_protocols_raw);
@@ -165,8 +165,8 @@ class Mud_Network {
 
 
                                     // we have to filter the protocols that don't have target , i.e. the raw ace rules which should be processed and target will be applied to them
-                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'same-manufacturer').filter(prot=> prot.target == null); 
-                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
+                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'same-manufacturer').filter(prot => prot.target == null);
+                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot => prot.target == null);
                                     var matched_protocols = protocols_match(
                                         first_protocols_raw,
                                         second_protocols_raw);
@@ -232,8 +232,8 @@ class Mud_Network {
 
                                     first_node.add_device_if_not_exists(direction, second_node.name);
                                     second_node.add_device_if_not_exists(direction, first_node.name);
-                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'manufacturer').filter(prot=> prot.target == null); 
-                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot=>prot.target==null);
+                                    var first_protocols_raw = first_node.get_protocols_by_abstraction(direction, 'manufacturer').filter(prot => prot.target == null);
+                                    var second_protocols_raw = second_node.get_protocols_by_abstraction(opposite_direction, current_abstraction).filter(prot => prot.target == null);
                                     var matched_protocols = protocols_match(
                                         first_protocols_raw,
                                         second_protocols_raw);
@@ -291,14 +291,14 @@ class Mud_Network {
                     var my_controller_name = current_promise.get_value_by_key('my-controller-name');
                     var my_controller_IP_Address = current_promise.get_value_by_key('my-controller-IP-address');
 
-                    var mycontroller_exists = allNodesObj.has_mycontroller_supporting_url(first_node.mud_url); 
+                    var mycontroller_exists = allNodesObj.has_mycontroller_supporting_url(first_node.mud_url);
 
                     if (!mycontroller_exists) {  // we have to create the my-controller node
                         var controller_node = new Node("02", my_controller_name);
                         controller_node.mark_as_my_controller();
                         controller_node.add_device_if_not_exists(direction, first_node.name);
                         controller_node.add_misc_data('my-controller-IP-address', my_controller_IP_Address);
-                        controller_node.add_to_supported_mud_urls(first_node.mud_url);    
+                        controller_node.add_to_supported_mud_urls(first_node.mud_url);
 
                         var controller_to_router_flow = {};
                         if (direction == 'outgoing') {
@@ -308,44 +308,57 @@ class Mud_Network {
                             controller_to_router_flow[my_controller_name] = "reverse";
                         }
                         var link_controller_to_router = new Link(my_controller_name, "Router");
-                        
+
                         if (!allLinksObj.add_link_if_not_exists(link_controller_to_router)) { // returns false if it's already there
                             let existing_link = allLinksObj.getLink(link_controller_to_router);
                             existing_link.add_deviceflow_if_not_exists(direction, link_controller_to_router.get_deviceflows(direction)[0]);
                         }
                         allNodesObj.add_node_if_not_exists(controller_node);
                     }
-                    else{
-                        var controller_node = allNodesObj.get_controller_by_mud_url(first_node.mud_url);   
+                    else {
+                        var controller_node = allNodesObj.get_controller_by_mud_url(first_node.mud_url);
                     }
+                    first_node.set_mycontroller(controller_node.name);
 
-                    var my_controller_protocols = first_node.get_protocols_by_abstraction(direction,'my-controller');
+                    var my_controller_protocols = first_node.get_protocols_by_abstraction(direction, 'my-controller');
                     for (var prot_idx in my_controller_protocols) {
                         first_node.set_target_and_save_protocol(direction, 'my-controller', my_controller_protocols[prot_idx], my_controller_name);
                         var link_uid = allLinksObj.create_uid(my_controller_name, "Router");
                         first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                         var deviceflow = {};
+                        var controllerflow = {};
                         if (direction == "outgoing") {
                             deviceflow[first_node.name] = "reverse";
+                            controllerflow[my_controller_name] = "normal";
                         }
                         else {
                             deviceflow[first_node.name] = "normal";
+                            controllerflow[my_controller_name] = "reverse";
                         }
 
                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
+                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, controllerflow);
+
+                        allNodesObj.getNode(my_controller_name).add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
 
                         controller_node.set_target_and_save_protocol(opposite_direction, 'my-controller', my_controller_protocols[prot_idx], first_node.name);
                         var link_uid = allLinksObj.create_uid(first_node.name, "Router");
                         controller_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
                         var deviceflow = {};
+                        var controllerflow = {};
                         if (direction == "outgoing") {
                             deviceflow[my_controller_name] = "normal";
+                            controllerflow[my_controller_name] = "reverse";
                         }
                         else {
                             deviceflow[my_controller_name] = "reverse";
+                            controllerflow[my_controller_name] = "normal";
                         }
 
                         allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, controllerflow);
+
+                        allNodesObj.getNode(my_controller_name).add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                     }
 
                 }
@@ -353,7 +366,7 @@ class Mud_Network {
             this.ready_to_draw = true;
         }
     }
-
+    // link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
 
     fulfill_promises() {
         if (allNodesObj.has_awaiting_promises()) {
@@ -376,21 +389,21 @@ class Mud_Network {
                                  width: 80%;} \
                  </style>';
                 var mycontroller_direction = '';
-                var has_incoming_mycontroller = node_with_promise.get_protocols_by_abstraction('incoming', 'my-controller').length > 0 ;
-                var has_outgoing_mycontroller = node_with_promise.get_protocols_by_abstraction('outgoing', 'my-controller').length > 0 ;
-                if (has_incoming_mycontroller && has_outgoing_mycontroller){
+                var has_incoming_mycontroller = node_with_promise.get_protocols_by_abstraction('incoming', 'my-controller').length > 0;
+                var has_outgoing_mycontroller = node_with_promise.get_protocols_by_abstraction('outgoing', 'my-controller').length > 0;
+                if (has_incoming_mycontroller && has_outgoing_mycontroller) {
                     mycontroller_direction += 'incoming/outgoing'
                 }
-                else if (has_incoming_mycontroller){
+                else if (has_incoming_mycontroller) {
                     mycontroller_direction += 'incoming'
                 }
-                else if (has_outgoing_mycontroller){
+                else if (has_outgoing_mycontroller) {
                     mycontroller_direction += 'outgoing'
                 }
 
                 var my_controller_html_content = style +
                     '<p style="border: 1px;"> The device <dynamic>' + node_with_promise.name +
-                    '</dynamic> in this network needs its controller to be configured for <dynamic>'+ mycontroller_direction +'</dynamic> traffic:</p>' +
+                    '</dynamic> in this network needs its controller to be configured for <dynamic>' + mycontroller_direction + '</dynamic> traffic:</p>' +
                     '<div style="border: 1px solid #000000;">';
 
                 var aclType_aclNames = node_with_promise.get_misc_data('acl_types_names');
@@ -400,12 +413,12 @@ class Mud_Network {
                 for (var aclType in aclType_aclNames) {
                     my_controller_html_content += "<titr>ACL type <dynamic>"
                     my_controller_html_content += aclType;
-                    var current_type_acls = aclType_aclNames[aclType]; 
+                    var current_type_acls = aclType_aclNames[aclType];
                     my_controller_html_content += '</dynamic> has the following ACEs:</titr> </br> <dynamic>'
-                    for (var acl_i in current_type_acls){
-                        
+                    for (var acl_i in current_type_acls) {
+
                         my_controller_html_content += current_type_acls[acl_i];
-                        if (acl_i < current_type_acls.length -1){
+                        if (acl_i < current_type_acls.length - 1) {
                             my_controller_html_content += '</dynamic>, <dynamic>';
                         }
 
@@ -670,8 +683,8 @@ class Mud {
 
                                 new_node.set_controller_exists_flag();
                                 var existing_mycontroller = allNodesObj.get_controller_by_mud_url(this.mud_url);
-                                tmp_promise.set_value_by_key('my-controller-name',existing_mycontroller.name );
-                                tmp_promise.set_value_by_key('my-controller-IP-address',existing_mycontroller.get_misc_data('my-controller-IP-address') );
+                                tmp_promise.set_value_by_key('my-controller-name', existing_mycontroller.name);
+                                tmp_promise.set_value_by_key('my-controller-IP-address', existing_mycontroller.get_misc_data('my-controller-IP-address'));
                                 new_node.set_promise(tmp_promise);
 
                             }
@@ -681,29 +694,9 @@ class Mud {
 
                             }
 
-                           
+
                             my_controller_processed = true;
                         }
-                         var device_to_router_flow = {};
-                            if (direction == 'outgoing') {
-                                device_to_router_flow[this.model] = "normal";
-                            }
-                            else if (direction == 'incoming') {
-                                device_to_router_flow[this.model] = "reverse";
-                            }
-                            var link_device_to_router = new Link(this.model, "Router");
-                            link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
-
-                            new_links.push(link_device_to_router);
-                            new_node.add_protocol(direction, ace_abstraction, ace_protocol);
-                            
-                        
-
-                        break;
-
-
-                    case "controller":
-
                         var device_to_router_flow = {};
                         if (direction == 'outgoing') {
                             device_to_router_flow[this.model] = "normal";
@@ -715,47 +708,95 @@ class Mud {
                         link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
 
                         new_links.push(link_device_to_router);
-                        // new_node.add_protocol(direction, ace_abstraction, ace_protocol);
+                        new_node.add_protocol(direction, ace_abstraction, ace_protocol);
 
+
+
+                        break;
+
+
+                    case "controller":
 
                         var controller_class = unique(find_values_by_key(ace, 'controller'));
+
+                        var device_to_router_flow = {};
+                        var controller_to_router_flow = {};
+                        if (direction == 'outgoing') {
+                            device_to_router_flow[this.model] = "normal";
+                            controller_to_router_flow[controller_class[0]] = 'reverse';
+                        }
+                        else if (direction == 'incoming') {
+                            device_to_router_flow[this.model] = "reverse";
+                            controller_to_router_flow[controller_class[0]] = 'normal';
+                        }
+                        var link_device_to_router = new Link(this.model, "Router");
+                        link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
+                        link_device_to_router.add_deviceflow_if_not_exists(direction, controller_to_router_flow);
+
+                        new_links.push(link_device_to_router);
+                        // new_node.add_protocol(direction, ace_abstraction, ace_protocol);
+                        new_node.set_controller(controller_class[0]);
+
+
                         for (var cont_idx in controller_class) {
                             var tmp_controller = controller_class[cont_idx];
                             var controller_node = new Node("01", tmp_controller);
+                            controller_node.mark_as_controller();
                             controller_node.add_device_if_not_exists(direction, this.model);
                             if (!allNodesObj.add_node_if_not_exists(controller_node)) { // if false is returned, it means node already exists 
 
-                                if (!controller_processed){
+                                if (controller_processed == false) {
                                     Swal.fire({
                                         type: 'success',
                                         title: 'Controller Found!',
                                         showConfirmButton: true
-                                    });    
+                                    });
                                 }
-                                
+
                                 allNodesObj.getNode(tmp_controller).add_device_if_not_exists(direction, this.model);
                             }
-                            else{
-                                controller_processed = true ;
+                            else {
+                                controller_processed = true;
                             }
 
 
                             var device_to_controller_flow = {};
+                            var controller_to_router_flow = {};
                             if (direction == 'outgoing') {
                                 device_to_controller_flow[this.model] = "reverse";
+                                controller_to_router_flow[controller_class] = "normal";
                             }
                             else if (direction == 'incoming') {
                                 device_to_controller_flow[this.model] = "normal";
+                                controller_to_router_flow[controller_class] = "reverse";
                             }
 
                             var link_controller_to_router = new Link(tmp_controller, "Router");
                             link_controller_to_router.add_deviceflow_if_not_exists(direction, device_to_controller_flow);
+                            link_controller_to_router.add_deviceflow_if_not_exists(direction, controller_to_router_flow);
 
                             new_links.push(link_controller_to_router);
 
                             ace_protocol.setTarget(tmp_controller);
                             new_node.add_protocol(direction, ace_abstraction, ace_protocol);
 
+
+                            if (!allLinksObj.add_link_if_not_exists(link_device_to_router)) { // returns false if it's already there
+                                let existing_link = allLinksObj.getLink(link_device_to_router);
+                                existing_link.add_deviceflow_if_not_exists(direction, link_device_to_router.get_deviceflows(direction)[0]);
+                            }
+                            if (!allLinksObj.add_link_if_not_exists(link_controller_to_router)) { // returns false if it's already there
+                                let existing_link = allLinksObj.getLink(link_controller_to_router);
+                                existing_link.add_deviceflow_if_not_exists(direction, link_controller_to_router.get_deviceflows(direction)[0]);
+                            }
+
+                            allNodesObj.getNode(tmp_controller).add_link_if_not_exists(direction, link_device_to_router);
+                            allNodesObj.getNode(tmp_controller).add_link_if_not_exists(direction, link_controller_to_router);
+
+                            var protocol_for_controller = new Protocol();
+                            protocol_for_controller.copy_from(ace_protocol);
+                            protocol_for_controller.setTarget(this.model);
+                            allNodesObj.getNode(tmp_controller).add_protocol(direction, ace_abstraction, protocol_for_controller);
                         }
 
                         break;
@@ -771,7 +812,7 @@ class Mud {
 
                         if (!allLinksObj.add_link_if_not_exists(link_to_add)) { // returns false if it's already there
                             let existing_link = allLinksObj.getLink(link_to_add);
-                            existing_link.add_deviceflow_if_not_exists(direction, link_to_add.get_deviceflows(direction)[0]);
+                            existing_link.add_deviceflow_if_not_exists(direction, link_to_add.get_deviceflows(direction));
                         }
 
                         new_node.add_link_if_not_exists(direction, link_to_add);
@@ -780,7 +821,6 @@ class Mud {
                     allNodesObj.add_node_if_not_exists(new_node);
                     router_node.add_device_if_not_exists(direction, new_node.name);
                     internet_node.add_device_if_not_exists(direction, new_node.name);
-                    // }
                 }
             }
             if (unmached_abstract_found == true) {
@@ -852,7 +892,7 @@ class Mud {
 
         return hostname;
     }
-    
+
     get_abstraction_types(ace) {
         var abstraction = [];
         var acldns = find_values_by_key(ace, 'ietf-acldns', true);

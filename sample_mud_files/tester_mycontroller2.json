@@ -1,0 +1,139 @@
+{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://tester2.com/ttt",
+      "last-update": "2019-08-21T17:42:40+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "asdf",
+      "mfg-name": "linked",
+      "documentation": "https://ext.com/doc",
+      "model-name": "ttt",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-99812-v4fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-99812-v4to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-99812-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 73
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "myctl1-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 28
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-99812-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 73
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "myctl1-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 28
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }

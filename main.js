@@ -1,7 +1,7 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-const d3 = require('d3');
+// const d3 = require('d3');
 var fs = require('fs');
 
 const { dialog, app, BrowserWindow, Menu} = electron; 

@@ -322,43 +322,46 @@ class Mud_Network {
 
                     var my_controller_protocols = first_node.get_protocols_by_abstraction(direction, 'my-controller');
                     for (var prot_idx in my_controller_protocols) {
-                        first_node.set_target_and_save_protocol(direction, 'my-controller', my_controller_protocols[prot_idx], my_controller_name);
-                        var link_uid = allLinksObj.create_uid(my_controller_name, "Router");
-                        first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
-                        var deviceflow = {};
-                        var controllerflow = {};
-                        if (direction == "outgoing") {
-                            deviceflow[first_node.name] = "reverse";
-                            controllerflow[my_controller_name] = "normal";
+                        if (my_controller_protocols[prot_idx].target == null) {
+
+                            first_node.set_target_and_save_protocol(direction, 'my-controller', my_controller_protocols[prot_idx], my_controller_name);
+                            var link_uid = allLinksObj.create_uid(my_controller_name, "Router");
+                            first_node.add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
+                            var deviceflow = {};
+                            var controllerflow = {};
+                            if (direction == "outgoing") {
+                                deviceflow[first_node.name] = "reverse";
+                                controllerflow[my_controller_name] = "normal";
+                            }
+                            else {
+                                deviceflow[first_node.name] = "normal";
+                                controllerflow[my_controller_name] = "reverse";
+                            }
+
+                            allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
+                            allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, controllerflow);
+
+                            allNodesObj.getNode(my_controller_name).add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
+
+                            controller_node.set_target_and_save_protocol(opposite_direction, 'my-controller', my_controller_protocols[prot_idx], first_node.name);
+                            var link_uid = allLinksObj.create_uid(first_node.name, "Router");
+                            controller_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
+                            var deviceflow = {};
+                            var controllerflow = {};
+                            if (direction == "outgoing") {
+                                deviceflow[my_controller_name] = "normal";
+                                controllerflow[my_controller_name] = "reverse";
+                            }
+                            else {
+                                deviceflow[my_controller_name] = "reverse";
+                                controllerflow[my_controller_name] = "normal";
+                            }
+
+                            allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
+                            allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, controllerflow);
+
+                            allNodesObj.getNode(my_controller_name).add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                         }
-                        else {
-                            deviceflow[first_node.name] = "normal";
-                            controllerflow[my_controller_name] = "reverse";
-                        }
-
-                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, deviceflow);
-                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(direction, controllerflow);
-
-                        allNodesObj.getNode(my_controller_name).add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
-
-                        controller_node.set_target_and_save_protocol(opposite_direction, 'my-controller', my_controller_protocols[prot_idx], first_node.name);
-                        var link_uid = allLinksObj.create_uid(first_node.name, "Router");
-                        controller_node.add_link_if_not_exists(opposite_direction, allLinksObj.getLink_by_uid(link_uid));
-                        var deviceflow = {};
-                        var controllerflow = {};
-                        if (direction == "outgoing") {
-                            deviceflow[my_controller_name] = "normal";
-                            controllerflow[my_controller_name] = "reverse";
-                        }
-                        else {
-                            deviceflow[my_controller_name] = "reverse";
-                            controllerflow[my_controller_name] = "normal";
-                        }
-
-                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, deviceflow);
-                        allLinksObj.getLink_by_uid(link_uid).add_deviceflow_if_not_exists(opposite_direction, controllerflow);
-
-                        allNodesObj.getNode(my_controller_name).add_link_if_not_exists(direction, allLinksObj.getLink_by_uid(link_uid));
                     }
 
                 }

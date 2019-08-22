@@ -45,6 +45,10 @@ function set_difference(arr1, arr2) {
     return arr1.filter(x => !arr2.includes(x));
 }
 
+function repeated_elements(arr){
+    return arr.filter ( (v,i,a) => a.indexOf(v) < i )
+}
+
 // similar to .indexOf() but for objects 
 function index_of_object_in_array(arr, obj) {
     // this function returns the index of an object if it exists in an array
@@ -90,7 +94,7 @@ function concat_if_not_exists(arr, val) {
     else if (Object.prototype.toString.call(val) === '[object Array]') { // val is array itself
         for (var item_idx in val) {
             let tmp_item = val[item_idx];
-            arr  = concat_if_not_exists(arr, tmp_item);
+            arr = concat_if_not_exists(arr, tmp_item);
         }
     }
     else { // val is object 
@@ -151,6 +155,54 @@ function ObjsAreEqual(a, b) {
     return true;
 }
 
+function compare_arrays(array1, array2) {
+    return array1.length === array2.length && array1.join('') === array2.join('');
+    // return array1.length === array2.length && array1.sort().every(function (value, index) { return value === array2.sort()[index] });
+}
+
+function compare_port_tuples(array1, array2) {
+    if (array1.length != array2.length) {
+        return false;
+    }
+    for (var idx1 in array1) {
+        var item1 = array1[idx1];
+        var match_found = false; 
+        for (var idx2 in array2) {
+            var item2 = array2[idx2];
+            if (compare_arrays(item1,item2)){
+                match_found = true; 
+                break; 
+            }
+        }
+        if (!match_found){
+            return false; 
+        }
+    }
+    return true;
+}
+
+function includes_tuple(multi_dim_array,array){
+    for (var idx in multi_dim_array) {
+        var item = multi_dim_array[idx]; 
+        if (compare_arrays(item, array)){
+            return true; 
+        }
+    }
+    return false;
+}
+
+function multiDimensionalUnique(arr) {
+    var uniques = [];
+    var itemsFound = {};
+    for(var i = 0, l = arr.length; i < l; i++) {
+        var stringified = JSON.stringify(arr[i]);
+        if(itemsFound[stringified]) { continue; }
+        uniques.push(arr[i]);
+        itemsFound[stringified] = true;
+    }
+    return uniques;
+}
+
 // check the two sets of protocols and returns the common working protocol
 // for instance a TCP with source_port = 100 and destination_port = 200 will not match
 //  the same TCP with source_port = 100 and destination_port = 200 but will match 
@@ -158,15 +210,48 @@ function ObjsAreEqual(a, b) {
 function protocols_match(src_protocols, dst_protocols) {
     let matched_protocols = [];
     for (var sp_idx in src_protocols) {
-        cur_src_p = src_protocols[sp_idx];
+        cur_src_protocol = src_protocols[sp_idx];
         for (var dp_idx in dst_protocols) {
-            cur_dst_p = dst_protocols[dp_idx];
-            if ((cur_src_p.transport == "any" || cur_dst_p.transport == "any" || cur_src_p.transport == cur_dst_p.transport) &&
-                (cur_src_p.network == "any" || cur_dst_p.network == "any" || cur_src_p.network == cur_dst_p.network) &&
-                (cur_src_p.src_port == "any" || cur_dst_p.src_port == "any" || cur_src_p.src_port[0] == cur_dst_p.src_port[0]) &&
-                (cur_src_p.dst_port == "any" || cur_dst_p.dst_port == "any" || cur_src_p.dst_port[0] == cur_dst_p.dst_port[0])
-            ) {
-                matched_protocols = concat_if_not_exists(matched_protocols, cur_dst_p);
+            cur_dst_protocol = dst_protocols[dp_idx];
+            var picked_transport = [];
+            var picked_network = [];
+            var picked_src_dst_ports_tuples = [];
+
+            if (compare_arrays(cur_src_protocol.transport, ["any"])) {
+                picked_transport = cur_dst_protocol.transport;
+            }
+            else if (compare_arrays(cur_dst_protocol.transport, ["any"])) {
+                picked_transport = cur_src_protocol.transport;
+            }
+            else if (compare_arrays(cur_src_protocol.transport, cur_dst_protocol.transport)) {
+                picked_transport = cur_dst_protocol.transport;
+            }
+
+
+            if (compare_arrays(cur_src_protocol.network, ["any"])) {
+                picked_network = cur_dst_protocol.network;
+            }
+            else if (compare_arrays(cur_dst_protocol.network, ["any"])) {
+                picked_network = cur_src_protocol.network;
+            }
+            else if (compare_arrays(cur_src_protocol.network, cur_dst_protocol.network)) {
+                picked_network = cur_dst_protocol.network;
+            }
+
+
+            if (compare_arrays(cur_src_protocol.src_dst_ports_tuples[0], ['any','any'])) {
+                picked_src_dst_ports_tuples = cur_dst_protocol.src_dst_ports_tuples;
+            }
+            else if (compare_arrays(cur_dst_protocol.src_dst_ports_tuples[0], ['any','any'])) {
+                picked_src_dst_ports_tuples = cur_src_protocol.src_dst_ports_tuples;
+            }
+            else if (compare_arrays(cur_src_protocol.src_dst_ports_tuples[0], cur_dst_protocol.src_dst_ports_tuples[0])) {
+                picked_src_dst_ports_tuples = cur_dst_protocol.src_dst_ports_tuples;
+            }
+
+            if (picked_transport.length > 0 && picked_network.length > 0 && picked_src_dst_ports_tuples.length > 0 ) {
+                var tmp_protocol = new Protocol(picked_transport, picked_network, picked_src_dst_ports_tuples);
+                matched_protocols.push(tmp_protocol);
             }
         }
     }
@@ -187,26 +272,33 @@ function find_networking_protocol(ace) {
     return undefined;
 }
 
-function extract_protocol_from_ace(ace){
-    let number_to_transport_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" }; 
+function extract_other_manufacturers_from_ace(ace){
+    return find_values_by_key(ace, "manufacturer");
+}
+
+function extract_protocol_from_ace(ace) {
+    let number_to_transport_mapping = { "1": "ICMP", "2": "IGMP", "6": "TCP", "17": "UDP" };
 
     let protocol_num = find_values_by_key(ace, "protocol")[0];
     let transport = number_to_transport_mapping[protocol_num];
+    if (!transport) {transport = ['any']}
 
     let networking = find_networking_protocol(ace);
+    if (!networking) {networking = ['any']}
 
     let src_port_info = find_values_by_key(ace, "source-port");
     let src_port = find_values_by_key(src_port_info, "port");
+    if (src_port.length == 0){
+        src_port = ['any'];
+    }
 
     let dst_port_info = find_values_by_key(ace, "destination-port");
     let dst_port = find_values_by_key(dst_port_info, "port");
+    if (dst_port.length == 0){
+        dst_port = ['any'];
+    }
 
-    return new Protocol(transport, networking, src_port, dst_port);
-}
-
-
-function extract_other_manufacturers_from_ace(ace){
-    return find_values_by_key(ace, "manufacturer");
+    return new Protocol(transport, networking, [src_port[0], dst_port[0]]);
 }
 
 function get_outgoing_related_nodes(model_name, links) {
@@ -253,14 +345,14 @@ function find_model_name(mudfile) {
         return model_name
 }
 
-function hasKey(obj,key){
-    return Object.keys(obj).includes(key); 
+function hasKey(obj, key) {
+    return Object.keys(obj).includes(key);
 }
 
-function getKey(obj){ // assumes object has only one key/value
+function getKey(obj) { // assumes object has only one key/value
     return Object.keys(obj)[0];
 }
 
-function getValue(obj){ // assumes object has only one key/value
+function getValue(obj) { // assumes object has only one key/value
     return Object.values(obj)[0];
 }

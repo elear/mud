@@ -1,7 +1,7 @@
 var traffic_direction = "incoming";
 var excluded_models = [];
 var tooltip_status;
-var hover_ready = true; 
+var hover_ready = true;
 function mud_drawer(inp_json) {
   var graph = JSON.parse(JSON.stringify(inp_json));
   // var graph = inp_json;
@@ -82,13 +82,13 @@ function mud_drawer(inp_json) {
   var link = svg.append("g")
     .selectAll("path")
     .data(graph.links.filter(function (d) {
-      if (allNodesObj.getNode(d.source).is_controlle_or_mycontroller()){ // it's enought to check the source because in the design the target is alwasy router or internet
-          return (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
-          set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0); 
+      if (allNodesObj.getNode(d.source).is_controlle_or_mycontroller()) { // it's enought to check the source because in the design the target is alwasy router or internet
+        return (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
+          set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0);
       }
       return (
         (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
-        set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0) && // this filters the mudfile links that are deselected in the selection menu
+          set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0) && // this filters the mudfile links that are deselected in the selection menu
         !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
         !excluded_models.includes(d.target))
     }))
@@ -108,13 +108,13 @@ function mud_drawer(inp_json) {
     .selectAll("a")
     .data(graph.nodes.filter(function (d) {
       var this_node_obj = allNodesObj.getNode(d.name);
-      if (this_node_obj.is_controlle_or_mycontroller()){ // if it's a mycontroller of controller, the name does not neccessarily need to be in the contorller node 
+      if (this_node_obj.is_controlle_or_mycontroller()) { // if it's a mycontroller of controller, the name does not neccessarily need to be in the contorller node 
         return (set_difference(this_node_obj.get_group1_devices('outgoing'), excluded_models).length > 0 ||
-              set_difference(this_node_obj.get_group1_devices('incoming'), excluded_models).length > 0);
+          set_difference(this_node_obj.get_group1_devices('incoming'), excluded_models).length > 0);
       }
-      return !excluded_models.includes(this_node_obj.name) && 
-              (set_difference(this_node_obj.get_group1_devices('outgoing'), excluded_models).length > 0 ||
-              set_difference(this_node_obj.get_group1_devices('incoming'), excluded_models).length > 0);
+      return !excluded_models.includes(this_node_obj.name) &&
+        (set_difference(this_node_obj.get_group1_devices('outgoing'), excluded_models).length > 0 ||
+          set_difference(this_node_obj.get_group1_devices('incoming'), excluded_models).length > 0);
     }))
     .enter().append("a")
     .attr("destination", '_blank');
@@ -129,7 +129,7 @@ function mud_drawer(inp_json) {
     .attr("xlink:href", function (d) {
       switch (d.group) {
         case "01":
-            return "img/controller.svg";
+          return "img/controller.svg";
         case "02":
           return "img/controller.svg";
         default:
@@ -206,13 +206,13 @@ function mud_drawer(inp_json) {
       }
     })
     .attr("x", 8)
-    .text(function (d) { 
+    .text(function (d) {
       switch (d.group) {
         case "02":
           return "My-Controller: " + d.id
         case "3":
-          return ; // for internet logo we don't need text 
-        default: 
+          return; // for internet logo we don't need text 
+        default:
           return d.id;
       }
     });
@@ -292,27 +292,27 @@ function mud_drawer(inp_json) {
 
     d3.selectAll('*').interrupt();
     d3.selectAll('image').each(function (d) {
-      if (d.group != "3" && d.group != "2"){
+      if (d.group != "3" && d.group != "2") {
         d3.select(this)
-          .attr('opacity', 1)          
+          .attr('opacity', 1)
           .attr("width", 50)
           .attr("height", 50);
-        }
-        else{// this is for router and internet nodes
-          d3.select(this)
+      }
+      else {// this is for router and internet nodes
+        d3.select(this)
           .transition()
           .duration(500)
           .attr('opacity', 1);
-        }
+      }
     });
     d3.selectAll('path').each(function (d) {
       d3.select(this)
-      .attr('opacity', 1);
+        .attr('opacity', 1);
     });
     var hovered_node = d;
     if (d.group == '1' || d.group == '01' || d.group == '02') {
       d3.selectAll('image').each(function (d) {
-        if (!hovered_node[traffic_direction].devices.includes(d.id) ) {
+        if (!hovered_node[traffic_direction].devices.includes(d.id)) {
           d3.select(this)
             .transition()
             // .duration(100)
@@ -350,7 +350,7 @@ function mud_drawer(inp_json) {
                 .style("stroke", link_hover_color)
                 .style("stroke-width", 2);
               d3.select(this)
-                .attr("stroke-dasharray", totalLength/2 + " " + totalLength / 5)
+                .attr("stroke-dasharray", totalLength / 2 + " " + totalLength / 5)
                 .attr("stroke-dashoffset", link_direction_coefficient * totalLength * 50)
                 .transition()
                 .duration(20000)
@@ -367,7 +367,7 @@ function mud_drawer(inp_json) {
         })
       }
     }
-    
+
   });
 
 
@@ -375,7 +375,7 @@ function mud_drawer(inp_json) {
 
 
     if (d[traffic_direction].links !== undefined) {
-      
+
       var current_node_links = d[traffic_direction].links;
       d3.selectAll('path').each(function (d, i) {
         if (current_node_links.indexOf(d.uid) != -1) {
@@ -386,7 +386,7 @@ function mud_drawer(inp_json) {
           d3.select(this)
             .attr("stroke-dasharray", totalLength + " " + totalLength)
             .attr("stroke-dashoffset", totalLength);
-          
+
           // d3.select(this)
           // .attr('opacity', 1);
           //   .transition();
@@ -402,24 +402,24 @@ function mud_drawer(inp_json) {
     }
 
     d3.selectAll('image').each(function (d) {
-      if (d.group != "3" && d.group != "2"){
-        
-      d3.select(this)
-        .transition()
-        .duration(500)
-        .attr('opacity', 1)
-        .attr("width", 50)
-        .attr("height", 50);
-        
+      if (d.group != "3" && d.group != "2") {
+
+        d3.select(this)
+          .transition()
+          .duration(500)
+          .attr('opacity', 1)
+          .attr("width", 50)
+          .attr("height", 50);
+
       }
       else { // this is for router and internet nodes
         d3.select(this)
-        .transition()
-        .duration(500)
-        .attr('opacity', 1);
+          .transition()
+          .duration(500)
+          .attr('opacity', 1);
       }
     });
-    
+
   });
 
   node.on("click", function (d) {
@@ -448,13 +448,69 @@ function mud_drawer(inp_json) {
           for (var protocol_idx in clicked_node_protocols) {
             let current_protocol = clicked_node_protocols[protocol_idx];
 
-            if (!excluded_models.includes(current_protocol.target) && current_protocol.target != null ) { // protocols with null targets are just template protocols and will be filled later with the updater methods
-              table += "<tr><td>" + current_protocol.target + "</td>";
-              table += "<td>" + current_protocol.transport.join(', ') + "</td>";
-              table += "<td>" + current_protocol.network.join(', ') + "</td>";
-              table += "<td>" + current_protocol.src_port.join(', ') + "</td>";
-              table += "<td>" + current_protocol.dst_port.join(', ') + "</td>";
-              table += "</tr>"
+            var src_port_list_with_repeat = current_protocol.src_dst_ports_tuples.map(function (a) { return a[0] });
+            var dst_port_list_with_repeat = current_protocol.src_dst_ports_tuples.map(function (a) { return a[1] });
+
+            var unique_src_ports = [... new Set(src_port_list_with_repeat)];
+            var unique_dst_ports = [... new Set(dst_port_list_with_repeat)];
+
+            var repeated_src_ports = repeated_elements(src_port_list_with_repeat);
+            var repeated_dst_ports = repeated_elements(dst_port_list_with_repeat);
+
+            var unrepeated_src_ports = set_difference(src_port_list_with_repeat, repeated_src_ports);
+            var unrepeated_dst_ports = set_difference(dst_port_list_with_repeat, repeated_dst_ports)
+
+            for (var port_idx in unique_src_ports) {
+              var src_port = unique_src_ports[port_idx];
+              if (!excluded_models.includes(current_protocol.target) && current_protocol.target != null) { // protocols with null targets are just template protocols and will be filled later with the updater methods
+                if (repeated_src_ports.includes(src_port)) {
+                  var matching_dst_ports = [... new Set(current_protocol.src_dst_ports_tuples.filter(a => a[0] == src_port).map(function (a) { return a[1] }))];
+                  table += "<tr><td>" + current_protocol.target + "</td>";
+                  table += "<td>" + current_protocol.transport + "</td>";
+                  table += "<td>" + current_protocol.network + "</td>";
+                  table += "<td>" + src_port + "</td>";
+                  table += "<td>" + matching_dst_ports.join(', ') + "</td>";
+                  table += "</tr>"
+                }
+                else { // here we have to check if the destination port of the target src_port is not in repeated_dst_ports then we print it
+                  var target_dst_port = current_protocol.src_dst_ports_tuples.filter(a => a[0] == src_port)[0][1];
+                  if (!repeated_dst_ports.includes(target_dst_port)) {
+                    table += "<tr><td>" + current_protocol.target + "</td>";
+                    table += "<td>" + current_protocol.transport + "</td>";
+                    table += "<td>" + current_protocol.network + "</td>";
+                    table += "<td>" + src_port + "</td>";
+                    table += "<td>" + target_dst_port + "</td>";
+                    table += "</tr>"
+                  }
+                }
+              }
+            }
+
+            for (var port_idx in unique_dst_ports) {
+              var dst_port = unique_dst_ports[port_idx];
+              if (!excluded_models.includes(current_protocol.target) && current_protocol.target != null) { // protocols with null targets are just template protocols and will be filled later with the updater methods
+                if (repeated_dst_ports.includes(dst_port)) {
+                  var matching_src_ports = [... new Set(current_protocol.src_dst_ports_tuples.filter(a => a[1] == dst_port).map(function (a) { return a[0] }))];
+
+                  table += "<tr><td>" + current_protocol.target + "</td>";
+                  table += "<td>" + current_protocol.transport + "</td>";
+                  table += "<td>" + current_protocol.network + "</td>";
+                  table += "<td>" + matching_src_ports.join(', ') + "</td>";
+                  table += "<td>" + dst_port + "</td>";
+                  table += "</tr>"
+                }
+                else { // here we have to check if the destination port of the target src_port is not in repeated_dst_ports then we print it
+                  var target_src_port = current_protocol.src_dst_ports_tuples.filter(a => a[1] == dst_port)[0][0];
+                  if (!repeated_src_ports.includes(target_src_port) && !unrepeated_src_ports.includes(target_src_port)) {
+                    table += "<tr><td>" + current_protocol.target + "</td>";
+                    table += "<td>" + current_protocol.transport + "</td>";
+                    table += "<td>" + current_protocol.network + "</td>";
+                    table += "<td>" + target_src_port + "</td>";
+                    table += "<td>" + dst_port + "</td>";
+                    table += "</tr>"
+                  }
+                }
+              }
             }
           }
           table += '</table>'
@@ -465,7 +521,7 @@ function mud_drawer(inp_json) {
         //  .style("left", d.x - 600 + "px")
         .style("top", "10px")
         .style("left", "85px")
-        .style("display","inline-block")
+        .style("display", "inline-block")
         .style("height", null)
         .style("width", null)
         .style("bottom", null);
@@ -474,7 +530,6 @@ function mud_drawer(inp_json) {
         .style("opacity", .9);
       tooltip_status = 'just-clicked';
     }
-    
   });
 
 
@@ -533,7 +588,7 @@ $("#SelectMudFiles").click(function () {
   if (mudfile_select_menu_open == false) {
     $("#mudSelectionDiv").fadeIn("slow", function () {
       mudfile_select_menu_open = true;
-    }).css("display","inline-block");;
+    }).css("display", "inline-block");;
   }
 });
 
@@ -562,34 +617,34 @@ $('body').on('click', 'input[id="mudcheckbox"]', function () {
   if ($(this).prop("checked")) {
     let item_idx = excluded_models.indexOf($(this).val());
     var checked_item_name = excluded_models[item_idx];
-    
+
     excluded_models.splice(item_idx, 1);
 
     var checked_mud_controller = allNodesObj.getNode(checked_item_name).get_controller();
-    if(checked_mud_controller != null){
+    if (checked_mud_controller != null) {
       let controller_idx = excluded_models.indexOf(checked_mud_controller);
       excluded_models.splice(controller_idx, 1);
     }
-  
+
     var checked_mud_mycontroller = allNodesObj.getNode(checked_item_name).get_mycontroller();
-    if(checked_mud_mycontroller != null){
+    if (checked_mud_mycontroller != null) {
       let mycontroller_idx = excluded_models.indexOf(checked_mud_mycontroller);
       excluded_models.splice(mycontroller_idx, 1);
     }
 
-    
+
   }
   else {
-    var unchecked_mud_name = $(this).val(); 
+    var unchecked_mud_name = $(this).val();
     excluded_models.push(unchecked_mud_name);
 
     var unchecked_mud_controller = allNodesObj.getNode(unchecked_mud_name).get_controller();
-    if(unchecked_mud_controller != null){
+    if (unchecked_mud_controller != null) {
       excluded_models.push(unchecked_mud_controller);
     }
-    
+
     var unchecked_mud_mycontroller = allNodesObj.getNode(unchecked_mud_name).get_mycontroller();
-    if(unchecked_mud_mycontroller != null){
+    if (unchecked_mud_mycontroller != null) {
       excluded_models.push(unchecked_mud_mycontroller);
     }
   }

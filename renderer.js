@@ -3,6 +3,7 @@ var excluded_models = [];
 var tooltip_status;
 var hover_ready = true;
 function mud_drawer(inp_json) {
+  d3.selectAll("svg > *").remove();
   var graph = JSON.parse(JSON.stringify(inp_json));
   // var graph = inp_json;
   var svg = d3.select("svg");
@@ -777,7 +778,7 @@ $('#openfile-input').change(function () {
             try {
               filescontent[counter] = JSON.parse(e.target.result);
             }
-            catch (e) {
+            catch (error) {
               let html_message = "<div style='text-align: left; padding: 5px;'>The following JSON file is not valid:</div>";
               html_message += "<pre style='border: 1px solid #555555;text-align: left; overflow-x: auto;'>" + e.target.result + "</pre>"
               Swal.fire({
@@ -789,7 +790,7 @@ $('#openfile-input').change(function () {
             }
             // alert('json global var has been set to parsed json of this file here it is unevaled = \n' + JSON.stringify(filescontent[i]));
             if (counter == files.length-1){
-              d3.selectAll("svg > *").remove();
+              
               for (var mudfile_idx in filescontent) {
                 network.add_mudfile(filescontent[mudfile_idx]);
               }

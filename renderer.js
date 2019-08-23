@@ -546,7 +546,6 @@ var network_data;
 var userAgent = navigator.userAgent.toLowerCase();
 network.ready_to_draw = false;
 
-
 if (userAgent.indexOf(' electron/') > -1) {
   // in case we are running electron
   function opengithub() {
@@ -554,6 +553,7 @@ if (userAgent.indexOf(' electron/') > -1) {
     var { shell } = require('electron');
     let url = "https://github.com/vafa-Andalibi/mudvisualizer";
     shell.openExternal(url);
+
   }
 
   require('electron').ipcRenderer.on('draw', (event, message) => {
@@ -563,7 +563,19 @@ if (userAgent.indexOf(' electron/') > -1) {
 
     let sharedobj = JSON.parse(remote.getGlobal('sharedObj'));
     for (var mudfile_idx in sharedobj) {
-      network.add_mudfile(JSON.parse(sharedobj[mudfile_idx]));
+      try {
+        network.add_mudfile(JSON.parse(sharedobj[mudfile_idx]));
+      }
+      catch (e) {
+        let html_message = "<div style='text-align: left; padding: 5px;'>The following JSON file is not valid:</div>";
+        html_message += "<pre style='border: 1px solid #555555;text-align: left; overflow-x: auto;'>" + sharedobj[mudfile_idx] + "</pre>"
+        Swal.fire({
+          type: 'error',
+          title: 'Not a valid json file',
+          showConfirmButton: true,
+          html: html_message
+        });
+      }
     }
     network.create_network()
 
@@ -762,8 +774,19 @@ $('#openfile-input').change(function () {
       // Closure to capture the file information.
       reader.onload = (function (theFile) {
         return function (e) {
-            filescontent[counter] = JSON.parse(e.target.result);
-            
+            try {
+              filescontent[counter] = JSON.parse(e.target.result);
+            }
+            catch (e) {
+              let html_message = "<div style='text-align: left; padding: 5px;'>The following JSON file is not valid:</div>";
+              html_message += "<pre style='border: 1px solid #555555;text-align: left; overflow-x: auto;'>" + e.target.result + "</pre>"
+              Swal.fire({
+                type: 'error',
+                title: 'Not a valid json file',
+                showConfirmButton: true,
+                html: html_message
+              });
+            }
             // alert('json global var has been set to parsed json of this file here it is unevaled = \n' + JSON.stringify(filescontent[i]));
             if (counter == files.length-1){
               d3.selectAll("svg > *").remove();

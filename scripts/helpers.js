@@ -498,9 +498,9 @@ class Abstractions {
         }
         for (var transport in protocol_tree) {
             var current_transport = protocol_tree[transport];
-            var network_has_any = false;
+            var transport_has_any_key = false;
             if (hasKey(current_transport, 'any')) {
-                network_has_any = true;
+                transport_has_any_key = true;
             }
 
             for (var network in current_transport) {
@@ -510,16 +510,21 @@ class Abstractions {
                     transport_has_current_network_in_any = true;
                 }
                 var src_dst_ports_tuples = current_network["src_dst_ports_tuples"].slice(0);
-
+                var tuples_to_delete = [];
                 for (var tuple_idx in src_dst_ports_tuples) {
                     var current_port_tuple = current_network['src_dst_ports_tuples'][tuple_idx];
                     if (transport != 'any' && network != 'any') {
+                        var any_any_port_exists_in_current_transportnetwork = false; 
                         var exists_in_any_of_current_transport = false;
                         var exists_in_network_of_any = false;
                         var exists_in_any_of_any = false;
-                        if (network_has_any) {
-                            if (includes_tuple(current_network['any'].src_dst_ports_tuples, current_port_tuple) ||
-                                includes_tuple(current_network['any'].src_dst_ports_tuples, ['any', 'any'])) {
+                        if (!compare_arrays(['any', 'any'], current_port_tuple) && includes_tuple(current_network.src_dst_ports_tuples, ['any', 'any'])) {
+                            any_any_port_exists_in_current_transportnetwork = true; 
+                        }
+
+                        if (transport_has_any_key) {
+                            if (includes_tuple(current_transport['any'].src_dst_ports_tuples, current_port_tuple) ||
+                                includes_tuple(current_transport['any'].src_dst_ports_tuples, ['any', 'any'])) {
                                 exists_in_any_of_current_transport = true;
                             }
                         }
@@ -535,13 +540,15 @@ class Abstractions {
                                 exists_in_any_of_any = true;
                             }
                         }
-                        if (exists_in_any_of_current_transport ||
+                        if (any_any_port_exists_in_current_transportnetwork || 
+                            exists_in_any_of_current_transport ||
                             exists_in_network_of_any ||
                             exists_in_any_of_any) {
                             for (var tup_idx in current_network['src_dst_ports_tuples']) {
                                 var tmp_tup = current_network['src_dst_ports_tuples'][tup_idx];
                                 if (compare_arrays(tmp_tup, current_port_tuple)) {
-                                    current_network["src_dst_ports_tuples"].splice(tmp_idx, 1)
+                                    // current_network["src_dst_ports_tuples"].splice(tup_idx, 1);
+                                    tuples_to_delete.push(parseInt(tup_idx));
                                 }
                             }
                         }
@@ -553,13 +560,18 @@ class Abstractions {
                                 for (var tup_idx in current_network['src_dst_ports_tuples']) {
                                     var tmp_tup = current_network['src_dst_ports_tuples'][tup_idx];
                                     if (compare_arrays(tmp_tup, current_port_tuple)) {
-                                        current_network["src_dst_ports_tuples"].splice(tmp_idx, 1)
+                                        // current_network["src_dst_ports_tuples"].splice(tup_idx, 1);
+                                        tuples_to_delete.push(parseInt(tup_idx));
                                     }
                                 }
                             }
                         }
                     }
                 }
+                tuples_to_delete.sort().reverse(); 
+                tuples_to_delete.forEach(function(tup_idx){
+                    current_network["src_dst_ports_tuples"].splice(tup_idx, 1);
+                });
             }
         }
         return this.traverse_protocol_tree(protocol_tree, target);

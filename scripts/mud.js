@@ -829,7 +829,7 @@ class Mud {
             if (unmached_abstract_found == true) {
                 let html_message = "<div style='text-align: left; padding: 5px;'>The abstraction of the following ACE(s) is not implemented yet:</div></br>";
                 for (var a_idx in unmatched_aces) {
-                    html_message += "<pre style='border: 1px solid #555555;text-align: left;'>" + JSON.stringify(unmatched_aces[a_idx], undefined, 2) + "</pre>"
+                    html_message += "<pre style='border: 1px solid #555555;text-align: left; overflow-x: auto;'>" + JSON.stringify(unmatched_aces[a_idx], undefined, 2) + "</pre>"
                 }
                 // html_message += JSON.stringify(ace,undefined,2) + "</pre>";
                 Swal.fire({

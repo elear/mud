@@ -551,7 +551,19 @@ require('electron').ipcRenderer.on('draw', (event, message) => {
   // let data = remote.getGlobal('sharedObj');
   let sharedobj = JSON.parse(remote.getGlobal('sharedObj'));
   for (var mudfile_idx in sharedobj) {
-    network.add_mudfile(JSON.parse(sharedobj[mudfile_idx]));
+    try {
+      network.add_mudfile(JSON.parse(sharedobj[mudfile_idx]));
+    }
+    catch (e) {
+      let html_message = "<div style='text-align: left; padding: 5px;'>The following JSON file is not valid:</div>";
+      html_message += "<pre style='border: 1px solid #555555;text-align: left; overflow-x: auto;'>" + sharedobj[mudfile_idx] + "</pre>"
+      Swal.fire({
+        type: 'error',
+        title: 'Not a valid json file',
+        showConfirmButton: true,
+        html: html_message
+      });
+    }
   }
   // network.add_mudfile(JSON.parse(data));
   network.create_network()

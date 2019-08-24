@@ -313,16 +313,45 @@ class Mud_Network {
                             controller_to_router_flow[my_controller_name] = "reverse";
                         }
                         var link_controller_to_router = new Link(my_controller_name, "Router");
-
+                        
                         if (!allLinksObj.add_link_if_not_exists(link_controller_to_router)) { // returns false if it's already there
                             let existing_link = allLinksObj.getLink(link_controller_to_router);
                             existing_link.add_deviceflow_if_not_exists(direction, link_controller_to_router.get_deviceflows(direction)[0]);
                         }
+                        
+                        controller_node.add_link_if_not_exists(direction, link_controller_to_router);
+                        
                         allNodesObj.add_node_if_not_exists(controller_node);
                     }
                     else {
                         var controller_node = allNodesObj.get_controller_by_mud_url(first_node.mud_url);
                     }
+
+                    var router_to_internet_flow = {};
+                    if (direction == 'outgoing') {
+                        router_to_internet_flow[my_controller_name] = "normal";
+                    }
+                    else if (direction == 'incoming') {
+                        router_to_internet_flow[my_controller_name] = "reverse";
+                    }
+                    var link_router_to_internet = new Link("Router","Internet");
+                    link_router_to_internet.add_deviceflow_if_not_exists(direction,router_to_internet_flow);
+                    
+
+                    if (!allLinksObj.add_link_if_not_exists(link_router_to_internet)) { // returns false if it's already there
+                        let existing_link = allLinksObj.getLink(link_router_to_internet);
+                        existing_link.add_deviceflow_if_not_exists(direction, link_router_to_internet.get_deviceflows(direction)[0]);
+                    }
+
+                    var allow_everything_protocol = new Protocol("any", "any",["any","any"]);
+                    controller_node.set_target_and_save_protocol(direction,"my-controller",allow_everything_protocol,"Internet");
+                    
+                    controller_node.add_device_if_not_exists(direction, "Internet");
+
+                    controller_node.add_link_if_not_exists(direction, link_router_to_internet);
+
+
+
                     first_node.set_mycontroller(controller_node.name);
 
                     var my_controller_protocols = first_node.get_protocols_by_abstraction(direction, 'my-controller');
@@ -714,6 +743,7 @@ class Mud {
                         var link_device_to_router = new Link(this.model, "Router");
                         link_device_to_router.add_deviceflow_if_not_exists(direction, device_to_router_flow);
 
+
                         new_links.push(link_device_to_router);
                         new_node.add_protocol(direction, ace_abstraction, ace_protocol);
 
@@ -760,11 +790,35 @@ class Mud {
                                     });
                                 }
 
-                                allNodesObj.getNode(tmp_controller).add_device_if_not_exists(direction, this.model);
+                                controller_node = allNodesObj.getNode(tmp_controller)
+                                controller_node.add_device_if_not_exists(direction, this.model);
                             }
                             else {
                                 controller_processed = true;
                             }
+
+
+                            var router_to_internet_flow = {};
+                            if (direction == 'outgoing') {
+                                router_to_internet_flow[tmp_controller] = "normal";
+                            }
+                            else if (direction == 'incoming') {
+                                router_to_internet_flow[tmp_controller] = "reverse";
+                            }
+                            var link_router_to_internet = new Link("Router","Internet");
+                            link_router_to_internet.add_deviceflow_if_not_exists(direction,router_to_internet_flow);
+                            
+        
+                            if (!allLinksObj.add_link_if_not_exists(link_router_to_internet)) { // returns false if it's already there
+                                let existing_link = allLinksObj.getLink(link_router_to_internet);
+                                existing_link.add_deviceflow_if_not_exists(direction, link_router_to_internet.get_deviceflows(direction)[0]);
+                            }
+                            controller_node.add_device_if_not_exists(direction, "Internet");
+                            var allow_everything_protocol = new Protocol("any", "any",["any","any"]);
+                            controller_node.set_target_and_save_protocol(direction,"controller",allow_everything_protocol,"Internet");
+                            controller_node.add_link_if_not_exists(direction, link_router_to_internet);
+
+
 
 
                             var device_to_controller_flow = {};

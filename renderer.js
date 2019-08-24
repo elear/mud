@@ -83,15 +83,12 @@ function mud_drawer(inp_json) {
   var link = svg.append("g")
     .selectAll("path")
     .data(graph.links.filter(function (d) {
-      if (allNodesObj.getNode(d.source).is_controlle_or_mycontroller()) { // it's enought to check the source because in the design the target is alwasy router or internet
-        return (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
-          set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0);
-      }
       return (
         (set_difference(get_devices_names(d['outgoing']['device:flow']), excluded_models).length > 0 ||
           set_difference(get_devices_names(d['incoming']['device:flow']), excluded_models).length > 0) && // this filters the mudfile links that are deselected in the selection menu
         !excluded_models.includes(d.source) && // also filter if the source or destination of the connection is in the exclusion list 
-        !excluded_models.includes(d.target))
+        !excluded_models.includes(d.target)
+        )
     }))
     .enter().append("svg:path")
     .attr("fill", "none")
@@ -682,13 +679,17 @@ $('body').on('click', 'input[id="mudcheckbox"]', function () {
     var unchecked_mud_name = $(this).val();
     excluded_models.push(unchecked_mud_name);
 
+    var checked_nodes = $("#mudcheckbox:checked").map(function(){return (this.value)}).toArray()
+    var checked_controllers = checked_nodes.map(function(d){return (allNodesObj.getNode(d).get_controller())})
     var unchecked_mud_controller = allNodesObj.getNode(unchecked_mud_name).get_controller();
-    if (unchecked_mud_controller != null) {
+    if (unchecked_mud_controller != null && !checked_controllers.includes(unchecked_mud_controller)) {
       excluded_models.push(unchecked_mud_controller);
     }
 
+    var checked_mycontrollers = checked_nodes.map(function(d){return (allNodesObj.getNode(d).get_mycontroller())})
+    var unchecked_mud_controller = allNodesObj.getNode(unchecked_mud_name).get_mycontroller();
     var unchecked_mud_mycontroller = allNodesObj.getNode(unchecked_mud_name).get_mycontroller();
-    if (unchecked_mud_mycontroller != null) {
+    if (unchecked_mud_mycontroller != null && !checked_mycontrollers.includes(unchecked_mud_controller)) {
       excluded_models.push(unchecked_mud_mycontroller);
     }
   }

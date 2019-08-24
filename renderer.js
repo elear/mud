@@ -558,7 +558,7 @@ if (userAgent.indexOf(' electron/') > -1) {
     d3.selectAll("svg > *").remove();
     var remote = require('electron').remote;
 
-
+    network.ready_to_draw = false;
     let sharedobj = JSON.parse(remote.getGlobal('sharedObj'));
     for (var mudfile_idx in sharedobj) {
       try {
@@ -791,7 +791,7 @@ $('#openfile-input').change(function () {
             }
             // alert('json global var has been set to parsed json of this file here it is unevaled = \n' + JSON.stringify(filescontent[i]));
             if (counter == files.length-1){
-              
+              network.ready_to_draw = false;
               for (var mudfile_idx in filescontent) {
                 network.add_mudfile(filescontent[mudfile_idx]);
               }

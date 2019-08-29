@@ -1,0 +1,337 @@
+{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://smartstuff.com/coffeemaker",
+      "last-update": "2019-08-06T22:42:41+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "This is a smart coffee maker",
+      "mfg-name": "Smart Stuff LLC.",
+      "documentation": "https://smartstuff.com/docs",
+      "model-name": "coffeemaker",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-92195-v4fr"
+            },
+            {
+              "name": "mud-92195-v6fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-92195-v4to"
+            },
+            {
+              "name": "mud-92195-v6to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-92195-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:src-dnsname": "www.smartstuff.com",
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 80
+                    },
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 800
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "cl1-todev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:src-dnsname": "www.smartstuff-db.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "loc0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 225
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "man0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "smartvase.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-92195-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:dst-dnsname": "www.smartstuff.com",
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 80
+                    },
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 800
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "cl1-frdev",
+                "matches": {
+                  "ipv4": {
+                    "ietf-acldns:dst-dnsname": "www.smartstuff-db.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "loc0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 225
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "man0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "smartvase.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-92195-v6to",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-todev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:src-dnsname": "www.smartstuff.com",
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 80
+                    },
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 800
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "cl1-todev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:src-dnsname": "www.smartstuff-db.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "loc0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv6": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 225
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "man0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "smartvase.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-92195-v6fr",
+          "type": "ipv6-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "cl0-frdev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:dst-dnsname": "www.smartstuff.com",
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 80
+                    },
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 800
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "cl1-frdev",
+                "matches": {
+                  "ipv6": {
+                    "ietf-acldns:dst-dnsname": "www.smartstuff-db.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "loc0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "local-networks": [
+                      null
+                    ]
+                  },
+                  "ipv6": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 225
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "man0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "smartvase.com"
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }

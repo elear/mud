@@ -1,0 +1,843 @@
+{
+  "ietf-mud:mud" : {
+    "mud-version" : 1,
+    "mud-url" : "https://netatmocamera.com/netatmocamera",
+    "last-update" : "2018-09-30T18:13:06.191+10:00",
+    "cache-validity" : 100,
+    "is-supported" : true,
+    "systeminfo" : "NetatmoCamera",
+    "from-device-policy" : {
+      "access-lists" : {
+        "access-list" : [ {
+          "name" : "from-ipv4-netatmocamera"
+        }, {
+          "name" : "from-ipv6-netatmocamera"
+        }, {
+          "name" : "from-ethernet-netatmocamera"
+        } ]
+      }
+    },
+    "to-device-policy" : {
+      "access-lists" : {
+        "access-list" : [ {
+          "name" : "to-ipv4-netatmocamera"
+        } ]
+      }
+    }
+  },
+  "ietf-access-control-list:access-lists" : {
+    "acl" : [ {
+      "name" : "from-ipv4-netatmocamera",
+      "type" : "ipv4-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ipv4-netatmocamera-0",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "2.android.pool.ntp.org"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 17,
+              "destination-ipv4-network" : "255.255.255.255/32"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            },
+            "eth" : {
+              "destination-mac-address" : "ff:ff:ff:ff:ff:ff",
+              "ethertype" : "0x0800"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-2",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v7.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-3",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "v4.netatmo.net"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 4500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-4",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "v2.netatmo.net"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-5",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "vpn.netatmo.net"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-6",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:dns"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-7",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v9.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-8",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v3.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-9",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v4.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-10",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v8.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-11",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-12",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "v2.netatmo.net"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 4500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-13",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "vpn.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-14",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v2.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-15",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "clients3.google.com"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-16",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:dst-dnsname" : "v5.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 8,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-17",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:dst-dnsname" : "apicom.netatmo.net"
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 443
+              },
+              "ietf-mud:direction-initiated" : "from-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-18",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "3.android.pool.ntp.org"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-19",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "v4.netatmo.net"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-20",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:dst-dnsname" : "vpn.netatmo.net"
+            },
+            "udp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 4500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv4-netatmocamera-21",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 6
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "to-ipv4-netatmocamera",
+      "type" : "ipv4-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "to-ipv4-netatmocamera-0",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "vpn.netatmo.net"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 4500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:dns"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 53
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-2",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v3.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-3",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "2.android.pool.ntp.org"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-4",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v8.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-5",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v4.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-6",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "clients3.google.com"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 80
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-7",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 6,
+              "ietf-acldns:src-dnsname" : "apicom.netatmo.net"
+            },
+            "tcp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 443
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-8",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "v2.netatmo.net"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-9",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "v4.netatmo.net"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-10",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "vpn.netatmo.net"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-11",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "vpn.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-12",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "3.android.pool.ntp.org"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 123
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-13",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v2.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-14",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv4" : {
+              "protocol" : 17
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 67
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-15",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v7.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-16",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "v2.netatmo.net"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 4500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-17",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v9.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-18",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv4" : {
+              "protocol" : 6
+            },
+            "tcp" : {
+              "destination-port" : {
+                "operator" : "eq",
+                "port" : 80
+              },
+              "ietf-mud:direction-initiated" : "to-device"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-19",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 1,
+              "ietf-acldns:src-dnsname" : "v5.netatmo.net"
+            },
+            "icmp" : {
+              "type" : 0,
+              "code" : 0
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "to-ipv4-netatmocamera-20",
+          "matches" : {
+            "ipv4" : {
+              "protocol" : 17,
+              "ietf-acldns:src-dnsname" : "v4.netatmo.net"
+            },
+            "udp" : {
+              "source-port" : {
+                "operator" : "eq",
+                "port" : 4500
+              }
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "from-ipv6-netatmocamera",
+      "type" : "ipv6-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ipv6-netatmocamera-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "controller" : "urn:ietf:params:mud:gateway"
+            },
+            "ipv6" : {
+              "protocol" : 58
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-netatmocamera-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 58,
+              "destination-ipv6-network" : "ff00::/8"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ipv6-netatmocamera-2",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "ipv6" : {
+              "protocol" : 0,
+              "destination-ipv6-network" : "ff00::/8"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    }, {
+      "name" : "from-ethernet-netatmocamera",
+      "type" : "ethernet-acl-type",
+      "aces" : {
+        "ace" : [ {
+          "name" : "from-ethernet-netatmocamera-0",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "eth" : {
+              "ethertype" : "0x0006"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        }, {
+          "name" : "from-ethernet-netatmocamera-1",
+          "matches" : {
+            "ietf-mud:mud" : {
+              "local-networks" : [ null ]
+            },
+            "eth" : {
+              "ethertype" : "0x888e"
+            }
+          },
+          "actions" : {
+            "forwarding" : "accept"
+          }
+        } ]
+      }
+    } ]
+  }
+}

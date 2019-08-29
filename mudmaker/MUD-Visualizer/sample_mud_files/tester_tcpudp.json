@@ -1,0 +1,151 @@
+{
+    "ietf-mud:mud": {
+      "mud-version": 1,
+      "mud-url": "https://www.tv.com/stevey",
+      "last-update": "2019-07-31T17:07:53+00:00",
+      "cache-validity": 48,
+      "is-supported": true,
+      "systeminfo": "just the tv",
+      "mfg-name": "steveythetv",
+      "documentation": "https://www.tv.com/docs",
+      "model-name": "stevey",
+      "from-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-98434-v4fr"
+            }
+          ]
+        }
+      },
+      "to-device-policy": {
+        "access-lists": {
+          "access-list": [
+            {
+              "name": "mud-98434-v4to"
+            }
+          ]
+        }
+      }
+    },
+    "ietf-access-control-list:acls": {
+      "acl": [
+        {
+          "name": "mud-98434-v4to",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 50
+                    },
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 50
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "man0-todev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "www.philips.com"
+                  },
+                  "ipv4": {
+                    "protocol": 17
+                  },
+                  "udp": {
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 90
+                    },
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 90
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "mud-98434-v4fr",
+          "type": "ipv4-acl-type",
+          "aces": {
+            "ace": [
+              {
+                "name": "myctl0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "my-controller": [
+                      null
+                    ]
+                  },
+                  "ipv4": {
+                    "protocol": 6
+                  },
+                  "tcp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 50
+                    },
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 50
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              },
+              {
+                "name": "man0-frdev",
+                "matches": {
+                  "ietf-mud:mud": {
+                    "manufacturer": "www.philips.com"
+                  },
+                  "ipv4": {
+                    "protocol": 17
+                  },
+                  "udp": {
+                    "destination-port": {
+                      "operator": "eq",
+                      "port": 90
+                    },
+                    "source-port": {
+                      "operator": "eq",
+                      "port": 90
+                    }
+                  }
+                },
+                "actions": {
+                  "forwarding": "accept"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }

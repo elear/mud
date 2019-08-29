@@ -1,0 +1,23 @@
+.main_div {
+    background-color: #F9F7ED;
+    display: block;
+    position:absolute;
+    height:100%;
+    bottom:0;
+    top:0;
+    left:0;
+    right:0;
+    padding-left: 20px;
+    padding-right: 10px; 
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.github{
+    background-color: #33170D;
+    color: #F9F7ED;
+    border:none; 
+    padding: 10px;
+    top: -15px; 
+    position: relative;
+    border-radius: 8px;
+}

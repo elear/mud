@@ -7,3 +7,6 @@ drafts/*#draft*#
 draft*mud*xml
 drafts/old/*
 drafts/*yang
+node_modules
+.vscode
+.idea

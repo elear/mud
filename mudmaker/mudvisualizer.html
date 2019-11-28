@@ -14,6 +14,12 @@
 
     <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
     <!-- <script type="text/javascript" src="aux.js" defer="defer"></script> -->
+    <script>
+        $(function () {
+            $("#visualizerholder").load("/MUD-Visualizer/mainWindow.html #leftmenu");
+        });
+    </script>
+
   </head>
   <body>
     <!-- Banner -->
@@ -38,16 +44,16 @@
       
       <div id="visualizerholder">
     <input type="file" id="openfile-input" style="visibility: hidden;" multiple>
-    <div class="icon-bar">
-      <div style="text-align: center; margin-top: 5px;">
-          <button id="openfile-button" class="icon-button" tooltip="Open Mud File(s)" flow="right"><img align="middle" src="MUD-Visualizer/img/menu_icons/openfile.png" width="35" height="35" vspace="5" ></button> 
-          <button class="icon-button" tooltip="Refresh the Drawing" flow="right"><img align="middle" src="MUD-Visualizer/img/menu_icons/refresh.png" width="35" height="35" vspace="5" onclick="drawer()"></button> 
-          <button id="SelectMudFiles" class="icon-button" tooltip="Select/Deselect Mud Files" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/select.png" width="35" height="35" vspace="5"></button> 
-          <button id="button_incoming" class="icon-button" tooltip="Show Incmoing Traffic" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/incoming.png" width="35" height="35" vspace="5" onclick="set_incoming()"></button> 
-          <button id="button_outgoing" class="icon-button" tooltip="Show Outgoing Traffic" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/outgoing.png" width="35" height="35" vspace="5" onclick="set_outgoing()"></button> 
-          <button id="button_help" class="icon-button" tooltip="Open Help Page" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/help.png" width="35" height="35" vspace="5" onclick="window.open('mudvisualizer_help.html')"></button> 
-      </div>
-    </div>
+<!--    <div class="icon-bar">-->
+<!--      <div style="text-align: center; margin-top: 5px;">-->
+<!--          <button id="openfile-button" class="icon-button" tooltip="Open Mud File(s)" flow="right"><img align="middle" src="MUD-Visualizer/img/menu_icons/openfile.png" width="35" height="35" vspace="5" ></button> -->
+<!--          <button class="icon-button" tooltip="Refresh the Drawing" flow="right"><img align="middle" src="MUD-Visualizer/img/menu_icons/refresh.png" width="35" height="35" vspace="5" onclick="drawer()"></button> -->
+<!--          <button id="SelectMudFiles" class="icon-button" tooltip="Select/Deselect Mud Files" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/select.png" width="35" height="35" vspace="5"></button> -->
+<!--          <button id="button_incoming" class="icon-button" tooltip="Show Incmoing Traffic" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/incoming.png" width="35" height="35" vspace="5" onclick="set_incoming()"></button> -->
+<!--          <button id="button_outgoing" class="icon-button" tooltip="Show Outgoing Traffic" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/outgoing.png" width="35" height="35" vspace="5" onclick="set_outgoing()"></button> -->
+<!--          <button id="button_help" class="icon-button" tooltip="Open Help Page" flow="right" ><img align="middle" src="MUD-Visualizer/img/menu_icons/help.png" width="35" height="35" vspace="5" onclick="window.open('mudvisualizer_help.html')"></button> -->
+<!--      </div>-->
+<!--    </div>-->
 
     <div id="mudSelectionDiv" class="select-deselect-muds">
       <div id="fileNotLoaded" style="text-align: center" class="select-deselect-muds__text">No Mud-file loaded
